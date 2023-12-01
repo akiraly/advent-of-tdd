@@ -1,19 +1,27 @@
 package day01p2
 
-import io.readInput
-
-fun main() {
-    println(
-        CalibrationDocument.from(readInput("day01p1")).sumOfCalibrationValues()
-    )
-}
 
 data class CalibrationValue(val value: Int)
 
+val digits = (
+        generateSequence(1) { it + 1 }.takeWhile { it < 10 }.map { it.toString() to it } +
+                sequenceOf(
+                    "one" to 1,
+                    "two" to 2,
+                    "three" to 3,
+                    "four" to 4,
+                    "five" to 5,
+                    "six" to 6,
+                    "seven" to 7,
+                    "eight" to 8,
+                    "nine" to 9
+                )
+        ).toMap()
+
 data class CalibrationDocumentLine(val value: String) {
     fun toCalibrationValue(): CalibrationValue = CalibrationValue(
-        10 * value.first { it.isDigit() }.digitToInt()
-                + value.last { it.isDigit() }.digitToInt()
+        10 * digits.getValue(value.findAnyOf(digits.keys)!!.second)
+                + digits.getValue(value.findLastAnyOf(digits.keys)!!.second)
     )
 }
 

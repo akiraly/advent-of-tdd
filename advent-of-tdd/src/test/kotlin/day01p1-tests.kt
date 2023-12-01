@@ -26,20 +26,16 @@ class Day01p1Tests : FunSpec({
         ).map { CalibrationDocumentLine(it) }
     }
 
-    test("given a calibration document line 1abc2, when calling toCalibrationValue() it should return 12") {
-        CalibrationDocumentLine("1abc2").toCalibrationValue() shouldBe CalibrationValue(12)
-    }
-
-    test("given a calibration document line pqr3stu8vwx, when calling toCalibrationValue() it should return 38") {
-        CalibrationDocumentLine("pqr3stu8vwx").toCalibrationValue() shouldBe CalibrationValue(38)
-    }
-
-    test("given a calibration document line a1b2c3d4e5f, when calling toCalibrationValue() it should return 15") {
-        CalibrationDocumentLine("a1b2c3d4e5f").toCalibrationValue() shouldBe CalibrationValue(15)
-    }
-
-    test("given a calibration document line treb7uchet, when calling toCalibrationValue() it should return 77") {
-        CalibrationDocumentLine("treb7uchet").toCalibrationValue() shouldBe CalibrationValue(77)
+    listOf(
+        "1abc2" to 12,
+        "pqr3stu8vwx" to 38,
+        "a1b2c3d4e5f" to 15,
+        "treb7uchet" to 77
+    ).forEach { (line, value) ->
+        test("given a calibration document line `$line`, when calling toCalibrationValue() it should return $value") {
+            day01p2.CalibrationDocumentLine(line)
+                .toCalibrationValue() shouldBe day01p2.CalibrationValue(value)
+        }
     }
 
     test("given the example calibration document, when calling the sumOfCalibrationValues() it should return 142") {
