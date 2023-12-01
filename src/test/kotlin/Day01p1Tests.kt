@@ -33,8 +33,7 @@ class Day01p1Tests : FunSpec({
         "treb7uchet" to 77
     ).forEach { (line, value) ->
         test("given a calibration document line `$line`, when calling toCalibrationValue() it should return $value") {
-            day01p2.CalibrationDocumentLine(line)
-                .toCalibrationValue() shouldBe day01p2.CalibrationValue(value)
+            CalibrationDocumentLine(line).toCalibrationValue() shouldBe CalibrationValue(value)
         }
     }
 

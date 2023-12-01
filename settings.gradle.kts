@@ -4,4 +4,3 @@ plugins {
 }
 
 rootProject.name = "advent-of-tdd"
-include("advent-of-tdd")

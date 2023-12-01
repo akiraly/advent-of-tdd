@@ -6,4 +6,4 @@ build
 
 /.idea
 
-/advent-of-tdd/src/main/resources/inputs
+/src/main/resources/inputs
