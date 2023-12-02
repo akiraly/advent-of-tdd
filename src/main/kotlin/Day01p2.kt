@@ -3,7 +3,7 @@ package day01p2
 
 data class CalibrationValue(val value: Int)
 
-val digits = (
+private val digits = (
         generateSequence(1) { it + 1 }.takeWhile { it < 10 }.map { it.toString() to it } +
                 sequenceOf(
                     "one" to 1,

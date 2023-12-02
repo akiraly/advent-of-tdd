@@ -1,6 +1,7 @@
 package day01p1
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import io.readInput
 
@@ -26,13 +27,14 @@ class Day01p1Tests : FunSpec({
         ).map { CalibrationDocumentLine(it) }
     }
 
-    listOf(
-        "1abc2" to 12,
-        "pqr3stu8vwx" to 38,
-        "a1b2c3d4e5f" to 15,
-        "treb7uchet" to 77
-    ).forEach { (line, value) ->
-        test("given a calibration document line `$line`, when calling toCalibrationValue() it should return $value") {
+    context("CalibrationDocumentLine.toCalibrationValue() tests") {
+        withData(
+            nameFn = { (line, value) -> "given a calibration document line `$line`, when calling toCalibrationValue() it should return $value" },
+            "1abc2" to 12,
+            "pqr3stu8vwx" to 38,
+            "a1b2c3d4e5f" to 15,
+            "treb7uchet" to 77
+        ) { (line, value) ->
             CalibrationDocumentLine(line).toCalibrationValue() shouldBe CalibrationValue(value)
         }
     }
