@@ -7,10 +7,10 @@ import io.readInput
 
 class Day03p2Tests : StringSpec({
     "Given a part number of 467 with row 0 and range [0..2] can be represented" {
-        val partNumber = PartNumber(467, 0, 0..2)
+        val partNumber = PartNumber(467, Position(0, 0..2))
         partNumber.value shouldBe 467
-        partNumber.row shouldBe 0
-        partNumber.range shouldBe 0..2
+        partNumber.position.row shouldBe 0
+        partNumber.position.range shouldBe 0..2
     }
 
     "Given a schematic of `.` when parsed then it will have 0 part numbers" {
@@ -18,7 +18,7 @@ class Day03p2Tests : StringSpec({
     }
 
     "Given a schematic of `467*` when parsed then it will have 1 part number" {
-        Schematic.fromString("467*").partNumbers shouldBe listOf(PartNumber(467, 0, 0..2))
+        Schematic.fromString("467*").partNumbers shouldBe listOf(PartNumber(467, Position(0, 0..2)))
     }
 
     "Given a schematic of `467` when parsed then it will have 0 part numbers" {

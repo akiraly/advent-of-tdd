@@ -10,66 +10,63 @@ data class Schematic(val lines: List<String>) {
             numberRegex.findAll(line)
                 .mapNotNull {
                     val group = it.groups[1] ?: error("no group")
-                    val partNumber = PartNumber(group.value.toInt(), row, group.range)
-                    if (!isBorderedBySymbol(partNumber.row, partNumber.encapsulatingRange)) {
+                    val position = Position(row, group.range)
+                    if (!isAdjacentToSymbol(position)) {
                         return@mapNotNull null
                     }
-                    partNumber
+                    PartNumber(group.value.toInt(), position)
                 }
         }
             .toList()
     }
 
     fun isAdjacentToSymbol(row: Int, indexRange: IntRange): Boolean =
-        isBorderedBySymbol(row, indexRange.start - 1..indexRange.last + 1)
+        isAdjacentToSymbol(Position(row, indexRange))
 
-    fun isBorderedBySymbol(row: Int, encapsulatingRange: IntRange): Boolean {
-        if (isSymbol(row, encapsulatingRange.first) || isSymbol(row, encapsulatingRange.last)) {
-            return true
-        }
-        if (row != 0 && encapsulatingRange.any { isSymbol(row - 1, it) }) {
-            return true
-        }
-        if (row < lines.size && encapsulatingRange.any { isSymbol(row + 1, it) }) {
-            return true
-        }
-        return false
-    }
+    private fun isAdjacentToSymbol(position: Position): Boolean =
+        adjacentCoordinates(position).any { isSymbol(it) }
 
-    private fun isSymbol(row: Int, col: Int): Boolean = isMatching(row, col) { char ->
+    private fun isSymbol(coordinate: Coordinate): Boolean = isMatching(coordinate) { char ->
         char.isSymbol()
     }
 
-    private fun isGearCandidate(row: Int, col: Int): Boolean = isMatching(row, col) { char ->
+    private fun isGearCandidate(coordinate: Coordinate): Boolean = isMatching(coordinate) { char ->
         char.isGearCandidate()
     }
 
-    private fun isMatching(row: Int, col: Int, matcher: (Char) -> Boolean): Boolean {
-        if (row < 0 || row >= lines.size) return false
-        val line = lines[row]
-        if (col < 0 || col >= line.length) return false
-        val char = line[col]
+    private fun isMatching(coordinate: Coordinate, matcher: (Char) -> Boolean): Boolean {
+        val line = lines.getOrNull(coordinate.row) ?: return false
+        val char = line.getOrNull(coordinate.col) ?: return false
         return matcher(char)
     }
 
     fun findGears(): Map<Coordinate, Set<PartNumber>> {
         val gearCandidats = mutableMapOf<Coordinate, MutableSet<PartNumber>>()
         for (partNumber in partNumbers) {
-            (sequenceOf(
-                Coordinate(partNumber.row, partNumber.encapsulatingRange.first),
-                Coordinate(partNumber.row, partNumber.encapsulatingRange.last)
-            ) + partNumber.encapsulatingRange.asSequence().map {
-                Coordinate(partNumber.row - 1, it)
-            } + partNumber.encapsulatingRange.asSequence().map {
-                Coordinate(partNumber.row + 1, it)
-            }).distinct().forEach { coordinate ->
-                if (isGearCandidate(coordinate.row, coordinate.col)) {
+            adjacentCoordinates(partNumber.position).forEach { coordinate ->
+                if (isGearCandidate(coordinate)) {
                     gearCandidats.computeIfAbsent(coordinate) { mutableSetOf() }.add(partNumber)
                 }
             }
         }
 
         return gearCandidats.filterValues { it.size == 2 }
+    }
+
+    private fun adjacentCoordinates(position: Position): Sequence<Coordinate> {
+        val encapsulatingRange = position.range.encapsulatingRange()
+        val leftAndRight = sequenceOf(
+            Coordinate(position.row, encapsulatingRange.first),
+            Coordinate(position.row, encapsulatingRange.last)
+        )
+        val previousRow = if (position.row > 0) {
+            encapsulatingRange.asSequence().map { Coordinate(position.row - 1, it) }
+        } else emptySequence()
+        val nextRow = if (position.row < lines.size - 1) {
+            encapsulatingRange.asSequence().map { Coordinate(position.row + 1, it) }
+        } else emptySequence()
+
+        return leftAndRight + previousRow + nextRow
     }
 
     fun sumOfGearRatios(): Int = findGears().asSequence()
@@ -87,8 +84,10 @@ internal fun Char.isSymbol(): Boolean = this != '.' && !isDigit()
 
 internal fun Char.isGearCandidate(): Boolean = this == '*'
 
-data class PartNumber(val value: Int, val row: Int, val range: IntRange) {
-    val encapsulatingRange = range.first - 1..range.last + 1
-}
+internal fun IntRange.encapsulatingRange(): IntRange = first - 1..last + 1
+
+data class PartNumber(val value: Int, val position: Position)
+
+data class Position(val row: Int, val range: IntRange)
 
 data class Coordinate(val row: Int, val col: Int)
