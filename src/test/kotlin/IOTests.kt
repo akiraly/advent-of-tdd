@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 class IOTests : FunSpec({
-    test("given a file, when calling readInput() it should return the contact of the file") {
+    test("given a file, when calling readInput() it should return the content of the file") {
         readInput("io_example") shouldBe """
             1abc2
             pqr3stu8vwx
