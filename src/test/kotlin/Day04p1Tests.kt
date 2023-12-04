@@ -52,6 +52,7 @@ class Day04p1Tests : FunSpec({
             """.trimIndent()
         ) shouldBe 13
     }
+
     test("Given our custom pile of scratchcards then the total points should be 28750") {
         calcTotalPoints4PileOfScratchcards(readInput("day04p1")) shouldBe 28750
     }
