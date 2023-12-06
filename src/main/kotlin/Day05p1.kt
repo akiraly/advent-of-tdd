@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSortedMap
 
 
-internal fun String.toAlmanac(): Almanac {
+fun String.toAlmanac(): Almanac {
   val lines = lineSequence().toMutableList()
   val seeds = lines.removeFirst().toSeedSet()
   require(lines.removeFirst().isEmpty())
@@ -16,10 +16,10 @@ internal fun String.toAlmanac(): Almanac {
   return Almanac(seeds, maps.build())
 }
 
-internal fun String.toAlmanacMap(): AlmanacMap = lineSequence().toMutableList().toAlmanacMap()
+fun String.toAlmanacMap(): AlmanacMap = lineSequence().toMutableList().toAlmanacMap()
 
 
-internal fun MutableList<String>.toAlmanacMap(): AlmanacMap {
+fun MutableList<String>.toAlmanacMap(): AlmanacMap {
   val name = removeFirst().toMapName()
   val ranges = ImmutableSortedMap.naturalOrder<Long, AlmanacMapRange>()
   while (isNotEmpty()) {
@@ -33,7 +33,7 @@ internal fun MutableList<String>.toAlmanacMap(): AlmanacMap {
   return AlmanacMap(name, ranges.build())
 }
 
-internal fun String.toMapRange(name: AlmanacMapName): AlmanacMapRange {
+fun String.toMapRange(name: AlmanacMapName): AlmanacMapRange {
   val (destinationRangeStart, sourceRangeStart, rangeLength) = split(" ")
   return AlmanacMapRange(
     sourceRangeStart = CategoryNumber(name.source, sourceRangeStart.toLong()),
@@ -42,14 +42,14 @@ internal fun String.toMapRange(name: AlmanacMapName): AlmanacMapRange {
   )
 }
 
-internal fun String.toMapName(): AlmanacMapName =
+fun String.toMapName(): AlmanacMapName =
   substringBeforeLast(" map:")
     .split("-to-")
     .let { (source, destination) -> AlmanacMapName(source, destination) }
 
 private val intRegex = """(\d+)""".toRegex()
 private val seedCategory = Category("seed")
-internal fun String.toSeedSet(): Set<CategoryNumber> = substringAfter("seeds: ").let {
+fun String.toSeedSet(): Set<CategoryNumber> = substringAfter("seeds: ").let {
   intRegex.findAll(it).map { n -> CategoryNumber(seedCategory, n.value.toLong()) }.toSet()
 }
 

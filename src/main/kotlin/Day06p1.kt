@@ -1,10 +1,10 @@
 package day06p1
 
 private val intRegex = """(\d+)""".toRegex()
-internal fun String.toIntList(): List<Int> =
+fun String.toIntList(): List<Int> =
   intRegex.findAll(this).map { it.value.toInt() }.toList()
 
-internal fun String.toRecords(): Records {
+fun String.toRecords(): Records {
   val lines = lines()
   require(lines.size == 2) { lines.size }
   val raceDurations = lines[0].toIntList()
@@ -17,12 +17,12 @@ internal fun String.toRecords(): Records {
   )
 }
 
-internal data class Records(val records: Set<Record>) {
+data class Records(val records: Set<Record>) {
   fun productOfNumberOfWaysToBeatRecord(): Int =
     records.asSequence().map { it.calcNumberOfWaysToBeatRecord() }.reduce { acc, i -> acc * i }
 }
 
-internal data class Record(val raceDuration: Int, val recordDistance: Int) {
+data class Record(val raceDuration: Int, val recordDistance: Int) {
   fun calcDistance(buttonHoldTime: Int): Int = buttonHoldTime * (raceDuration - buttonHoldTime)
   fun calcNumberOfWaysToBeatRecord(): Int = (0..raceDuration).count { calcDistance(it) > recordDistance }
 }

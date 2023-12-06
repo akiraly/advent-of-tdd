@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSortedMap
 
 
-internal fun String.toAlmanac(): Almanac {
+fun String.toAlmanac(): Almanac {
   val lines = lineSequence().toMutableList()
   val seeds = lines.removeFirst().toSeedRangesSet()
   require(lines.removeFirst().isEmpty())
@@ -16,10 +16,10 @@ internal fun String.toAlmanac(): Almanac {
   return Almanac(seeds, maps.build())
 }
 
-internal fun String.toAlmanacMap(): AlmanacMap = lineSequence().toMutableList().toAlmanacMap()
+fun String.toAlmanacMap(): AlmanacMap = lineSequence().toMutableList().toAlmanacMap()
 
 
-internal fun MutableList<String>.toAlmanacMap(): AlmanacMap {
+fun MutableList<String>.toAlmanacMap(): AlmanacMap {
   val name = removeFirst().toMapName()
   val ranges = ImmutableSortedMap.naturalOrder<Long, AlmanacMapRange>()
   while (isNotEmpty()) {
@@ -33,7 +33,7 @@ internal fun MutableList<String>.toAlmanacMap(): AlmanacMap {
   return AlmanacMap(name, ranges.build())
 }
 
-internal fun String.toMapRange(name: AlmanacMapName): AlmanacMapRange {
+fun String.toMapRange(name: AlmanacMapName): AlmanacMapRange {
   val (destinationRangeStart, sourceRangeStart, rangeLength) = split(" ")
   return AlmanacMapRange(
     name,
@@ -43,13 +43,13 @@ internal fun String.toMapRange(name: AlmanacMapName): AlmanacMapRange {
   )
 }
 
-internal fun String.toMapName(): AlmanacMapName =
+fun String.toMapName(): AlmanacMapName =
   substringBeforeLast(" map:")
     .split("-to-")
     .let { (source, destination) -> AlmanacMapName(source, destination) }
 
 private val intRegex = """(\d+) (\d+)""".toRegex()
-internal fun String.toSeedRangesSet(): Set<CategoryNumberRange> = substringAfter("seeds: ").let { seeds ->
+fun String.toSeedRangesSet(): Set<CategoryNumberRange> = substringAfter("seeds: ").let { seeds ->
   intRegex.findAll(seeds).map { m ->
     m.groupValues.drop(1).let { (start, count) ->
       seedCategory.range(start.toLong(), count.toLong().asCount())
@@ -177,11 +177,11 @@ data class CategoryNumberRange(val category: Category, val start: Long, val end:
 
 data class Count(val value: Long)
 
-internal fun Long.asCount() = Count(this)
+fun Long.asCount() = Count(this)
 
-internal val seedCategory = Category("seed")
-internal val soilCategory = Category("soil")
-internal val locationCategory = Category("location")
+val seedCategory = Category("seed")
+val soilCategory = Category("soil")
+val locationCategory = Category("location")
 
 data class Category(val value: String) {
   fun range(start: Long, end: Long) = CategoryNumberRange(this, start, end)
