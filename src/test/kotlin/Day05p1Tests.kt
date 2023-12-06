@@ -25,7 +25,7 @@ class Day05p1Tests : FunSpec({
     mapName.destination shouldBe Category("soil")
   }
 
-  test("""Given "seeds: 41" as input when we parse it then it should be setOfSeeds(42)""") {
+  test("""Given "seeds: 41" as input when we parse it then it should be setOfSeeds(41)""") {
     "seeds: 41".toSeedSet() shouldBe setOf(41).map { CategoryNumber("seed", it.toLong()) }
   }
 
