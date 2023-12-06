@@ -51,9 +51,8 @@ internal fun String.toMapName(): AlmanacMapName =
 private val intRegex = """(\d+) (\d+)""".toRegex()
 internal fun String.toSeedRangesSet(): Set<CategoryNumberRange> = substringAfter("seeds: ").let { seeds ->
   intRegex.findAll(seeds).map { m ->
-    m.groupValues.drop(1).let { (rawStart, rawCount) ->
-      val start = rawStart.toLong()
-      seedCategory.range(start, rawCount.toLong().asCount())
+    m.groupValues.drop(1).let { (start, count) ->
+      seedCategory.range(start.toLong(), count.toLong().asCount())
     }
   }.toSet()
 }
@@ -180,8 +179,6 @@ data class Count(val value: Long)
 
 internal fun Long.asCount() = Count(this)
 
-data class CategoryNumber(val category: Category, val value: Long)
-
 internal val seedCategory = Category("seed")
 internal val soilCategory = Category("soil")
 internal val locationCategory = Category("location")
@@ -189,6 +186,4 @@ internal val locationCategory = Category("location")
 data class Category(val value: String) {
   fun range(start: Long, end: Long) = CategoryNumberRange(this, start, end)
   fun range(start: Long, count: Count) = range(start, start + count.value - 1)
-
-  fun number(value: Long) = CategoryNumber(this, value)
 }

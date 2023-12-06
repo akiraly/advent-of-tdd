@@ -18,3 +18,6 @@ charset = latin1
 [*.bat]
 charset = unset
 end_of_line = crlf
+
+[**/resources/inputs/*]
+insert_final_newline = false

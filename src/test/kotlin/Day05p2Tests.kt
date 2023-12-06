@@ -13,8 +13,9 @@ class Day05p2Tests : FunSpec({
     val category = Category("seed")
     category.value shouldBe "seed"
 
-    val categoryNumber = category.number(79)
-    categoryNumber.value shouldBe 79
+    val categoryNumberRange = category.range(79, 82)
+    categoryNumberRange.start shouldBe 79
+    categoryNumberRange.end shouldBe 82
   }
 
   test("An Almanac map name can be properly represented") {
