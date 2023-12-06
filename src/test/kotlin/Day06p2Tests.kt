@@ -1,4 +1,4 @@
-package day06p1
+package day06p2
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
@@ -8,7 +8,7 @@ import io.kotest.data.table
 import io.kotest.matchers.shouldBe
 import io.readInput
 
-class Day06p1Tests : FunSpec({
+class Day06p2Tests : FunSpec({
   test("A Record can be properly represented") {
     val record = Record(raceDuration = 7, recordDistance = 9)
     record.raceDuration shouldBe 7
@@ -29,35 +29,31 @@ class Day06p1Tests : FunSpec({
       row(7, 0)
     ).forAll { buttonHoldTime, distance ->
       test("Given a button hold time of $buttonHoldTime, the distance travelled should be $distance") {
-        record.calcDistance(buttonHoldTime) shouldBe distance
+        record.calcDistance(buttonHoldTime.toLong()) shouldBe distance.toLong()
       }
     }
   }
-  context("""Given a list of ints with header as input (in the form of "Time:      7  15   30") then it should be properly parsed into a list of Ints""") {
+  context("""Given a number with any number of spaced between the digits with a header as input (in the form of "Time:      7  15   30") then it should be properly parsed into a number""") {
     table(
-      headers("input", "list of Ints"),
-      row("Time:      7  15   30", listOf(7, 15, 30)),
-      row("Distance:  9  40  200", listOf(9, 40, 200)),
-    ).forAll { input, expectedIntList ->
-      test("Given $input when we parse it then it should be $expectedIntList") {
-        input.toIntList() shouldBe expectedIntList
+      headers("input", "number"),
+      row("Time:      7  15   30", 71530),
+      row("Distance:  9  40  200", 940200),
+    ).forAll { input, expectedNumber ->
+      test("Given $input when we parse it then it should be $expectedNumber") {
+        input.toSingleNumber() shouldBe expectedNumber
       }
     }
   }
 
 
-  val exampleRecordsDocument = """
+  val exampleRecordDocument = """
 Time:      7  15   30
 Distance:  9  40  200
   """.trimIndent()
 
-  test("Given a records document the Record entries can be properly parsed") {
-    val records = exampleRecordsDocument.toRecords()
-    records.records shouldBe setOf(
-      Record(7, 9),
-      Record(15, 40),
-      Record(30, 200)
-    )
+  test("Given a record document the Record can be properly parsed") {
+    val record = exampleRecordDocument.toRecord()
+    record shouldBe Record(71530, 940200)
   }
 
   context("Given a Record the number of ways to beat the record can be calculated") {
@@ -73,13 +69,13 @@ Distance:  9  40  200
     }
   }
 
-  test("Given the example records document the product of the number of ways to beat the record can be calculated") {
-    val records = exampleRecordsDocument.toRecords()
-    records.productOfNumberOfWaysToBeatRecord() shouldBe 288
+  test("Given the example record document then the number of ways to beat the record can be calculated") {
+    val record = exampleRecordDocument.toRecord()
+    record.calcNumberOfWaysToBeatRecord() shouldBe 71503
   }
 
-  test("Given the custom records document the product of the number of ways to beat the record can be calculated") {
-    val records = readInput("day06p1").toRecords()
-    records.productOfNumberOfWaysToBeatRecord() shouldBe 741000
+  test("Given the custom record document then the number of ways to beat the record can be calculated") {
+    val record = readInput("day06p1").toRecord()
+    record.calcNumberOfWaysToBeatRecord() shouldBe 38220708
   }
 })
