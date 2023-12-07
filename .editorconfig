@@ -19,5 +19,8 @@ charset = latin1
 charset = unset
 end_of_line = crlf
 
+[*.md]
+trim_trailing_whitespace = unset
+
 [**/resources/inputs/*]
 insert_final_newline = false
