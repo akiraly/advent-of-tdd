@@ -182,7 +182,9 @@ class Day07p1Tests : FunSpec({
       test("All hand types are covered by the test case") {
         hands.size shouldBe handTypes.size
 
-        handTypes.sortedDescending() shouldBe HandType.allHandTypes().sortedDescending()
+        handTypes.sortedDescending() shouldBe handTypes
+
+        handTypes shouldContainExactlyInAnyOrder HandType.allHandTypes()
       }
 
       for (i in hands.indices) {
