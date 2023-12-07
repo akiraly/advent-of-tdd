@@ -1,5 +1,8 @@
 ## Morgan Stanley Advent of TDD (Advent of Code 2023 solutions in TDD style)
 
+Latest test coverage report is
+available [here](https://akiraly.github.io/advent-of-tdd/test_coverage_report/index.html).
+
 * Kotlin 1.9.21
 * [Kotest](https://kotest.io/) for testing
 * JVM 21
