@@ -1,0 +1,220 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1250"> 
+  <title>Coverage Report > AlmanacMap</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day05p1</a>
+</div>
+
+<h1>Coverage Summary for Class: AlmanacMap (day05p1)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AlmanacMap</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day05p1
+&nbsp;
+&nbsp;import com.google.common.collect.ImmutableMap
+&nbsp;import com.google.common.collect.ImmutableSortedMap
+&nbsp;
+&nbsp;
+&nbsp;fun String.toAlmanac(): Almanac {
+&nbsp;  val lines = lineSequence().toMutableList()
+&nbsp;  val seeds = lines.removeFirst().toSeedSet()
+&nbsp;  require(lines.removeFirst().isEmpty())
+&nbsp;  val maps = ImmutableMap.builder&lt;Category, AlmanacMap&gt;()
+&nbsp;  while (lines.isNotEmpty()) {
+&nbsp;    val map = lines.toAlmanacMap()
+&nbsp;    maps.put(map.name.source, map)
+&nbsp;  }
+&nbsp;  return Almanac(seeds, maps.build())
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toAlmanacMap(): AlmanacMap = lineSequence().toMutableList().toAlmanacMap()
+&nbsp;
+&nbsp;
+&nbsp;fun MutableList&lt;String&gt;.toAlmanacMap(): AlmanacMap {
+&nbsp;  val name = removeFirst().toMapName()
+&nbsp;  val ranges = ImmutableSortedMap.naturalOrder&lt;Long, AlmanacMapRange&gt;()
+&nbsp;  while (isNotEmpty()) {
+&nbsp;    val line = removeFirst()
+&nbsp;    if (line.isBlank()) {
+&nbsp;      break
+&nbsp;    }
+&nbsp;    val range = line.toMapRange(name)
+&nbsp;    ranges.put(range.sourceRangeStart.value, range)
+&nbsp;  }
+&nbsp;  return AlmanacMap(name, ranges.build())
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toMapRange(name: AlmanacMapName): AlmanacMapRange {
+&nbsp;  val (destinationRangeStart, sourceRangeStart, rangeLength) = split(&quot; &quot;)
+&nbsp;  return AlmanacMapRange(
+&nbsp;    sourceRangeStart = CategoryNumber(name.source, sourceRangeStart.toLong()),
+&nbsp;    destinationRangeStart = CategoryNumber(name.destination, destinationRangeStart.toLong()),
+&nbsp;    rangeLength = rangeLength.toLong()
+&nbsp;  )
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toMapName(): AlmanacMapName =
+&nbsp;  substringBeforeLast(&quot; map:&quot;)
+&nbsp;    .split(&quot;-to-&quot;)
+&nbsp;    .let { (source, destination) -&gt; AlmanacMapName(source, destination) }
+&nbsp;
+&nbsp;private val intRegex = &quot;&quot;&quot;(\d+)&quot;&quot;&quot;.toRegex()
+&nbsp;private val seedCategory = Category(&quot;seed&quot;)
+&nbsp;fun String.toSeedSet(): Set&lt;CategoryNumber&gt; = substringAfter(&quot;seeds: &quot;).let {
+&nbsp;  intRegex.findAll(it).map { n -&gt; CategoryNumber(seedCategory, n.value.toLong()) }.toSet()
+&nbsp;}
+&nbsp;
+&nbsp;private val locationCategory = Category(&quot;location&quot;)
+&nbsp;
+&nbsp;data class Almanac(val seeds: Set&lt;CategoryNumber&gt;, val maps: Map&lt;Category, AlmanacMap&gt;) {
+&nbsp;  fun map(source: CategoryNumber, destinationCat: Category): CategoryNumber {
+&nbsp;    var value = source
+&nbsp;    while (true) {
+&nbsp;      if (value.category == destinationCat) return value
+&nbsp;      value = maps.getValue(value.category).map(value)
+&nbsp;    }
+&nbsp;  }
+&nbsp;
+&nbsp;  fun findLowestLocationNumber(): Long = seeds.asSequence().map { map(it, locationCategory).value }.min()
+&nbsp;
+&nbsp;  init {
+&nbsp;    maps.forEach { (source, map) -&gt; require(source == map.name.source) }
+&nbsp;  }
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;data class AlmanacMap(val name: AlmanacMapName, val ranges: ImmutableSortedMap&lt;Long, AlmanacMapRange&gt;) {</b>
+&nbsp;  fun map(source: CategoryNumber): CategoryNumber {
+<b class="fc">&nbsp;    require(source.category == name.source)</b>
+<b class="fc">&nbsp;    return ranges.floorEntry(source.value)?.value?.map(source) ?: CategoryNumber(name.destination, source.value)</b>
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;data class AlmanacMapName(val source: Category, val destination: Category) {
+&nbsp;  constructor(source: String, destination: String) : this(Category(source), Category(destination))
+&nbsp;}
+&nbsp;
+&nbsp;data class AlmanacMapRange(
+&nbsp;  val sourceRangeStart: CategoryNumber,
+&nbsp;  val destinationRangeStart: CategoryNumber,
+&nbsp;  val rangeLength: Long
+&nbsp;) {
+&nbsp;  fun map(source: CategoryNumber): CategoryNumber? {
+&nbsp;    require(source.category == sourceRangeStart.category)
+&nbsp;    if (source.value &lt; sourceRangeStart.value) {
+&nbsp;      return null
+&nbsp;    }
+&nbsp;    if (source.value &gt;= sourceRangeStart.value + rangeLength) {
+&nbsp;      return null
+&nbsp;    }
+&nbsp;    return CategoryNumber(
+&nbsp;      destinationRangeStart.category,
+&nbsp;      destinationRangeStart.value + source.value - sourceRangeStart.value
+&nbsp;    )
+&nbsp;  }
+&nbsp;
+&nbsp;  constructor(name: AlmanacMapName, sourceRangeStart: Long, destinationRangeStart: Long, rangeLength: Long) :
+&nbsp;    this(
+&nbsp;      CategoryNumber(name.source, sourceRangeStart),
+&nbsp;      CategoryNumber(name.destination, destinationRangeStart),
+&nbsp;      rangeLength
+&nbsp;    )
+&nbsp;}
+&nbsp;
+&nbsp;data class CategoryNumber(val category: Category, val value: Long) {
+&nbsp;  constructor(category: String, value: Long) : this(Category(category), value)
+&nbsp;}
+&nbsp;
+&nbsp;data class Category(val value: String)
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-07 13:51</div>
+</div>
+</body>
+</html>

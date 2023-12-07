@@ -1,0 +1,194 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1250"> 
+  <title>Coverage Report > PileOfScratchcards</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day04p2</a>
+</div>
+
+<h1>Coverage Summary for Class: PileOfScratchcards (day04p2)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PileOfScratchcards</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">PileOfScratchcards$Companion</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">PileOfScratchcards$Companion$from$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (10/10)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day04p2
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;data class PileOfScratchcards(val cards: List&lt;Scratchcard&gt;) {</b>
+&nbsp;  fun countTotalNumberOfOwnedScratchcards(): Int {
+<b class="fc">&nbsp;    val numOfCardsOwnedByEachCard = Array(cards.size) { 1 }</b>
+<b class="fc">&nbsp;    cards.forEachIndexed { i, card -&gt;</b>
+<b class="fc">&nbsp;      val num = numOfCardsOwnedByEachCard[i]</b>
+<b class="fc">&nbsp;      for (j in i + 1 until i + 1 + card.numOfOwnedWinningNumbers) {</b>
+<b class="fc">&nbsp;        numOfCardsOwnedByEachCard[j] += num</b>
+&nbsp;      }
+<b class="fc">&nbsp;    }</b>
+<b class="fc">&nbsp;    return numOfCardsOwnedByEachCard.sum()</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  companion object {
+&nbsp;    fun from(raw: String): PileOfScratchcards =
+<b class="fc">&nbsp;      PileOfScratchcards(raw.lineSequence().map { Scratchcard.from(it) }.toList())</b>
+&nbsp;  }
+&nbsp;
+&nbsp;}
+&nbsp;
+&nbsp;data class Scratchcard(val id: Int, val winningNumbers: Set&lt;Int&gt;, val ownedNumbers: Set&lt;Int&gt;) {
+&nbsp;  val numOfOwnedWinningNumbers: Int = winningNumbers.intersect(ownedNumbers).size
+&nbsp;
+&nbsp;  companion object {
+&nbsp;    private val cardRegex = &quot;&quot;&quot;Card \s*(\d+): (.+) \| (.+)&quot;&quot;&quot;.toRegex()
+&nbsp;
+&nbsp;    fun from(raw: String): Scratchcard {
+&nbsp;      val (id, winningNumbers, ownedNumbers) = cardRegex
+&nbsp;        .matchEntire(raw)?.destructured ?: error(&quot;no match for $raw&quot;)
+&nbsp;
+&nbsp;      return Scratchcard(
+&nbsp;        id.toInt(),
+&nbsp;        winningNumbers.toIntSet(),
+&nbsp;        ownedNumbers.toIntSet()
+&nbsp;      )
+&nbsp;    }
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;private val intRegex = &quot;&quot;&quot;(\d+)&quot;&quot;&quot;.toRegex()
+&nbsp;
+&nbsp;fun String.toIntSet(): Set&lt;Int&gt; =
+&nbsp;  intRegex.findAll(this).map { it.value.toInt() }.toSet()
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-07 13:51</div>
+</div>
+</body>
+</html>

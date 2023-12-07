@@ -1,0 +1,171 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1250"> 
+  <title>Coverage Report > Game</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day02p1</a>
+</div>
+
+<h1>Coverage Summary for Class: Game (day02p1)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Game</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Game$Companion</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day02p1
+&nbsp;
+&nbsp;fun List&lt;Game&gt;.idSumOfPossibleGames(bag: Cubes): Int = filter { it.isPossible(bag) }.sumOf { it.id }
+&nbsp;
+<b class="fc">&nbsp;data class Game(val id: Int, val handfuls: List&lt;Cubes&gt;) {</b>
+<b class="fc">&nbsp;    fun isPossible(bag: Cubes): Boolean = handfuls.all { bag.canContain(it) }</b>
+&nbsp;
+&nbsp;    companion object {
+&nbsp;        fun from(raw: String): Game {
+<b class="fc">&nbsp;            val (gameText, handfulTexts) = raw.split(&quot;: &quot;)</b>
+<b class="fc">&nbsp;            val id = gameText.split(&quot; &quot;)[1].toInt()</b>
+<b class="fc">&nbsp;            val handfuls = handfulTexts.split(&quot;; &quot;).map { Cubes.from(it) }</b>
+<b class="fc">&nbsp;            return Game(id, handfuls)</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        fun gameListFrom(raw: String): List&lt;Game&gt; = raw.lines().map { from(it) }</b>
+&nbsp;    }
+&nbsp;}
+&nbsp;
+&nbsp;data class Cubes(val red: Int = 0, val green: Int = 0, val blue: Int = 0) {
+&nbsp;    fun canContain(other: Cubes): Boolean =
+&nbsp;        red &gt;= other.red &amp;&amp; green &gt;= other.green &amp;&amp; blue &gt;= other.blue
+&nbsp;
+&nbsp;    companion object {
+&nbsp;        private val reds = &quot;&quot;&quot;(\d+) red&quot;&quot;&quot;.toRegex()
+&nbsp;
+&nbsp;        private val greens = &quot;&quot;&quot;(\d+) green&quot;&quot;&quot;.toRegex()
+&nbsp;
+&nbsp;        private val blues = &quot;&quot;&quot;(\d+) blue&quot;&quot;&quot;.toRegex()
+&nbsp;
+&nbsp;        private fun Regex.parseNumOfCubes(raw: String) = find(raw)?.let {
+&nbsp;            it.groupValues[1].toInt()
+&nbsp;        } ?: 0
+&nbsp;
+&nbsp;        fun from(raw: String): Cubes = Cubes(
+&nbsp;            red = reds.parseNumOfCubes(raw),
+&nbsp;            green = greens.parseNumOfCubes(raw),
+&nbsp;            blue = blues.parseNumOfCubes(raw)
+&nbsp;        )
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-07 13:51</div>
+</div>
+</body>
+</html>

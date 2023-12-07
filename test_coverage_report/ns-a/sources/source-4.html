@@ -1,0 +1,319 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1250"> 
+  <title>Coverage Report > AlmanacMapRange</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day05p2</a>
+</div>
+
+<h1>Coverage Summary for Class: AlmanacMapRange (day05p2)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AlmanacMapRange</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (14/14)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">AlmanacMapRange$MappingResult</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (17/17)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day05p2
+&nbsp;
+&nbsp;import com.google.common.collect.ImmutableMap
+&nbsp;import com.google.common.collect.ImmutableSortedMap
+&nbsp;
+&nbsp;
+&nbsp;fun String.toAlmanac(): Almanac {
+&nbsp;  val lines = lineSequence().toMutableList()
+&nbsp;  val seeds = lines.removeFirst().toSeedRangesSet()
+&nbsp;  require(lines.removeFirst().isEmpty())
+&nbsp;  val maps = ImmutableMap.builder&lt;Category, AlmanacMap&gt;()
+&nbsp;  while (lines.isNotEmpty()) {
+&nbsp;    val map = lines.toAlmanacMap()
+&nbsp;    maps.put(map.name.source, map)
+&nbsp;  }
+&nbsp;  return Almanac(seeds, maps.build())
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toAlmanacMap(): AlmanacMap = lineSequence().toMutableList().toAlmanacMap()
+&nbsp;
+&nbsp;
+&nbsp;fun MutableList&lt;String&gt;.toAlmanacMap(): AlmanacMap {
+&nbsp;  val name = removeFirst().toMapName()
+&nbsp;  val ranges = ImmutableSortedMap.naturalOrder&lt;Long, AlmanacMapRange&gt;()
+&nbsp;  while (isNotEmpty()) {
+&nbsp;    val line = removeFirst()
+&nbsp;    if (line.isBlank()) {
+&nbsp;      break
+&nbsp;    }
+&nbsp;    val range = line.toMapRange(name)
+&nbsp;    ranges.put(range.sourceRange.start, range)
+&nbsp;  }
+&nbsp;  return AlmanacMap(name, ranges.build())
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toMapRange(name: AlmanacMapName): AlmanacMapRange {
+&nbsp;  val (destinationRangeStart, sourceRangeStart, rangeLength) = split(&quot; &quot;)
+&nbsp;  return AlmanacMapRange(
+&nbsp;    name,
+&nbsp;    sourceRangeStart.toLong(),
+&nbsp;    destinationRangeStart.toLong(),
+&nbsp;    rangeLength = rangeLength.toLong()
+&nbsp;  )
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toMapName(): AlmanacMapName =
+&nbsp;  substringBeforeLast(&quot; map:&quot;)
+&nbsp;    .split(&quot;-to-&quot;)
+&nbsp;    .let { (source, destination) -&gt; AlmanacMapName(source, destination) }
+&nbsp;
+&nbsp;private val intRegex = &quot;&quot;&quot;(\d+) (\d+)&quot;&quot;&quot;.toRegex()
+&nbsp;fun String.toSeedRangesSet(): Set&lt;CategoryNumberRange&gt; = substringAfter(&quot;seeds: &quot;).let { seeds -&gt;
+&nbsp;  intRegex.findAll(seeds).map { m -&gt;
+&nbsp;    m.groupValues.drop(1).let { (start, count) -&gt;
+&nbsp;      seedCategory.range(start.toLong(), count.toLong().asCount())
+&nbsp;    }
+&nbsp;  }.toSet()
+&nbsp;}
+&nbsp;
+&nbsp;data class Almanac(val seeds: Set&lt;CategoryNumberRange&gt;, val maps: Map&lt;Category, AlmanacMap&gt;) {
+&nbsp;  init {
+&nbsp;    maps.forEach { (source, map) -&gt; require(source == map.name.source) }
+&nbsp;  }
+&nbsp;
+&nbsp;  fun findLowestLocationNumber(): Long = map(seeds.toMutableList(), locationCategory).minOf { it.start }
+&nbsp;
+&nbsp;  fun map(source: MutableList&lt;CategoryNumberRange&gt;, destinationCat: Category): MutableList&lt;CategoryNumberRange&gt; {
+&nbsp;    var value = source
+&nbsp;    while (true) {
+&nbsp;      require(value.isNotEmpty())
+&nbsp;      val category = value[0].category
+&nbsp;      if (category == destinationCat) return value
+&nbsp;      value = maps.getValue(category).map(value)
+&nbsp;    }
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;data class AlmanacMap(val name: AlmanacMapName, val ranges: ImmutableSortedMap&lt;Long, AlmanacMapRange&gt;) {
+&nbsp;
+&nbsp;  fun map(sourceRanges: MutableList&lt;CategoryNumberRange&gt;): MutableList&lt;CategoryNumberRange&gt; {
+&nbsp;    val result = mutableListOf&lt;CategoryNumberRange&gt;()
+&nbsp;    while (sourceRanges.isNotEmpty()) {
+&nbsp;      val sourceRange = sourceRanges.removeFirst()
+&nbsp;      var mappingResult = ranges.floorEntry(sourceRange.start)?.value?.map(sourceRange)
+&nbsp;      if (mappingResult == null ||
+&nbsp;        (mappingResult.mappedDestinationRange == null &amp;&amp; mappingResult.notMappedSourceRanges.contains(sourceRange))
+&nbsp;      ) {
+&nbsp;        mappingResult = ranges.floorEntry(sourceRange.end)?.value?.map(sourceRange)
+&nbsp;      }
+&nbsp;      val mappedDestinationRange = mappingResult?.mappedDestinationRange
+&nbsp;      if (mappedDestinationRange != null) {
+&nbsp;        result.add(mappedDestinationRange)
+&nbsp;        if (mappingResult != null) sourceRanges.addAll(mappingResult.notMappedSourceRanges)
+&nbsp;      } else {
+&nbsp;        result.add(sourceRange.copy(category = name.destination))
+&nbsp;      }
+&nbsp;    }
+&nbsp;    return result
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;data class AlmanacMapName(val source: Category, val destination: Category) {
+&nbsp;  constructor(source: String, destination: String) : this(Category(source), Category(destination))
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;data class AlmanacMapRange(</b>
+<b class="fc">&nbsp;  val sourceRange: CategoryNumberRange,</b>
+<b class="fc">&nbsp;  val destinationRange: CategoryNumberRange</b>
+&nbsp;) {
+&nbsp;  constructor(name: AlmanacMapName, sourceRangeStart: Long, destinationRangeStart: Long, rangeLength: Long) :
+<b class="fc">&nbsp;    this(</b>
+<b class="fc">&nbsp;      name.source.range(sourceRangeStart, rangeLength.asCount()),</b>
+<b class="fc">&nbsp;      name.destination.range(destinationRangeStart, rangeLength.asCount())</b>
+&nbsp;    )
+&nbsp;
+&nbsp;  private fun map(source: Long): Long {
+<b class="fc">&nbsp;    require(sourceRange.contains(source))</b>
+<b class="fc">&nbsp;    return destinationRange.start + source - sourceRange.start</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  fun map(source: CategoryNumberRange): MappingResult {
+<b class="fc">&nbsp;    val overlappingResult = sourceRange.overlapOn(source)</b>
+<b class="fc">&nbsp;    val mappedDestinationRange = if (overlappingResult.overlapped == null) null else {</b>
+<b class="fc">&nbsp;      destinationRange.category.range(map(overlappingResult.overlapped.start), map(overlappingResult.overlapped.end))</b>
+&nbsp;    }
+<b class="fc">&nbsp;    return MappingResult(</b>
+<b class="fc">&nbsp;      mappedDestinationRange,</b>
+<b class="fc">&nbsp;      overlappingResult.notOverlappedRanges()</b>
+&nbsp;    )
+&nbsp;  }
+&nbsp;
+<b class="fc">&nbsp;  data class MappingResult(</b>
+<b class="fc">&nbsp;    val mappedDestinationRange: CategoryNumberRange?,</b>
+<b class="fc">&nbsp;    val notMappedSourceRanges: Set&lt;CategoryNumberRange&gt;</b>
+&nbsp;  )
+&nbsp;}
+&nbsp;
+&nbsp;data class CategoryNumberRange(val category: Category, val start: Long, val end: Long) {
+&nbsp;
+&nbsp;  init {
+&nbsp;    require(start &lt;= end)
+&nbsp;  }
+&nbsp;
+&nbsp;  fun contains(value: Long): Boolean = value in start..end
+&nbsp;
+&nbsp;  fun overlapOn(range: CategoryNumberRange): OverlappingResult {
+&nbsp;    require(category == range.category)
+&nbsp;
+&nbsp;    // no overlap
+&nbsp;    if (start &gt; range.end) {
+&nbsp;      return OverlappingResult(range, null, null)
+&nbsp;    }
+&nbsp;    if (end &lt; range.start) {
+&nbsp;      return OverlappingResult(null, null, range)
+&nbsp;    }
+&nbsp;
+&nbsp;    // some overlap
+&nbsp;    val left = if (start &lt;= range.start) null else category.range(range.start, start - 1)
+&nbsp;    val right = if (end &gt;= range.end) null else category.range(end + 1, range.end)
+&nbsp;    val overlapped = category.range(maxOf(start, range.start), minOf(end, range.end))
+&nbsp;    return OverlappingResult(left, overlapped, right)
+&nbsp;  }
+&nbsp;
+&nbsp;  data class OverlappingResult(
+&nbsp;    val left: CategoryNumberRange?,
+&nbsp;    val overlapped: CategoryNumberRange?,
+&nbsp;    val right: CategoryNumberRange?
+&nbsp;  ) {
+&nbsp;    init {
+&nbsp;      require(left != null || overlapped != null || right != null)
+&nbsp;      require(sequenceOf(left, overlapped, right).filterNotNull().map { it.category }.distinct().count() == 1)
+&nbsp;    }
+&nbsp;
+&nbsp;    fun notOverlappedRanges() = sequenceOf(left, right).filterNotNull().toSet()
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;data class Count(val value: Long)
+&nbsp;
+&nbsp;fun Long.asCount() = Count(this)
+&nbsp;
+&nbsp;val seedCategory = Category(&quot;seed&quot;)
+&nbsp;val soilCategory = Category(&quot;soil&quot;)
+&nbsp;val locationCategory = Category(&quot;location&quot;)
+&nbsp;
+&nbsp;data class Category(val value: String) {
+&nbsp;  fun range(start: Long, end: Long) = CategoryNumberRange(this, start, end)
+&nbsp;  fun range(start: Long, count: Count) = range(start, start + count.value - 1)
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-07 13:51</div>
+</div>
+</body>
+</html>
