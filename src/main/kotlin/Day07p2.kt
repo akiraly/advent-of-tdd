@@ -42,13 +42,19 @@ data class Hand(val cards: List<Card>) : Comparable<Hand> {
         ?: (Ace to emptyList())
       cardsByType[card] = cards + jokers.indices.map { card }
     }
-    handType = if (cardsByType.size == 5) HighCard
-    else if (cardsByType.size == 4) OnePair
-    else if (cardsByType.size == 3) {
-      if (cardsByType.values.any { it.size == 2 }) TwoPair else ThreeOfAKind
-    } else if (cardsByType.size == 2) {
-      if (cardsByType.values.any { it.size == 3 }) FullHouse else FourOfAKind
-    } else FiveOfAKind
+    handType = when (cardsByType.size) {
+      5 -> HighCard
+      4 -> OnePair
+      3 -> {
+        if (cardsByType.values.any { it.size == 2 }) TwoPair else ThreeOfAKind
+      }
+
+      2 -> {
+        if (cardsByType.values.any { it.size == 3 }) FullHouse else FourOfAKind
+      }
+
+      else -> FiveOfAKind
+    }
   }
 
   override fun compareTo(other: Hand): Int {

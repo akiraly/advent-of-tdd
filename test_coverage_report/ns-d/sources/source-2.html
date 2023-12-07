@@ -143,13 +143,19 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;  init {
 &nbsp;    require(cards.size == 5) { cards }
 &nbsp;    val cardsByType = cards.groupBy { it }
-&nbsp;    handType = if (cardsByType.size == 5) HighCard
-&nbsp;    else if (cardsByType.size == 4) OnePair
-&nbsp;    else if (cardsByType.size == 3) {
-&nbsp;      if (cardsByType.values.any { it.size == 2 }) TwoPair else ThreeOfAKind
-&nbsp;    } else if (cardsByType.size == 2) {
-&nbsp;      if (cardsByType.values.any { it.size == 3 }) FullHouse else FourOfAKind
-&nbsp;    } else FiveOfAKind
+&nbsp;    handType = when (cardsByType.size) {
+&nbsp;      5 -&gt; HighCard
+&nbsp;      4 -&gt; OnePair
+&nbsp;      3 -&gt; {
+&nbsp;        if (cardsByType.values.any { it.size == 2 }) TwoPair else ThreeOfAKind
+&nbsp;      }
+&nbsp;
+&nbsp;      2 -&gt; {
+&nbsp;        if (cardsByType.values.any { it.size == 3 }) FullHouse else FourOfAKind
+&nbsp;      }
+&nbsp;
+&nbsp;      else -&gt; FiveOfAKind
+&nbsp;    }
 &nbsp;  }
 &nbsp;
 &nbsp;  override fun compareTo(other: Hand): Int {
@@ -210,7 +216,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-12-07 14:23</div>
+    <div style="float:right;">generated on 2023-12-07 16:43</div>
 </div>
 </body>
 </html>

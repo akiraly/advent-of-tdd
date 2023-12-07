@@ -52,7 +52,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (19/19)
+    (18/18)
   </span>
 </td>
 </tr>
@@ -109,7 +109,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (21/21)
+    (20/20)
   </span>
 </td>
 </tr>
@@ -159,13 +159,19 @@ Current scope:     <a href="../../index.html">all classes</a>
 <b class="fc">&nbsp;  init {</b>
 <b class="fc">&nbsp;    require(cards.size == 5) { cards }</b>
 <b class="fc">&nbsp;    val cardsByType = cards.groupBy { it }</b>
-<b class="fc">&nbsp;    handType = if (cardsByType.size == 5) HighCard</b>
-<b class="fc">&nbsp;    else if (cardsByType.size == 4) OnePair</b>
-<b class="fc">&nbsp;    else if (cardsByType.size == 3) {</b>
-<b class="fc">&nbsp;      if (cardsByType.values.any { it.size == 2 }) TwoPair else ThreeOfAKind</b>
-<b class="fc">&nbsp;    } else if (cardsByType.size == 2) {</b>
-<b class="fc">&nbsp;      if (cardsByType.values.any { it.size == 3 }) FullHouse else FourOfAKind</b>
-<b class="fc">&nbsp;    } else FiveOfAKind</b>
+<b class="fc">&nbsp;    handType = when (cardsByType.size) {</b>
+<b class="fc">&nbsp;      5 -&gt; HighCard</b>
+<b class="fc">&nbsp;      4 -&gt; OnePair</b>
+&nbsp;      3 -&gt; {
+<b class="fc">&nbsp;        if (cardsByType.values.any { it.size == 2 }) TwoPair else ThreeOfAKind</b>
+&nbsp;      }
+&nbsp;
+&nbsp;      2 -&gt; {
+<b class="fc">&nbsp;        if (cardsByType.values.any { it.size == 3 }) FullHouse else FourOfAKind</b>
+&nbsp;      }
+&nbsp;
+<b class="fc">&nbsp;      else -&gt; FiveOfAKind</b>
+&nbsp;    }
 <b class="fc">&nbsp;  }</b>
 &nbsp;
 &nbsp;  override fun compareTo(other: Hand): Int {
@@ -226,7 +232,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-12-07 14:23</div>
+    <div style="float:right;">generated on 2023-12-07 16:43</div>
 </div>
 </body>
 </html>
