@@ -1,0 +1,217 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1250"> 
+  <title>Coverage Report > HandType</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day07p2</a>
+</div>
+
+<h1>Coverage Summary for Class: HandType (day07p2)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">HandType</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">HandType$Companion</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (9/9)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day07p2
+&nbsp;
+&nbsp;import day07p2.Card.Ace
+&nbsp;import day07p2.Card.Joker
+&nbsp;import day07p2.HandType.*
+&nbsp;
+&nbsp;fun List&lt;HandBid&gt;.totalWinning(): Long {
+&nbsp;  return this.asSequence().sortedBy { it.hand }.mapIndexed { index, handBid -&gt; (index + 1L) * handBid.bid }.sum()
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toHandBidList(): List&lt;HandBid&gt; = lines().map { it.toHandBid() }
+&nbsp;fun String.toHandBid(): HandBid {
+&nbsp;  val (hand, bid) = split(&quot; &quot;)
+&nbsp;  return HandBid(hand.toHand(), bid.toInt())
+&nbsp;}
+&nbsp;
+&nbsp;data class HandBid(val hand: Hand, val bid: Int)
+&nbsp;enum class HandType {
+<b class="fc">&nbsp;  HighCard,</b>
+<b class="fc">&nbsp;  OnePair,</b>
+<b class="fc">&nbsp;  TwoPair,</b>
+<b class="fc">&nbsp;  ThreeOfAKind,</b>
+<b class="fc">&nbsp;  FullHouse,</b>
+<b class="fc">&nbsp;  FourOfAKind,</b>
+<b class="fc">&nbsp;  FiveOfAKind;</b>
+&nbsp;
+&nbsp;  companion object {
+<b class="fc">&nbsp;    fun allHandTypes(): List&lt;HandType&gt; = entries</b>
+&nbsp;  }
+<b class="fc">&nbsp;}</b>
+&nbsp;
+&nbsp;fun String.toHand(): Hand = Hand(map { it.toCard() }.toList())
+&nbsp;data class Hand(val cards: List&lt;Card&gt;) : Comparable&lt;Hand&gt; {
+&nbsp;  val handType: HandType
+&nbsp;
+&nbsp;  init {
+&nbsp;    require(cards.size == 5) { cards }
+&nbsp;    val cardsByType = cards.groupBy { it }.toMutableMap()
+&nbsp;    val jokers = cardsByType.remove(Joker)
+&nbsp;    if (jokers != null) {
+&nbsp;      val (card, cards) = cardsByType.maxByOrNull { (_, cards) -&gt; cards.size }?.let { it.key to it.value }
+&nbsp;        ?: (Ace to emptyList())
+&nbsp;      cardsByType[card] = cards + jokers.indices.map { card }
+&nbsp;    }
+&nbsp;    handType = if (cardsByType.size == 5) HighCard
+&nbsp;    else if (cardsByType.size == 4) OnePair
+&nbsp;    else if (cardsByType.size == 3) {
+&nbsp;      if (cardsByType.values.any { it.size == 2 }) TwoPair else ThreeOfAKind
+&nbsp;    } else if (cardsByType.size == 2) {
+&nbsp;      if (cardsByType.values.any { it.size == 3 }) FullHouse else FourOfAKind
+&nbsp;    } else FiveOfAKind
+&nbsp;  }
+&nbsp;
+&nbsp;  override fun compareTo(other: Hand): Int {
+&nbsp;    val result = handType.compareTo(other.handType)
+&nbsp;    if (result != 0) return result
+&nbsp;
+&nbsp;    return cards.asSequence().zip(other.cards.asSequence())
+&nbsp;      .filter { (a, b) -&gt; a != b }
+&nbsp;      .map { (a, b) -&gt; a.compareTo(b) }
+&nbsp;      .firstOrNull() ?: 0
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;fun Char.toCard(): Card = Card[this]
+&nbsp;enum class Card(val shortId: Char) {
+&nbsp;  Joker(&#39;J&#39;),
+&nbsp;  Two(&#39;2&#39;),
+&nbsp;  Three(&#39;3&#39;),
+&nbsp;  Four(&#39;4&#39;),
+&nbsp;  Five(&#39;5&#39;),
+&nbsp;  Six(&#39;6&#39;),
+&nbsp;  Seven(&#39;7&#39;),
+&nbsp;  Eight(&#39;8&#39;),
+&nbsp;  Nine(&#39;9&#39;),
+&nbsp;  Ten(&#39;T&#39;),
+&nbsp;  Queen(&#39;Q&#39;),
+&nbsp;  King(&#39;K&#39;),
+&nbsp;  Ace(&#39;A&#39;);
+&nbsp;
+&nbsp;  companion object {
+&nbsp;    fun allCards(): List&lt;Card&gt; = entries
+&nbsp;
+&nbsp;    private val byShortId = entries.associateBy { it.shortId }
+&nbsp;    operator fun get(shortId: Char): Card = byShortId.getValue(shortId)
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-07 14:23</div>
+</div>
+</body>
+</html>
