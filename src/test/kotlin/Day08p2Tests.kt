@@ -1,7 +1,7 @@
-package day08p1
+package day08p2
 
-import day08p1.Instruction.Left
-import day08p1.Instruction.Right
+import day08p2.Instruction.Left
+import day08p2.Instruction.Right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.headers
@@ -10,7 +10,7 @@ import io.kotest.data.table
 import io.kotest.matchers.shouldBe
 import io.readInput
 
-class Day08p1Tests : FunSpec({
+class Day08p2Tests : FunSpec({
   test("""Given a reference as "ABC" then it should be possible to represent as a NodeId""") {
     val nodeId = NodeId("ABC")
     nodeId.value shouldBe "ABC"
@@ -26,6 +26,25 @@ class Day08p1Tests : FunSpec({
 
   test("""Given a "AAA = (BBB, CCC)" then it should be possible to parse it as Node""") {
     "AAA = (BBB, CCC)".toNode() shouldBe Node(id = "AAA", left = "BBB", right = "CCC")
+  }
+
+  context("node ids can tell about themselves if they are a starting or ending or neither") {
+    table(
+      headers("Node id", "Is Starting", "Is Ending"),
+      row("11A", true, false),
+      row("22A", true, false),
+      row("11Z", false, true),
+      row("22Z", false, true),
+      row("11B", false, false),
+      row("22B", false, false),
+    ).forAll { nodeId, isStarting, isEnding ->
+      test("Given a node id $nodeId then it should be possible to tell if it is starting or ending or neither") {
+        with(NodeId(nodeId)) {
+          starting shouldBe isStarting
+          ending shouldBe isEnding
+        }
+      }
+    }
   }
 
   test(""" Given a text with a series of nodes then it should be possible to parse it as a Network""") {
@@ -108,6 +127,19 @@ class Day08p1Tests : FunSpec({
     ZZZ = (ZZZ, ZZZ)
   """.trimIndent()
 
+  val exampleDocuments3 = """
+    LR
+
+    11A = (11B, XXX)
+    11B = (XXX, 11Z)
+    11Z = (11B, XXX)
+    22A = (22B, XXX)
+    22B = (22C, 22C)
+    22C = (22Z, 22Z)
+    22Z = (22B, 22B)
+    XXX = (XXX, XXX)
+  """.trimIndent()
+
   test("""Given Example documents 1 then it should be parse it as an Instruction List and a Network""") {
     exampleDocuments1.toInstructionListAndNetwork() shouldBe (listOf(Right, Left) to Network(nodes = mapOf(
       "AAA" to Node(id = "AAA", left = "BBB", right = "CCC"),
@@ -140,9 +172,15 @@ class Day08p1Tests : FunSpec({
     }
   }
 
-  test("""Given our custom documents then it should be possible to calculate the number of steps from start to finish as 13939""") {
+  test("""Given Example documents 3 then it should be possible to calculate the number of steps from start to finish as 6""") {
+    exampleDocuments3.toInstructionListAndNetwork().let { (instructions, network) ->
+      network.calculateNumberOfSteps(instructions) shouldBe 6
+    }
+  }
+
+  test("""Given our custom documents then it should be possible to calculate the number of steps from start to finish as 8906539031197""") {
     readInput("day08p1").toInstructionListAndNetwork().let { (instructions, network) ->
-      network.calculateNumberOfSteps(instructions) shouldBe 13939
+      network.calculateNumberOfSteps(instructions) shouldBe 8906539031197
     }
   }
 })
