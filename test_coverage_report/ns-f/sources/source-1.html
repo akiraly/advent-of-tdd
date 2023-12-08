@@ -4,8 +4,8 @@
 <!DOCTYPE html>
 <html id="htmlId">
 <head>
-  <meta http-equiv="Content-Type" content="text/html;charset=windows-1250"> 
-  <title>Coverage Report > IOKt</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Day08p1Kt</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,18 +19,15 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">io</a>
+    <a href="../index.html">day08p1</a>
 </div>
 
-<h1>Coverage Summary for Class: IOKt (io)</h1>
+<h1>Coverage Summary for Class: Day08p1Kt (day08p1)</h1>
 
 <table class="coverageStats">
+
 <tr>
   <th class="name">Class</th>
-<th class="coverageStat 
-">
-  Class, %
-</th>
 <th class="coverageStat 
 ">
   Method, %
@@ -41,13 +38,13 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 </tr>
 <tr>
-  <td class="name">IOKt</td>
+  <td class="name">Day08p1Kt</td>
 <td class="coverageStat">
   <span class="percent">
     100%
   </span>
   <span class="absValue">
-    (1/1)
+    (5/5)
   </span>
 </td>
 <td class="coverageStat">
@@ -55,19 +52,48 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (1/1)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
+    (14/14)
   </span>
 </td>
 </tr>
-
+  <tr>
+    <td class="name">Day08p1Kt$toNetwork$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (15/15)
+  </span>
+</td>
+</tr>
 </table>
 
 <br/>
@@ -75,13 +101,64 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package io
+<code class="sourceCode" id="sourceCode">&nbsp;package day08p1
 &nbsp;
-&nbsp;import org.apache.commons.io.IOUtils
-&nbsp;import java.nio.charset.StandardCharsets
+&nbsp;import day08p1.Instruction.Left
+&nbsp;import day08p1.Instruction.Right
 &nbsp;
-&nbsp;fun readInput(inputFileName: String): String =
-<b class="fc">&nbsp;    IOUtils.resourceToString(&quot;/inputs/$inputFileName&quot;, StandardCharsets.UTF_8)</b>
+&nbsp;fun String.toInstructionListAndNetwork(): Pair&lt;List&lt;Instruction&gt;, Network&gt; {
+<b class="fc">&nbsp;  val lines = lineSequence()</b>
+<b class="fc">&nbsp;  return lines.first().toInstructionList() to lines.drop(2).toNetwork()</b>
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;fun Sequence&lt;String&gt;.toNetwork(): Network = Network(</b>
+<b class="fc">&nbsp;  map { it.toNode() }.associateBy { it.id }</b>
+&nbsp;)
+&nbsp;
+<b class="fc">&nbsp;fun String.toNetwork(): Network = lineSequence().toNetwork()</b>
+&nbsp;
+&nbsp;data class Network(val nodes: Map&lt;NodeId, Node&gt;) {
+&nbsp;  fun calculateNumberOfSteps(instructions: List&lt;Instruction&gt;): Int {
+&nbsp;    var currentNode = nodes.getValue(NodeId(&quot;AAA&quot;))
+&nbsp;    var steps = 0
+&nbsp;    val endId = NodeId(&quot;ZZZ&quot;)
+&nbsp;    while (true) {
+&nbsp;      val nextId = currentNode.doStep(instructions[steps % instructions.size])
+&nbsp;      currentNode = nodes.getValue(nextId)
+&nbsp;      steps++
+&nbsp;      if (nextId == endId) {
+&nbsp;        return steps
+&nbsp;      }
+&nbsp;    }
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;enum class Instruction { Left, Right }
+&nbsp;
+<b class="fc">&nbsp;fun String.toInstructionList(): List&lt;Instruction&gt; = this</b>
+<b class="fc">&nbsp;  .map {</b>
+<b class="fc">&nbsp;    when (it) {</b>
+<b class="fc">&nbsp;      &#39;L&#39; -&gt; Left</b>
+<b class="fc">&nbsp;      else -&gt; Right</b>
+<b class="fc">&nbsp;    }</b>
+&nbsp;  }
+<b class="fc">&nbsp;  .toList()</b>
+&nbsp;
+&nbsp;fun String.toNode(): Node {
+<b class="fc">&nbsp;  val (id, left, right) = &quot;&quot;&quot;(.+) = \((.+), (.+)\)&quot;&quot;&quot;.toRegex().matchEntire(this)?.destructured!!</b>
+<b class="fc">&nbsp;  return Node(id = NodeId(id), left = NodeId(left), right = NodeId(right))</b>
+&nbsp;}
+&nbsp;
+&nbsp;data class Node(val id: NodeId, val left: NodeId, val right: NodeId) {
+&nbsp;  fun doStep(instruction: Instruction): NodeId = when (instruction) {
+&nbsp;    Left -&gt; left
+&nbsp;    Right -&gt; right
+&nbsp;  }
+&nbsp;
+&nbsp;  constructor(id: String, left: String, right: String) : this(NodeId(id), NodeId(left), NodeId(right))
+&nbsp;}
+&nbsp;
+&nbsp;data class NodeId(val value: String)
 </code>
 </pre>
 </div>
@@ -105,7 +182,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-12-07 16:43</div>
+    <div style="float:right;">generated on 2023-12-08 20:43</div>
 </div>
 </body>
 </html>

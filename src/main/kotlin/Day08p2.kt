@@ -40,15 +40,13 @@ fun String.toInstructionList(): List<Instruction> = this
   .map {
     when (it) {
       'L' -> Left
-      'R' -> Right
-      else -> error("can't parse $it")
+      else -> Right
     }
   }
   .toList()
 
 fun String.toNode(): Node {
-  val (id, left, right) = """(.+) = \((.+), (.+)\)""".toRegex().matchEntire(this)?.destructured
-    ?: error("can't parse $this")
+  val (id, left, right) = """(.+) = \((.+), (.+)\)""".toRegex().matchEntire(this)?.destructured!!
   return Node(id = NodeId(id), left = NodeId(left), right = NodeId(right))
 }
 

@@ -1,0 +1,214 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Network</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day08p2</a>
+</div>
+
+<h1>Coverage Summary for Class: Network (day08p2)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Network</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Network$calculateNumberOfSteps$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Network$calculateNumberOfSteps$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (13/13)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day08p2
+&nbsp;
+&nbsp;import day08p2.Instruction.Left
+&nbsp;import day08p2.Instruction.Right
+&nbsp;import org.apache.commons.math3.util.ArithmeticUtils
+&nbsp;
+&nbsp;fun String.toInstructionListAndNetwork(): Pair&lt;List&lt;Instruction&gt;, Network&gt; {
+&nbsp;  val lines = lineSequence()
+&nbsp;  return lines.first().toInstructionList() to lines.drop(2).toNetwork()
+&nbsp;}
+&nbsp;
+&nbsp;fun Sequence&lt;String&gt;.toNetwork(): Network = Network(
+&nbsp;  map { it.toNode() }.associateBy { it.id }
+&nbsp;)
+&nbsp;
+&nbsp;fun String.toNetwork(): Network = lineSequence().toNetwork()
+&nbsp;
+<b class="fc">&nbsp;data class Network(val nodes: Map&lt;NodeId, Node&gt;) {</b>
+&nbsp;  fun calculateNumberOfSteps(instructions: List&lt;Instruction&gt;): Long =
+<b class="fc">&nbsp;    nodes.asSequence().filter { (id, _) -&gt; id.starting }.map { (id, _) -&gt; calculateNumberOfSteps(instructions, id) }</b>
+<b class="fc">&nbsp;      .reduce(ArithmeticUtils::lcm)</b>
+&nbsp;
+&nbsp;  private fun calculateNumberOfSteps(instructions: List&lt;Instruction&gt;, start: NodeId): Long {
+<b class="fc">&nbsp;    var currentNode = nodes.getValue(start)</b>
+<b class="fc">&nbsp;    var steps = 0</b>
+<b class="fc">&nbsp;    while (true) {</b>
+<b class="fc">&nbsp;      val nextId = currentNode.doStep(instructions[steps % instructions.size])</b>
+<b class="fc">&nbsp;      currentNode = nodes.getValue(nextId)</b>
+<b class="fc">&nbsp;      steps++</b>
+<b class="fc">&nbsp;      if (nextId.ending) {</b>
+<b class="fc">&nbsp;        return steps.toLong()</b>
+&nbsp;      }
+&nbsp;    }
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;enum class Instruction { Left, Right }
+&nbsp;
+&nbsp;fun String.toInstructionList(): List&lt;Instruction&gt; = this
+&nbsp;  .map {
+&nbsp;    when (it) {
+&nbsp;      &#39;L&#39; -&gt; Left
+&nbsp;      else -&gt; Right
+&nbsp;    }
+&nbsp;  }
+&nbsp;  .toList()
+&nbsp;
+&nbsp;fun String.toNode(): Node {
+&nbsp;  val (id, left, right) = &quot;&quot;&quot;(.+) = \((.+), (.+)\)&quot;&quot;&quot;.toRegex().matchEntire(this)?.destructured!!
+&nbsp;  return Node(id = NodeId(id), left = NodeId(left), right = NodeId(right))
+&nbsp;}
+&nbsp;
+&nbsp;data class Node(val id: NodeId, val left: NodeId, val right: NodeId) {
+&nbsp;  fun doStep(instruction: Instruction): NodeId = when (instruction) {
+&nbsp;    Left -&gt; left
+&nbsp;    Right -&gt; right
+&nbsp;  }
+&nbsp;
+&nbsp;  constructor(id: String, left: String, right: String) : this(NodeId(id), NodeId(left), NodeId(right))
+&nbsp;}
+&nbsp;
+&nbsp;data class NodeId(val value: String) {
+&nbsp;  val starting: Boolean = value.last() == &#39;A&#39;
+&nbsp;  val ending: Boolean = value.last() == &#39;Z&#39;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-08 20:43</div>
+</div>
+</body>
+</html>
