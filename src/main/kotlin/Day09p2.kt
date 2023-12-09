@@ -1,4 +1,16 @@
-package day09p1
+package day09p2
+
+fun List<Long>.predictPreviousValue(): Long {
+  var result = first()
+  var mult = -1
+  var current = this
+  while (!current.isAllZero()) {
+    current = current.diffSeries()
+    result += mult * current.first()
+    mult *= -1
+  }
+  return result
+}
 
 fun List<Long>.predictNextValue(): Long {
   var result = last()
@@ -18,6 +30,7 @@ fun String.toOASISReport(): OASISReport = OASISReport(lines().map { it.toHistory
 
 data class OASISReport(val entries: List<History>) {
   fun sumOfPredictedNextValues(): Long = entries.sumOf { it.predictNextValue() }
+  fun sumOfPredictedPreviousValues(): Long = entries.sumOf { it.predictPreviousValue() }
 }
 
 fun String.toHistory(): History = History(
@@ -26,4 +39,5 @@ fun String.toHistory(): History = History(
 
 data class History(val entries: List<Long>) {
   fun predictNextValue(): Long = entries.predictNextValue()
+  fun predictPreviousValue(): Long = entries.predictPreviousValue()
 }
