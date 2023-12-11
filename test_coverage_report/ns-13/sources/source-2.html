@@ -1,0 +1,267 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Day10p1Kt</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day10p1</a>
+</div>
+
+<h1>Coverage Summary for Class: Day10p1Kt (day10p1)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Day10p1Kt</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (25/25)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Day10p1Kt$calcPipeType$directions$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day10p1Kt$findStartCoordinate$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (6/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (32/32)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day10p1
+&nbsp;
+&nbsp;import day10p1.Direction.*
+&nbsp;
+&nbsp;fun String.toPipeMap(): PipeMap {
+<b class="fc">&nbsp;  val startCoordinate = findStartCoordinate()</b>
+<b class="fc">&nbsp;  val lines = lines()</b>
+<b class="fc">&nbsp;  val startPipeType = lines.calcPipeType(startCoordinate)</b>
+<b class="fc">&nbsp;  return PipeMap(</b>
+<b class="fc">&nbsp;    pipes = lines.mapIndexed { row, line -&gt;</b>
+<b class="fc">&nbsp;      line.mapIndexed { column, ch -&gt;</b>
+<b class="fc">&nbsp;        val coordinate = Coordinate(row, column)</b>
+<b class="fc">&nbsp;        if (coordinate == startCoordinate) startPipeType else ch.toPipeType()</b>
+<b class="fc">&nbsp;      }</b>
+&nbsp;    },
+<b class="fc">&nbsp;    startCoordinate = startCoordinate</b>
+&nbsp;  )
+&nbsp;}
+&nbsp;
+&nbsp;data class PipeMap(val pipes: List&lt;List&lt;PipeType&gt;&gt;, val startCoordinate: Coordinate) {
+&nbsp;  val numberOfRows = pipes.size
+&nbsp;  val numberOfColumns = pipes[0].size
+&nbsp;  operator fun get(coordinate: Coordinate): PipeType = pipes[coordinate.row][coordinate.column]
+&nbsp;  fun findNumberOfStepsToFarthestPointInLoop(): Long {
+&nbsp;    val reachMap = Array(numberOfRows) { arrayOfNulls&lt;Long&gt;(numberOfColumns) }
+&nbsp;
+&nbsp;    val queue = mutableListOf(startCoordinate)
+&nbsp;    reachMap[startCoordinate.row][startCoordinate.column] = 0L
+&nbsp;
+&nbsp;    while (queue.isNotEmpty()) {
+&nbsp;      val coordinate = queue.removeFirst()!!
+&nbsp;      val numOfSteps = reachMap[coordinate.row][coordinate.column]!! + 1
+&nbsp;      for (direction in pipes[coordinate.row][coordinate.column].directions) {
+&nbsp;        val newCoordinate = direction(coordinate)
+&nbsp;        if (newCoordinate.row &lt; 0 || newCoordinate.row &gt;= this.numberOfRows) continue
+&nbsp;        if (newCoordinate.column &lt; 0 || newCoordinate.column &gt;= this.numberOfColumns) continue
+&nbsp;        val existingNumOfSteps = reachMap[newCoordinate.row][newCoordinate.column]
+&nbsp;        if (existingNumOfSteps != null) return if (existingNumOfSteps == numOfSteps) existingNumOfSteps else continue
+&nbsp;        reachMap[newCoordinate.row][newCoordinate.column] = numOfSteps
+&nbsp;        queue.add(newCoordinate)
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    error(&quot;Didn&#39;t find farthest point&quot;)
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;fun List&lt;String&gt;.calcPipeType(coordinate: Coordinate): PipeType {
+<b class="fc">&nbsp;  val directions = Direction.entries.asSequence().filter { direction -&gt;</b>
+<b class="fc">&nbsp;    val newCoordinate = direction(coordinate)</b>
+<b class="fc">&nbsp;    if (newCoordinate.row &lt; 0 || newCoordinate.row &gt;= this.size) return@filter false</b>
+&nbsp;
+<b class="fc">&nbsp;    val line = this[newCoordinate.row]</b>
+<b class="fc">&nbsp;    if (newCoordinate.column &lt; 0 || newCoordinate.column &gt;= line.length) return@filter false</b>
+&nbsp;
+<b class="fc">&nbsp;    val pipeType = line[newCoordinate.column].toPipeType()</b>
+<b class="fc">&nbsp;    pipeType.directions.any { it.reverse == direction }</b>
+<b class="fc">&nbsp;  }.toSet()</b>
+&nbsp;
+<b class="fc">&nbsp;  val candidates = PipeType.entries.filter { it.directions == directions }</b>
+&nbsp;
+<b class="fc">&nbsp;  require(candidates.size == 1)</b>
+&nbsp;
+<b class="fc">&nbsp;  return candidates.first()</b>
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;fun String.findStartCoordinate(): Coordinate = lineSequence().flatMapIndexed { row: Int, line: String -&gt;</b>
+<b class="fc">&nbsp;  line.mapIndexed { column: Int, char: Char -&gt; Coordinate(row, column) to char }</b>
+<b class="fc">&nbsp;}.first { (_, char) -&gt; char == &#39;S&#39; }.first</b>
+&nbsp;
+<b class="fc">&nbsp;fun Char.toPipeType(): PipeType = when (this) {</b>
+<b class="fc">&nbsp;  &#39;|&#39; -&gt; PipeType.`|`</b>
+<b class="fc">&nbsp;  &#39;-&#39; -&gt; PipeType.`-`</b>
+<b class="fc">&nbsp;  &#39;L&#39; -&gt; PipeType.L</b>
+<b class="fc">&nbsp;  &#39;J&#39; -&gt; PipeType.J</b>
+<b class="fc">&nbsp;  &#39;7&#39; -&gt; PipeType.`7`</b>
+<b class="fc">&nbsp;  &#39;F&#39; -&gt; PipeType.F</b>
+<b class="fc">&nbsp;  else -&gt; PipeType.dot</b>
+&nbsp;}
+&nbsp;
+&nbsp;enum class PipeType(val directions: Set&lt;Direction&gt;) {
+&nbsp;  `|`(setOf(north, south)),
+&nbsp;  `-`(setOf(east, west)),
+&nbsp;  L(setOf(north, east)),
+&nbsp;  J(setOf(north, west)),
+&nbsp;  `7`(setOf(south, west)),
+&nbsp;  F(setOf(south, east)),
+&nbsp;  dot(emptySet());
+&nbsp;}
+&nbsp;
+&nbsp;enum class Direction {
+&nbsp;  north {
+&nbsp;    override operator fun invoke(coordinate: Coordinate) = coordinate.copy(row = coordinate.row - 1)
+&nbsp;
+&nbsp;    override val reverse: Direction get() = south
+&nbsp;  },
+&nbsp;  south {
+&nbsp;    override operator fun invoke(coordinate: Coordinate) = coordinate.copy(row = coordinate.row + 1)
+&nbsp;
+&nbsp;    override val reverse: Direction get() = north
+&nbsp;  },
+&nbsp;  east {
+&nbsp;    override operator fun invoke(coordinate: Coordinate) = coordinate.copy(column = coordinate.column + 1)
+&nbsp;
+&nbsp;    override val reverse: Direction get() = west
+&nbsp;  },
+&nbsp;  west {
+&nbsp;    override operator fun invoke(coordinate: Coordinate) = coordinate.copy(column = coordinate.column - 1)
+&nbsp;
+&nbsp;    override val reverse: Direction get() = east
+&nbsp;  };
+&nbsp;
+&nbsp;  abstract operator fun invoke(coordinate: Coordinate): Coordinate
+&nbsp;
+&nbsp;  abstract val reverse: Direction
+&nbsp;}
+&nbsp;
+&nbsp;data class Coordinate(val row: Int, val column: Int)
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-11 01:33</div>
+</div>
+</body>
+</html>
