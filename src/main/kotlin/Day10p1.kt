@@ -75,8 +75,7 @@ fun Char.toPipeType(): PipeType = when (this) {
   'J' -> PipeType.J
   '7' -> PipeType.`7`
   'F' -> PipeType.F
-  '.' -> PipeType.dot
-  else -> error("Unknown pipe type: $this")
+  else -> PipeType.dot
 }
 
 enum class PipeType(val directions: Set<Direction>) {
