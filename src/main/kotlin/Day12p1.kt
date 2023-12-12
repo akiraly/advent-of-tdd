@@ -2,27 +2,8 @@ package day12p1
 
 import day12p1.HotSpring.*
 import day12p1.HotSpring.Companion.toHotSpring
-import org.apache.commons.math3.util.ArithmeticUtils
 
 fun String.sumOfSolutions(): Long = lineSequence().sumOf { it.toConditionRecordRow().countSolutions() }
-
-fun generateVariantsForUnknowns(n: Int): Sequence<List<HotSpring>> {
-  if (n == 0) return emptySequence()
-  var counter = ArithmeticUtils.pow(2, n)
-  return generateSequence {
-    if (counter == 0) return@generateSequence null
-    counter--
-    counter.toString(2).padStart(n, '0').map {
-      when (it) {
-        '0' -> broken
-        else -> {
-          require(it == '1')
-          operational
-        }
-      }
-    }
-  }
-}
 
 fun List<HotSpring>.calcContiguousGroupOfDamagedSprings(): List<Int> {
   val contGroupOfDamagedSprings = mutableListOf<Int>()
@@ -60,22 +41,7 @@ data class ConditionRecordRow(
 ) {
   val numberOfUnknowns = hotSprings.count { it == unknown }
 
-  fun solutionCandidates(): Sequence<List<HotSpring>> {
-    if (numberOfUnknowns == 0) return emptySequence()
-
-    return generateVariantsForUnknowns(numberOfUnknowns).map { it.toMutableList() }.map { unknownMappings ->
-      hotSprings.map {
-        when (it) {
-          unknown -> unknownMappings.removeFirst()!!
-          else -> it
-        }
-      }
-    }
-  }
-
-  fun solutionCandidatesAsText(): Sequence<String> = solutionCandidates().map { it.toConditionRecordRow1Text() }
-
-  fun solutions(): Sequence<List<HotSpring>> {
+  private fun solutions(): Sequence<List<HotSpring>> {
     val solutions = mutableListOf<List<HotSpring>>()
     processNext(hotSpringsToProcess = hotSprings, brokenGroupsToProcess = contGroupOfDamagedSprings) {
       solutions.add(it)
@@ -103,34 +69,35 @@ private fun processNext(
 ) {
   if (hotSpringsToProcess.isEmpty()) {
     processEnd(result, hotSpringsToProcess, remainingBrokensInCurrentGroup, brokenGroupsToProcess, solutionConsumer)
-  } else {
-    val next = hotSpringsToProcess.first()
-    val remaining = hotSpringsToProcess.subList(1, hotSpringsToProcess.size)
-    when (next) {
-      operational -> processOperational(
-        result,
-        remaining,
-        remainingBrokensInCurrentGroup,
-        brokenGroupsToProcess,
-        solutionConsumer
-      )
+    return
+  }
 
-      broken -> processBroken(
-        result,
-        remaining,
-        remainingBrokensInCurrentGroup,
-        brokenGroupsToProcess,
-        solutionConsumer
-      )
+  val next = hotSpringsToProcess.first()
+  val remaining = hotSpringsToProcess.subList(1, hotSpringsToProcess.size)
+  when (next) {
+    operational -> processOperational(
+      result,
+      remaining,
+      remainingBrokensInCurrentGroup,
+      brokenGroupsToProcess,
+      solutionConsumer
+    )
 
-      unknown -> processUnknown(
-        result,
-        remaining,
-        remainingBrokensInCurrentGroup,
-        brokenGroupsToProcess,
-        solutionConsumer
-      )
-    }
+    broken -> processBroken(
+      result,
+      remaining,
+      remainingBrokensInCurrentGroup,
+      brokenGroupsToProcess,
+      solutionConsumer
+    )
+
+    unknown -> processUnknown(
+      result,
+      remaining,
+      remainingBrokensInCurrentGroup,
+      brokenGroupsToProcess,
+      solutionConsumer
+    )
   }
 }
 

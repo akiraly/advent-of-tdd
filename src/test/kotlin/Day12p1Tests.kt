@@ -8,10 +8,9 @@ import io.kotest.data.headers
 import io.kotest.data.row
 import io.kotest.data.table
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.readInput
-import org.apache.commons.math3.util.ArithmeticUtils
+
 
 class Day12p1Tests : FunSpec({
   context("Condition record converting between text input and model") {
@@ -104,76 +103,6 @@ class Day12p1Tests : FunSpec({
       test(""" Given a condition record row of "$input" then the calculated contiguous group of damaged springs (from the hot springs) should be the same as the list provided""") {
         val row = input.toConditionRecordRow()
         row.hotSprings.calcContiguousGroupOfDamagedSprings() shouldBe row.contGroupOfDamagedSprings
-      }
-    }
-  }
-
-  context("Generate variants for number of unknowns") {
-    table(
-      headers("Number of unknowns", "Expected variants"),
-      row(0, emptyList()),
-      row(
-        1,
-        listOf(
-          listOf(operational),
-          listOf(broken)
-        )
-      ),
-      row(
-        2,
-        listOf(
-          listOf(operational, operational),
-          listOf(operational, broken),
-          listOf(broken, operational),
-          listOf(broken, broken)
-        )
-      ),
-    ).forAll { n, expectedVariants ->
-      test(""" Given $n unknown condition(s) then the variants should be as expected """) {
-        val variants = generateVariantsForUnknowns(n).toList()
-        variants.forEach { it shouldHaveSize n }
-        variants shouldContainExactlyInAnyOrder expectedVariants
-      }
-    }
-
-    (1..16).forEach { n ->
-      val expectedCount = ArithmeticUtils.pow(2, n)
-      test(""" Given $n unknown condition(s) then the number of variants should be $expectedCount and the variants should each have the size of $n """) {
-        val variants = generateVariantsForUnknowns(n).toList()
-        variants.size shouldBe expectedCount
-        variants.forEach { it shouldHaveSize n }
-
-        variants.distinct() shouldHaveSize expectedCount
-      }
-    }
-  }
-
-  context("Generate solution candidates") {
-    table(
-      headers("CR row Input", "Expected solution candidates"),
-      row("#.#.### 1,1,3", emptyList()),
-      row(
-        "#.?.### 1,1,3", """
-        #...###
-        #.#.###
-      """.trimIndent().lines()
-      ),
-      row(
-        "???.### 1,1,3", """
-        ....###
-        ..#.###
-        .#..###
-        .##.###
-        #...###
-        #.#.###
-        ##..###
-        ###.###
-      """.trimIndent().lines()
-      ),
-    ).forAll { input, candidates ->
-      test(""" Given a condition record row of "$input" then the expected solution candidates should be "$candidates" """) {
-        val row = input.toConditionRecordRow()
-        row.solutionCandidatesAsText().toList() shouldContainExactlyInAnyOrder candidates
       }
     }
   }
