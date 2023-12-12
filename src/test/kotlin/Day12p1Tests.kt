@@ -10,6 +10,7 @@ import io.kotest.data.table
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.readInput
 import org.apache.commons.math3.util.ArithmeticUtils
 
 class Day12p1Tests : FunSpec({
@@ -180,7 +181,7 @@ class Day12p1Tests : FunSpec({
   context("Generate solutions") {
     table(
       headers("CR row Input", "Expected solutions"),
-      row("#.#.### 1,1,3", emptyList()),
+      row("#.#.### 1,1,3", listOf("#.#.###")),
       row("???.### 1,1,3", listOf("#.#.###")),
       row(
         ".??..??...?##. 1,1,3", listOf(
@@ -213,7 +214,7 @@ class Day12p1Tests : FunSpec({
 
     table(
       headers("CR row Input", "Expected number of solutions"),
-      row("#.#.### 1,1,3", 0),
+      row("#.#.### 1,1,3", 1),
       row("???.### 1,1,3", 1),
       row(".??..??...?##. 1,1,3", 4),
       row("?#?#?#?#?#?#?#? 1,3,1,6", 1),
@@ -243,22 +244,20 @@ class Day12p1Tests : FunSpec({
         21
       ),
 
-//      row(
-//        "custom input",
-//        readInput("day12p1"),
-//        6827
-//      ),
+      row(
+        "custom input",
+        readInput("day12p1"),
+        6827
+      ),
     ).forAll { title, crinput, sum ->
       test(""" Given a condition record titled $title then the expected total number of solutions is $sum """) {
-        crinput.sumOfSolutions2() shouldBe sum
+        crinput.sumOfSolutions() shouldBe sum
       }
     }
   }
 })
 
-private fun String.sumOfSolutions2(): Long = lineSequence().sumOf { it.toConditionRecordRow().countSolutions2() }
-
-fun String.sumOfSolutions(): Int = lineSequence().sumOf { it.toConditionRecordRow().countSolutions() }
+fun String.sumOfSolutions(): Long = lineSequence().sumOf { it.toConditionRecordRow().countSolutions() }
 
 fun generateVariantsForUnknowns(n: Int): Sequence<List<HotSpring>> {
   if (n == 0) return emptySequence()
@@ -329,42 +328,180 @@ data class ConditionRecordRow(
 
   fun solutionCandidatesAsText(): Sequence<String> = solutionCandidates().map { it.toConditionRecordRow1Text() }
 
-  fun solutions(): Sequence<List<HotSpring>> = solutionCandidates()
-    .filter { it.calcContiguousGroupOfDamagedSprings() == contGroupOfDamagedSprings }
+  fun solutions(): Sequence<List<HotSpring>> {
+    val solutions = mutableListOf<List<HotSpring>>()
+    processNext(hotSpringsToProcess = hotSprings, brokenGroupsToProcess = contGroupOfDamagedSprings) {
+      solutions.add(it)
+    }
+    return solutions.asSequence()
+  }
 
-  fun countSolutions(): Int = solutions().count()
+  fun countSolutions(): Long {
+    var count = 0L
+    processNext(hotSpringsToProcess = hotSprings, brokenGroupsToProcess = contGroupOfDamagedSprings) {
+      count++
+    }
+    return count
+  }
 
   fun solutionsAsText(): Sequence<String> = solutions().map { it.toConditionRecordRow1Text() }
+}
 
-  fun countSolutions2(): Long {
-    val hotSprings = this@ConditionRecordRow.hotSprings.toMutableList()
-    val startState = StartState()
-    var currentState: State = startState
-    val states = mutableListOf(currentState)
+private fun processNext(
+  result: MutableList<HotSpring> = mutableListOf(),
+  hotSpringsToProcess: List<HotSpring>,
+  remainingBrokensInCurrentGroup: Int? = null,
+  brokenGroupsToProcess: List<Int>,
+  solutionConsumer: (List<HotSpring>) -> Unit
+) {
+  if (hotSpringsToProcess.isEmpty()) {
+    processEnd(result, hotSpringsToProcess, remainingBrokensInCurrentGroup, brokenGroupsToProcess, solutionConsumer)
+  } else {
+    val next = hotSpringsToProcess.first()
+    val remaining = hotSpringsToProcess.subList(1, hotSpringsToProcess.size)
+    when (next) {
+      operational -> processOperational(
+        result,
+        remaining,
+        remainingBrokensInCurrentGroup,
+        brokenGroupsToProcess,
+        solutionConsumer
+      )
 
-    while (hotSprings.isNotEmpty()) {
-      val newState = currentState.accept(hotSprings.removeFirst())
-      if (newState != currentState) {
-        currentState = newState
-        states.add(currentState)
-      }
+      broken -> processBroken(
+        result,
+        remaining,
+        remainingBrokensInCurrentGroup,
+        brokenGroupsToProcess,
+        solutionConsumer
+      )
+
+      unknown -> processUnknown(
+        result,
+        remaining,
+        remainingBrokensInCurrentGroup,
+        brokenGroupsToProcess,
+        solutionConsumer
+      )
     }
+  }
+}
 
-    return startState.count
+private fun processOperational(
+  result: MutableList<HotSpring>,
+  hotSpringsToProcess: List<HotSpring>,
+  remainingBrokensInGroup: Int?,
+  brokenGroupsToProcess: List<Int>,
+  solutionConsumer: (List<HotSpring>) -> Unit
+) {
+  if (remainingBrokensInGroup.isCurrentGroupNotEmpty()) {
+    return
+  }
+  addCurrentAndProcessNext(
+    operational,
+    result,
+    hotSpringsToProcess,
+    null,
+    brokenGroupsToProcess,
+    solutionConsumer
+  )
+}
+
+fun processBroken(
+  result: MutableList<HotSpring>,
+  hotSpringsToProcess: List<HotSpring>,
+  remainingBrokensInGroup: Int?,
+  brokenGroupsToProcess: List<Int>,
+  solutionConsumer: (List<HotSpring>) -> Unit
+) {
+  val nextRemainingBrokensInGroup: Int
+  val nextBrokenGroupsToProcess: List<Int>
+  if (remainingBrokensInGroup != null) {
+    nextRemainingBrokensInGroup = remainingBrokensInGroup - 1
+    nextBrokenGroupsToProcess = brokenGroupsToProcess
+  } else if (brokenGroupsToProcess.isEmpty()) {
+    return
+  } else {
+    nextRemainingBrokensInGroup = brokenGroupsToProcess.first() - 1
+    nextBrokenGroupsToProcess = brokenGroupsToProcess.subList(1, brokenGroupsToProcess.size)
   }
 
-  interface State {
-    fun accept(current: HotSpring): State
-  }
+  if (nextRemainingBrokensInGroup < 0) return
 
-  inner class StartState : State {
-    var count: Long = 0
+  addCurrentAndProcessNext(
+    broken,
+    result,
+    hotSpringsToProcess,
+    nextRemainingBrokensInGroup,
+    nextBrokenGroupsToProcess,
+    solutionConsumer
+  )
+}
 
-    override fun accept(current: HotSpring): State {
-      TODO("Not yet implemented")
-    }
-  }
+fun processUnknown(
+  result: MutableList<HotSpring>,
+  hotSpringsToProcess: List<HotSpring>,
+  remainingBrokensInCurrentGroup: Int?,
+  brokenGroupsToProcess: List<Int>,
+  solutionConsumer: (List<HotSpring>) -> Unit
+) {
+  processOperational(
+    result,
+    hotSpringsToProcess,
+    remainingBrokensInCurrentGroup,
+    brokenGroupsToProcess,
+    solutionConsumer
+  )
 
+  processBroken(
+    result,
+    hotSpringsToProcess,
+    remainingBrokensInCurrentGroup,
+    brokenGroupsToProcess,
+    solutionConsumer
+  )
+}
+
+private fun processEnd(
+  result: MutableList<HotSpring>,
+  hotSpringsToProcess: List<HotSpring>,
+  remainingBrokensInCurrentGroup: Int?,
+  brokenGroupsToProcess: List<Int>,
+  solutionConsumer: (List<HotSpring>) -> Unit
+) {
+  require(hotSpringsToProcess.isEmpty())
+
+  if (remainingBrokensInCurrentGroup.isCurrentGroupNotEmpty() || brokenGroupsToProcess.isNotEmpty()) return
+
+  solutionConsumer(result.toList())
+}
+
+private fun Int?.isCurrentGroupNotEmpty(): Boolean = this != null && this > 0
+
+private fun addCurrentAndProcessNext(
+  current: HotSpring,
+  result: MutableList<HotSpring>,
+  hotSpringsToProcess: List<HotSpring>,
+  remainingBrokensInGroup: Int?,
+  brokenGroupsToProcess: List<Int>,
+  solutionConsumer: (List<HotSpring>) -> Unit
+) {
+  result.add(current)
+
+  processNext(result, hotSpringsToProcess, remainingBrokensInGroup, brokenGroupsToProcess, solutionConsumer)
+
+  result.removeLast()
+}
+
+private data class ListWithPointer<E>(val list: List<E>, var pointer: Int = 0) {
+
+  fun next(): E = list[pointer++]
+
+  fun prev(): E = list[pointer--]
+
+  fun endReached(): Boolean = pointer >= list.size
+
+  fun endNotReached(): Boolean = !endReached()
 }
 
 private val intRegex = """(\d+)""".toRegex()
