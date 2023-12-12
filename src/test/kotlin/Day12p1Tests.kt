@@ -10,7 +10,6 @@ import io.kotest.data.table
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.readInput
 import org.apache.commons.math3.util.ArithmeticUtils
 
 class Day12p1Tests : FunSpec({
@@ -244,18 +243,20 @@ class Day12p1Tests : FunSpec({
         21
       ),
 
-      row(
-        "custom input",
-        readInput("day12p1"),
-        6827
-      ),
+//      row(
+//        "custom input",
+//        readInput("day12p1"),
+//        6827
+//      ),
     ).forAll { title, crinput, sum ->
       test(""" Given a condition record titled $title then the expected total number of solutions is $sum """) {
-        crinput.sumOfSolutions() shouldBe sum
+        crinput.sumOfSolutions2() shouldBe sum
       }
     }
   }
 })
+
+private fun String.sumOfSolutions2(): Long = lineSequence().sumOf { it.toConditionRecordRow().countSolutions2() }
 
 fun String.sumOfSolutions(): Int = lineSequence().sumOf { it.toConditionRecordRow().countSolutions() }
 
@@ -334,6 +335,35 @@ data class ConditionRecordRow(
   fun countSolutions(): Int = solutions().count()
 
   fun solutionsAsText(): Sequence<String> = solutions().map { it.toConditionRecordRow1Text() }
+
+  fun countSolutions2(): Long {
+    val hotSprings = this@ConditionRecordRow.hotSprings.toMutableList()
+    val startState = StartState()
+    var currentState: State = startState
+    val states = mutableListOf(currentState)
+
+    while (hotSprings.isNotEmpty()) {
+      val newState = currentState.accept(hotSprings.removeFirst())
+      if (newState != currentState) {
+        currentState = newState
+        states.add(currentState)
+      }
+    }
+
+    return startState.count
+  }
+
+  interface State {
+    fun accept(current: HotSpring): State
+  }
+
+  inner class StartState : State {
+    var count: Long = 0
+
+    override fun accept(current: HotSpring): State {
+      TODO("Not yet implemented")
+    }
+  }
 
 }
 

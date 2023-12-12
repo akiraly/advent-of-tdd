@@ -1,0 +1,192 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1250"> 
+  <title>Coverage Report > Day11p2Kt</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day11p2</a>
+</div>
+
+<h1>Coverage Summary for Class: Day11p2Kt (day11p2)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Day11p2Kt</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day11p2
+&nbsp;
+&nbsp;import java.util.*
+&nbsp;import kotlin.math.absoluteValue
+&nbsp;
+&nbsp;fun String.toUniverse(): Universe {
+<b class="fc">&nbsp;  val lines = lines()</b>
+<b class="fc">&nbsp;  val numOfRows = lines.size</b>
+<b class="fc">&nbsp;  val numOfColumns = lines.first().length</b>
+&nbsp;
+<b class="fc">&nbsp;  val galaxies = lines.flatMapIndexed { row: Int, line: String -&gt;</b>
+<b class="fc">&nbsp;    line.mapIndexedNotNull { column, ch -&gt; if (ch == &#39;#&#39;) row to column else null }</b>
+&nbsp;  }
+<b class="fc">&nbsp;    .map { Galaxy(Coordinate(it.first, it.second)) }</b>
+<b class="fc">&nbsp;    .toSet()</b>
+&nbsp;
+<b class="fc">&nbsp;  return Universe(numOfRows.toLong(), numOfColumns.toLong(), galaxies)</b>
+&nbsp;}
+&nbsp;
+&nbsp;data class Universe(val numOfRows: Long, val numOfColumns: Long, val galaxies: Set&lt;Galaxy&gt;) {
+&nbsp;  fun toExpandedUniverse(expansionRate: Long = 2L): Universe {
+&nbsp;    var rowOffset = 0L
+&nbsp;    val rowOffsets = TreeMap&lt;Long, Long&gt;()
+&nbsp;    rowOffsets[0] = rowOffset
+&nbsp;    val galaxyRows = galaxies.asSequence().map { it.coordinate.row }.toSet()
+&nbsp;    (0..&lt;numOfRows).asSequence().filter { !galaxyRows.contains(it) }.forEach { row -&gt;
+&nbsp;      rowOffset += expansionRate - 1
+&nbsp;      rowOffsets[row] = rowOffset
+&nbsp;    }
+&nbsp;
+&nbsp;    var columnOffset = 0L
+&nbsp;    val columnOffsets = TreeMap&lt;Long, Long&gt;()
+&nbsp;    columnOffsets[0] = columnOffset
+&nbsp;    val galaxyColumns = galaxies.asSequence().map { it.coordinate.column }.toSet()
+&nbsp;    (0..&lt;numOfColumns).asSequence().filter { !galaxyColumns.contains(it) }.forEach { column -&gt;
+&nbsp;      columnOffset += expansionRate - 1
+&nbsp;      columnOffsets[column] = columnOffset
+&nbsp;    }
+&nbsp;
+&nbsp;    return Universe(
+&nbsp;      numOfRows + rowOffset,
+&nbsp;      numOfColumns + columnOffset,
+&nbsp;      galaxies.map { galaxy -&gt;
+&nbsp;        val row = galaxy.coordinate.row
+&nbsp;        val column = galaxy.coordinate.column
+&nbsp;        val ro = rowOffsets.floorEntry(row).value!!
+&nbsp;        val co = columnOffsets.floorEntry(column).value!!
+&nbsp;
+&nbsp;        Galaxy(Coordinate(row + ro, column + co))
+&nbsp;      }
+&nbsp;        .toSet()
+&nbsp;    )
+&nbsp;  }
+&nbsp;
+&nbsp;  fun toImage(): String {
+&nbsp;    val galaxyColumnsByRow =
+&nbsp;      galaxies.groupBy({ it.coordinate.row }) { it.coordinate.column }.mapValues { it.value.toSet() }
+&nbsp;
+&nbsp;    return (0..&lt;numOfRows).asSequence().map { row -&gt;
+&nbsp;      val galaxiesInTheRow = galaxyColumnsByRow[row] ?: emptySet()
+&nbsp;      (0..&lt;numOfColumns).asSequence().map { column -&gt; if (galaxiesInTheRow.contains(column)) &#39;#&#39; else &#39;.&#39; }.toList()
+&nbsp;    }.joinToString(&quot;\n&quot;) { it.joinToString(&quot;&quot;) }
+&nbsp;  }
+&nbsp;
+&nbsp;  fun sumOfShortestPaths(): Long {
+&nbsp;    val galaxyList = galaxies.toList()
+&nbsp;    var result = 0L
+&nbsp;    for (i in galaxyList.indices) {
+&nbsp;      val galaxy1 = galaxyList[i]
+&nbsp;      for (j in (i + 1)..&lt;galaxyList.size) {
+&nbsp;        val galaxy2 = galaxyList[j]
+&nbsp;        result += galaxy1.distanceTo(galaxy2)
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    return result
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;data class Galaxy(val coordinate: Coordinate) {
+&nbsp;  fun distanceTo(that: Galaxy): Long = coordinate.distanceTo(that.coordinate)
+&nbsp;}
+&nbsp;
+&nbsp;data class Coordinate(val row: Long, val column: Long) {
+&nbsp;  constructor(row: Int, column: Int) : this(row.toLong(), column.toLong())
+&nbsp;
+&nbsp;  fun distanceTo(that: Coordinate): Long = (row - that.row).absoluteValue + (column - that.column).absoluteValue
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-11 13:41</div>
+</div>
+</body>
+</html>
