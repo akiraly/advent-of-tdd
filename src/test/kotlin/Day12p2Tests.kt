@@ -405,13 +405,13 @@ data class ConditionRecordRow(
 
     val groupSize = groupSizes.first()
     val maxStart = hotSprings.subList(index, hotSprings.size).indexOf(broken)
-      .let { if (it == -1) hotSprings.size - 1 else min(hotSprings.size - 1, it) }
+      .let { if (it == -1) hotSprings.size - 1 else min(it, hotSprings.size - 1) } + index
     if (maxStart < index) return
     val placings = placingMap.getValue(groupSize).subSet(index, true, maxStart, true)
 
     placings.forEach { i ->
 
-      if ((index..<i).any { hotSprings[it] == broken }) return@forEach
+      //if ((index..<i).any { hotSprings[it] == broken }) return@forEach
 
       val endsWithOperational = i + groupSize < hotSprings.size
 
