@@ -11,6 +11,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.readInput
 import java.util.*
+import kotlin.math.min
 
 class Day12p2Tests : FunSpec({
   context("Condition record converting between text input and model") {
@@ -61,7 +62,7 @@ class Day12p2Tests : FunSpec({
     }
 
     table(
-      headers("Condition Record Row Input", "Number of unknowns", "Expected"),
+      headers("Condition Record Row Input", "Number of unknowns", "Expected Row"),
       row(
         "#.#.### 1,1,3", 0, ConditionRecordRow(
           listOf(broken, operational, broken, operational, broken, broken, broken),
@@ -74,18 +75,35 @@ class Day12p2Tests : FunSpec({
           listOf(1, 1, 3)
         )
       )
-    ).forAll { input, numOfUnknowns, expected ->
+    ).forAll { input, numOfUnknowns, expectedRow ->
       val row = input.toConditionRecordRow()
-      test(""" Given a condition record row of "$input" then the expected parsed value should be "$expected" """) {
-        row shouldBe expected
+      test(""" Given a condition record row of "$input" then the expected parsed value should be "$expectedRow" """) {
+        row shouldBe expectedRow
         row.numberOfUnknowns shouldBe numOfUnknowns
-        expected.numberOfUnknowns shouldBe numOfUnknowns
+        expectedRow.numberOfUnknowns shouldBe numOfUnknowns
       }
 
       test(""" Given a condition record row of "$input" when parsed and then the hotsprings converted back to text and parsed again then we should get the same hotsprings """) {
         row.hotSprings.toConditionRecordRow1Text().toHotSpringList() shouldBe row.hotSprings
       }
 
+    }
+  }
+
+  context("placing map") {
+    table(
+      headers("Condition Record Row Input", "Expected Placing Map"),
+      row(
+        "#.#.### 1,1,3", mapOf(1 to setOf(0, 2), 3 to setOf(4))
+      ),
+      row(
+        "???.### 1,1,3", mapOf(1 to setOf(0, 1, 2), 3 to setOf(0, 4))
+      )
+    ).forAll { input, expected ->
+      val row = input.toConditionRecordRow()
+      test(""" Given a condition record row of "$input" then the expected parsed value should have the following placing map "$expected" """) {
+        row.placingMap shouldBe expected
+      }
     }
   }
 
@@ -180,6 +198,15 @@ class Day12p2Tests : FunSpec({
       ),
     ).forAll { title, crinput, sum ->
       test(""" Given a condition record titled $title then the expected total number of solutions is $sum """) {
+        crinput.lineSequence().forEach { line ->
+          val row = line.toConditionRecordRow()
+          val old = row.solutionsAsTextOld().sorted().toList()
+          val new = row.solutionsAsText().sorted().toList()
+          if (old != new) {
+            println(line)
+            new shouldBe old
+          }
+        }
         crinput.sumOfSolutions() shouldBe sum
       }
     }
@@ -296,6 +323,7 @@ data class ConditionRecordRow(
   val numberOfUnknowns = hotSprings.count { it == unknown }
   val numberOfKnownBrokens = hotSprings.count { it == broken }
   val totalNumberOfBrokens = contGroupOfDamagedSprings.sum()
+  val placingMap = calcPlacingMap()
 
 //  init {
 //    val groupCount = hotSprings.asSequence().filter { it != unknown }
@@ -304,7 +332,22 @@ data class ConditionRecordRow(
 //    println(groupCount)
 //  }
 
-  private fun solutions(): Sequence<List<HotSpring>> {
+  fun calcPlacingMap(): NavigableMap<Int, out NavigableSet<Int>> {
+    return TreeMap(contGroupOfDamagedSprings.asSequence().distinct().associateWith { groupSize ->
+      (0..hotSprings.size - groupSize).asSequence().mapNotNull { i ->
+        if (
+          (0..<groupSize).all { hotSprings[i + it] != operational }
+          && (hotSprings.size == i + groupSize || hotSprings[i + groupSize] != broken)
+          && if (i > 0) hotSprings[i - 1] != broken else true
+        ) {
+          i
+        } else null
+      }.toCollection(TreeSet())
+    })
+  }
+
+  private fun solutionsOld(): Sequence<List<HotSpring>> {
+    println(placingMap)
     val solutions = mutableListOf<List<HotSpring>>()
     processNext(
       hotSpringsToProcess = hotSprings,
@@ -319,23 +362,72 @@ data class ConditionRecordRow(
     return solutions.asSequence()
   }
 
+  private fun solutions(): Sequence<List<HotSpring>> {
+    println(placingMap)
+    val solutions = mutableListOf<List<HotSpring>>()
+    placeGroup {
+      val solution = it.toList()
+      require(solution.size == hotSprings.size)
+      require(solution.zip(hotSprings).all { (a, b) -> a == b || b == unknown }) { "$solution vs $hotSprings" }
+      solutions.add(solution)
+    }
+    return solutions.asSequence()
+  }
+
   fun countSolutions(): Long {
+    println(placingMap)
     var count = 0L
-    processNext(
-      hotSpringsToProcess = hotSprings,
-      brokenGroupsToProcess = contGroupOfDamagedSprings,
-      remainingNumberOfUnknowns = numberOfUnknowns,
-      remainingNumberOfKnownBrokens = numberOfKnownBrokens,
-      remainingTotalNumberOfBrokens = totalNumberOfBrokens,
-      numberOfGroupsNeeded = contGroupOfDamagedSprings.size
-    ) {
+    placeGroup {
       count++
       if (count % 5_000_000 == 0L) println(count)
     }
     return count
   }
 
+  fun solutionsAsTextOld(): Sequence<String> = solutionsOld().map { it.toConditionRecordRow1Text() }
   fun solutionsAsText(): Sequence<String> = solutions().map { it.toConditionRecordRow1Text() }
+
+  private fun placeGroup(
+    solution: Sequence<HotSpring> = emptySequence(),
+    hotSprings: List<HotSpring> = this.hotSprings,
+    index: Int = 0,
+    groupSizes: List<Int> = contGroupOfDamagedSprings,
+    solutionConsumer: (Sequence<HotSpring>) -> Unit
+  ) {
+    require(index <= hotSprings.size)
+    if (groupSizes.isEmpty()) {
+      val remainingItems = 0..<hotSprings.size - index
+      if (remainingItems.all { hotSprings[index + it] != broken }) {
+        solutionConsumer(solution + remainingItems.asSequence().map { operational })
+      }
+      return
+    }
+
+    val groupSize = groupSizes.first()
+    val maxStart = hotSprings.subList(index, hotSprings.size).indexOf(broken)
+      .let { if (it == -1) hotSprings.size - 1 else min(hotSprings.size - 1, it) }
+    if (maxStart < index) return
+    val placings = placingMap.getValue(groupSize).subSet(index, true, maxStart, true)
+
+    placings.forEach { i ->
+
+      if ((index..<i).any { hotSprings[it] == broken }) return@forEach
+
+      val endsWithOperational = i + groupSize < hotSprings.size
+
+      placeGroup(
+        solution +
+          (0..<i - index).asSequence()
+            .map { hotSprings[index + it].let { hs -> if (hs == broken) broken else operational } } +
+          (0..<groupSize).asSequence().map { broken } +
+          if (endsWithOperational) sequenceOf(operational) else emptySequence(),
+        hotSprings,
+        i + groupSize + if (endsWithOperational) 1 else 0,
+        groupSizes.subList(1, groupSizes.size),
+        solutionConsumer
+      )
+    }
+  }
 }
 
 private fun processNext(
