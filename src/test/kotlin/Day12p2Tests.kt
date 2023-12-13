@@ -11,7 +11,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.readInput
 import java.util.*
-import kotlin.math.min
 
 class Day12p2Tests : FunSpec({
   context("Condition record converting between text input and model") {
@@ -94,15 +93,15 @@ class Day12p2Tests : FunSpec({
     table(
       headers("Condition Record Row Input", "Expected Placing Map"),
       row(
-        "#.#.### 1,1,3", mapOf(1 to setOf(0, 2), 3 to setOf(4))
+        "#.#.### 1,1,3", listOf(1 to listOf(0, 2), 3 to listOf(4))
       ),
       row(
-        "???.### 1,1,3", mapOf(1 to setOf(0, 1, 2), 3 to setOf(0, 4))
+        "???.### 1,1,3", listOf(1 to listOf(0, 1, 2), 1 to listOf(1, 2),  3 to listOf(4))
       )
     ).forAll { input, expected ->
       val row = input.toConditionRecordRow()
       test(""" Given a condition record row of "$input" then the expected parsed value should have the following placing map "$expected" """) {
-        row.placingMap shouldBe expected
+        row.placingMap2 shouldBe expected
       }
     }
   }
@@ -324,6 +323,10 @@ data class ConditionRecordRow(
   val numberOfKnownBrokens = hotSprings.count { it == broken }
   val totalNumberOfBrokens = contGroupOfDamagedSprings.sum()
   val placingMap = calcPlacingMap()
+  val placingMap2 = calcPlacingMap2()
+  val knownBrokenIndexes = hotSprings.asSequence().mapIndexedNotNull { index, hotSpring ->
+    if (hotSpring == broken) index else null
+  }.toCollection(TreeSet())
 
 //  init {
 //    val groupCount = hotSprings.asSequence().filter { it != unknown }
@@ -346,6 +349,34 @@ data class ConditionRecordRow(
     })
   }
 
+  fun calcPlacingMap2(): List<Pair<Int, NavigableSet<Int>>> {
+    var minStartIndex = 0
+    var maxStartIndex = hotSprings.size - contGroupOfDamagedSprings.sum() - contGroupOfDamagedSprings.size + 1
+    val result = mutableListOf<Pair<Int, TreeSet<Int>>>()
+
+    contGroupOfDamagedSprings.forEach { groupSize ->
+      result.add( groupSize to (minStartIndex..maxStartIndex).asSequence().mapNotNull { i ->
+        if (
+          (0..<groupSize).all { hotSprings[i + it] != operational }
+          && (hotSprings.size == i + groupSize || hotSprings[i + groupSize] != broken)
+          && if (i > 0) hotSprings[i - 1] != broken else true
+        ) {
+          i
+        } else null
+      }.toCollection(TreeSet()))
+      if (minStartIndex > 0) {
+        minStartIndex++
+      }
+      minStartIndex += groupSize
+      maxStartIndex += groupSize
+      if (maxStartIndex < hotSprings.size) {
+        maxStartIndex++
+      }
+    }
+
+    return result
+  }
+
   private fun solutionsOld(): Sequence<List<HotSpring>> {
     println(placingMap)
     val solutions = mutableListOf<List<HotSpring>>()
@@ -363,7 +394,7 @@ data class ConditionRecordRow(
   }
 
   private fun solutions(): Sequence<List<HotSpring>> {
-    println(placingMap)
+    println(placingMap2)
     val solutions = mutableListOf<List<HotSpring>>()
     placeGroup {
       val solution = it.toList()
@@ -375,7 +406,7 @@ data class ConditionRecordRow(
   }
 
   fun countSolutions(): Long {
-    println(placingMap)
+    println(placingMap2)
     var count = 0L
     placeGroup {
       count++
@@ -392,22 +423,22 @@ data class ConditionRecordRow(
     hotSprings: List<HotSpring> = this.hotSprings,
     index: Int = 0,
     groupSizes: List<Int> = contGroupOfDamagedSprings,
+    allPlacings: List<Pair<Int, NavigableSet<Int>>> = placingMap2,
     solutionConsumer: (Sequence<HotSpring>) -> Unit
   ) {
     require(index <= hotSprings.size)
     if (groupSizes.isEmpty()) {
-      val remainingItems = 0..<hotSprings.size - index
-      if (remainingItems.all { hotSprings[index + it] != broken }) {
-        solutionConsumer(solution + remainingItems.asSequence().map { operational })
+      if (knownBrokenIndexes.ceiling(index) == null) {
+        solutionConsumer(solution + (index..<hotSprings.size).asSequence().map { operational })
       }
       return
     }
 
-    val groupSize = groupSizes.first()
-    val maxStart = hotSprings.subList(index, hotSprings.size).indexOf(broken)
-      .let { if (it == -1) hotSprings.size - 1 else min(it, hotSprings.size - 1) } + index
+    val (groupSize, groupPlacings) = allPlacings.first()
+    //val groupSize = groupSizes.first()
+    val maxStart = knownBrokenIndexes.ceiling(index) ?: (hotSprings.size - 1)
     if (maxStart < index) return
-    val placings = placingMap.getValue(groupSize).subSet(index, true, maxStart, true)
+    val placings = groupPlacings.subSet(index, true, maxStart, true)
 
     placings.forEach { i ->
 
@@ -424,6 +455,7 @@ data class ConditionRecordRow(
         hotSprings,
         i + groupSize + if (endsWithOperational) 1 else 0,
         groupSizes.subList(1, groupSizes.size),
+        allPlacings.subList(1, allPlacings.size),
         solutionConsumer
       )
     }
