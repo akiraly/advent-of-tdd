@@ -61,25 +61,23 @@ class Day12p2Tests : FunSpec({
     }
 
     table(
-      headers("Condition Record Row Input", "Number of unknowns", "Expected Row"),
+      headers("Condition Record Row Input", "Expected Row"),
       row(
-        "#.#.### 1,1,3", 0, ConditionRecordRow(
+        "#.#.### 1,1,3", ConditionRecordRow(
           listOf(broken, operational, broken, operational, broken, broken, broken),
           listOf(1, 1, 3)
         )
       ),
       row(
-        "???.### 1,1,3", 3, ConditionRecordRow(
+        "???.### 1,1,3", ConditionRecordRow(
           listOf(unknown, unknown, unknown, operational, broken, broken, broken),
           listOf(1, 1, 3)
         )
       )
-    ).forAll { input, numOfUnknowns, expectedRow ->
+    ).forAll { input, expectedRow ->
       val row = input.toConditionRecordRow()
       test(""" Given a condition record row of "$input" then the expected parsed value should be "$expectedRow" """) {
         row shouldBe expectedRow
-        row.numberOfUnknowns shouldBe numOfUnknowns
-        expectedRow.numberOfUnknowns shouldBe numOfUnknowns
       }
 
       test(""" Given a condition record row of "$input" when parsed and then the hotsprings converted back to text and parsed again then we should get the same hotsprings """) {
@@ -93,15 +91,15 @@ class Day12p2Tests : FunSpec({
     table(
       headers("Condition Record Row Input", "Expected Placing Map"),
       row(
-        "#.#.### 1,1,3", listOf(1 to listOf(0, 2), 3 to listOf(4))
+        "#.#.### 1,1,3", listOf(1 to listOf(0), 1 to listOf(2), 3 to listOf(4)).map { (k, v) -> k to TreeSet(v) }
       ),
       row(
-        "???.### 1,1,3", listOf(1 to listOf(0, 1, 2), 1 to listOf(1, 2),  3 to listOf(4))
+        "???.### 1,1,3", listOf(1 to listOf(0), 1 to listOf(2), 3 to listOf(4)).map { (k, v) -> k to TreeSet(v) }
       )
     ).forAll { input, expected ->
       val row = input.toConditionRecordRow()
       test(""" Given a condition record row of "$input" then the expected parsed value should have the following placing map "$expected" """) {
-        row.placingMap2 shouldBe expected
+        row.placingMap shouldBe expected
       }
     }
   }
@@ -197,15 +195,6 @@ class Day12p2Tests : FunSpec({
       ),
     ).forAll { title, crinput, sum ->
       test(""" Given a condition record titled $title then the expected total number of solutions is $sum """) {
-        crinput.lineSequence().forEach { line ->
-          val row = line.toConditionRecordRow()
-          val old = row.solutionsAsTextOld().sorted().toList()
-          val new = row.solutionsAsText().sorted().toList()
-          if (old != new) {
-            println(line)
-            new shouldBe old
-          }
-        }
         crinput.sumOfSolutions() shouldBe sum
       }
     }
@@ -259,7 +248,7 @@ class Day12p2Tests : FunSpec({
       row(
         "custom input",
         readInput("day12p1"),
-        6827
+        1537505634471
       ),
     ).forAll { title, crinput, sum ->
       test(""" Given a condition record titled $title when unfolded then the expected total number of solutions is $sum """) {
@@ -276,14 +265,7 @@ private fun String.unfold(): String = split(" ").let { (first, second) ->
     generateSequence { second }.take(5).joinToString(",")
 }
 
-fun String.sumOfSolutions(): Long = lineSequence().sumOf {
-  println(it)
-//  stats.clear()
-//  globalCount = 0
-  val count = it.toConditionRecordRow().countSolutions()
-  println(count)
-  count
-}
+fun String.sumOfSolutions(): Long = lineSequence().sumOf { it.toConditionRecordRow().countSolutions() }
 
 fun List<HotSpring>.calcContiguousGroupOfDamagedSprings(): List<Int> {
   val contGroupOfDamagedSprings = mutableListOf<Int>()
@@ -319,43 +301,20 @@ data class ConditionRecordRow(
   val hotSprings: List<HotSpring>,
   val contGroupOfDamagedSprings: List<Int>
 ) {
-  val numberOfUnknowns = hotSprings.count { it == unknown }
-  val numberOfKnownBrokens = hotSprings.count { it == broken }
-  val totalNumberOfBrokens = contGroupOfDamagedSprings.sum()
   val placingMap = calcPlacingMap()
-  val placingMap2 = calcPlacingMap2()
-  val knownBrokenIndexes = hotSprings.asSequence().mapIndexedNotNull { index, hotSpring ->
+  private val knownBrokenIndexes = hotSprings.asSequence().mapIndexedNotNull { index, hotSpring ->
     if (hotSpring == broken) index else null
   }.toCollection(TreeSet())
 
-//  init {
-//    val groupCount = hotSprings.asSequence().filter { it != unknown }
-//      .windowed(2, partialWindows = true)
-//      .sumOf { if (it.size == 1 && it[0] == broken) 1L else if (it[0] == broken && it[1] == operational) 1 else 0 }
-//    println(groupCount)
-//  }
-
-  fun calcPlacingMap(): NavigableMap<Int, out NavigableSet<Int>> {
-    return TreeMap(contGroupOfDamagedSprings.asSequence().distinct().associateWith { groupSize ->
-      (0..hotSprings.size - groupSize).asSequence().mapNotNull { i ->
-        if (
-          (0..<groupSize).all { hotSprings[i + it] != operational }
-          && (hotSprings.size == i + groupSize || hotSprings[i + groupSize] != broken)
-          && if (i > 0) hotSprings[i - 1] != broken else true
-        ) {
-          i
-        } else null
-      }.toCollection(TreeSet())
-    })
-  }
-
-  fun calcPlacingMap2(): List<Pair<Int, NavigableSet<Int>>> {
-    var minStartIndex = 0
-    var maxStartIndex = hotSprings.size - contGroupOfDamagedSprings.sum() - contGroupOfDamagedSprings.size + 1
+  private fun calcPlacingMap(): List<Pair<Int, NavigableSet<Int>>> {
+    var minStartIndex = hotSprings.indexOfFirst { it != operational }.let { if (it == -1) 0 else it }
+    var maxStartIndex =
+      hotSprings.indexOfLast { it != operational }.let { if (it == -1) hotSprings.size else (it + 1) } -
+        contGroupOfDamagedSprings.sum() - contGroupOfDamagedSprings.size + 1
     val result = mutableListOf<Pair<Int, TreeSet<Int>>>()
 
     contGroupOfDamagedSprings.forEach { groupSize ->
-      result.add( groupSize to (minStartIndex..maxStartIndex).asSequence().mapNotNull { i ->
+      result.add(groupSize to (minStartIndex..maxStartIndex).asSequence().mapNotNull { i ->
         if (
           (0..<groupSize).all { hotSprings[i + it] != operational }
           && (hotSprings.size == i + groupSize || hotSprings[i + groupSize] != broken)
@@ -364,37 +323,14 @@ data class ConditionRecordRow(
           i
         } else null
       }.toCollection(TreeSet()))
-      if (minStartIndex > 0) {
-        minStartIndex++
-      }
-      minStartIndex += groupSize
-      maxStartIndex += groupSize
-      if (maxStartIndex < hotSprings.size) {
-        maxStartIndex++
-      }
+      minStartIndex += groupSize + 1
+      maxStartIndex += groupSize + 1
     }
 
     return result
   }
 
-  private fun solutionsOld(): Sequence<List<HotSpring>> {
-    println(placingMap)
-    val solutions = mutableListOf<List<HotSpring>>()
-    processNext(
-      hotSpringsToProcess = hotSprings,
-      brokenGroupsToProcess = contGroupOfDamagedSprings,
-      remainingNumberOfUnknowns = numberOfUnknowns,
-      remainingNumberOfKnownBrokens = numberOfKnownBrokens,
-      remainingTotalNumberOfBrokens = totalNumberOfBrokens,
-      numberOfGroupsNeeded = contGroupOfDamagedSprings.size
-    ) {
-      solutions.add(it.toList())
-    }
-    return solutions.asSequence()
-  }
-
   private fun solutions(): Sequence<List<HotSpring>> {
-    println(placingMap2)
     val solutions = mutableListOf<List<HotSpring>>()
     placeGroup {
       val solution = it.toList()
@@ -406,16 +342,25 @@ data class ConditionRecordRow(
   }
 
   fun countSolutions(): Long {
-    println(placingMap2)
+    val cache = mutableMapOf<Pair<Int, Int>, Long>()
     var count = 0L
-    placeGroup {
+    placeGroup(
+      recursionFn = r@{ context ->
+        val key = context.index to context.groupSizes.size
+        cache[key]?.let {
+          count += it
+          return@r
+        }
+        val currentCount = count
+        placeGroup(context)
+        cache[key] = count - currentCount
+      }
+    ) {
       count++
-      if (count % 5_000_000 == 0L) println(count)
     }
     return count
   }
 
-  fun solutionsAsTextOld(): Sequence<String> = solutionsOld().map { it.toConditionRecordRow1Text() }
   fun solutionsAsText(): Sequence<String> = solutions().map { it.toConditionRecordRow1Text() }
 
   private fun placeGroup(
@@ -423,344 +368,64 @@ data class ConditionRecordRow(
     hotSprings: List<HotSpring> = this.hotSprings,
     index: Int = 0,
     groupSizes: List<Int> = contGroupOfDamagedSprings,
-    allPlacings: List<Pair<Int, NavigableSet<Int>>> = placingMap2,
+    allPlacings: List<Pair<Int, NavigableSet<Int>>> = placingMap,
+    recursionFn: (PlaceGroupContext) -> Unit = this::placeGroup,
     solutionConsumer: (Sequence<HotSpring>) -> Unit
-  ) {
-    require(index <= hotSprings.size)
-    if (groupSizes.isEmpty()) {
-      if (knownBrokenIndexes.ceiling(index) == null) {
-        solutionConsumer(solution + (index..<hotSprings.size).asSequence().map { operational })
+  ) = placeGroup(
+    PlaceGroupContext(
+      solution = solution,
+      hotSprings = hotSprings,
+      index = index,
+      groupSizes = groupSizes,
+      allPlacings = allPlacings,
+      recursionFn = recursionFn,
+      solutionConsumer = solutionConsumer
+    )
+  )
+
+  private data class PlaceGroupContext(
+    val solution: Sequence<HotSpring>,
+    val hotSprings: List<HotSpring>,
+    val index: Int,
+    val groupSizes: List<Int>,
+    val allPlacings: List<Pair<Int, NavigableSet<Int>>>,
+    val recursionFn: (PlaceGroupContext) -> Unit,
+    val solutionConsumer: (Sequence<HotSpring>) -> Unit
+  )
+
+  private fun placeGroup(context: PlaceGroupContext) {
+    with(context) {
+      require(index <= hotSprings.size)
+      if (groupSizes.isEmpty()) {
+        if (knownBrokenIndexes.ceiling(index) == null) {
+          solutionConsumer(solution + (index..<hotSprings.size).asSequence().map { operational })
+        }
+        return
       }
-      return
-    }
 
-    val (groupSize, groupPlacings) = allPlacings.first()
-    //val groupSize = groupSizes.first()
-    val maxStart = knownBrokenIndexes.ceiling(index) ?: (hotSprings.size - 1)
-    if (maxStart < index) return
-    val placings = groupPlacings.subSet(index, true, maxStart, true)
+      val (groupSize, groupPlacings) = allPlacings.first()
+      val maxStart = knownBrokenIndexes.ceiling(index) ?: (hotSprings.size - 1)
+      if (maxStart < index) return
+      val placings = groupPlacings.subSet(index, true, maxStart, true)
 
-    placings.forEach { i ->
+      placings.forEach { i ->
 
-      //if ((index..<i).any { hotSprings[it] == broken }) return@forEach
+        val endsWithOperational = i + groupSize < hotSprings.size
 
-      val endsWithOperational = i + groupSize < hotSprings.size
-
-      placeGroup(
-        solution +
-          (0..<i - index).asSequence()
-            .map { hotSprings[index + it].let { hs -> if (hs == broken) broken else operational } } +
-          (0..<groupSize).asSequence().map { broken } +
-          if (endsWithOperational) sequenceOf(operational) else emptySequence(),
-        hotSprings,
-        i + groupSize + if (endsWithOperational) 1 else 0,
-        groupSizes.subList(1, groupSizes.size),
-        allPlacings.subList(1, allPlacings.size),
-        solutionConsumer
-      )
+        recursionFn(context.copy(
+          solution = solution +
+            (0..<i - index).asSequence()
+              .map { hotSprings[index + it].let { hs -> if (hs == broken) broken else operational } } +
+            (0..<groupSize).asSequence().map { broken } +
+            if (endsWithOperational) sequenceOf(operational) else emptySequence(),
+          index = i + groupSize + if (endsWithOperational) 1 else 0,
+          groupSizes = groupSizes.subList(1, groupSizes.size),
+          allPlacings = allPlacings.subList(1, allPlacings.size),
+        ))
+      }
     }
   }
 }
-
-private fun processNext(
-  result: Sequence<HotSpring> = emptySequence(),
-  hotSpringsToProcess: List<HotSpring>,
-  remainingBrokensInCurrentGroup: Int? = null,
-  brokenGroupsToProcess: List<Int>,
-  remainingNumberOfUnknowns: Int,
-  remainingNumberOfKnownBrokens: Int,
-  remainingTotalNumberOfBrokens: Int,
-  numberOfGroupsNeeded: Int,
-  numberOfGroupsCreated: Int = 0,
-  solutionConsumer: (Sequence<HotSpring>) -> Unit
-) {
-  if (hotSpringsToProcess.isEmpty()) {
-    processEnd(
-      result,
-      hotSpringsToProcess,
-      remainingBrokensInCurrentGroup,
-      brokenGroupsToProcess,
-      remainingNumberOfUnknowns,
-      remainingNumberOfKnownBrokens,
-      remainingTotalNumberOfBrokens,
-      numberOfGroupsNeeded,
-      numberOfGroupsCreated,
-      solutionConsumer
-    )
-    return
-  }
-
-//  if (numberOfGroupsNeeded - numberOfGroupsCreated - 1 > hotSpringsToProcess.size - remainingTotalNumberOfBrokens) {
-//    return
-//  }
-
-  val next = hotSpringsToProcess.first()
-  val remaining = hotSpringsToProcess.subList(1, hotSpringsToProcess.size)
-  when (next) {
-    operational -> processOperational(
-      result,
-      remaining,
-      remainingBrokensInCurrentGroup,
-      brokenGroupsToProcess,
-      remainingNumberOfUnknowns,
-      remainingNumberOfKnownBrokens,
-      remainingTotalNumberOfBrokens,
-      numberOfGroupsNeeded,
-      numberOfGroupsCreated,
-      solutionConsumer
-    )
-
-    broken -> processKnownBroken(
-      result,
-      remaining,
-      remainingBrokensInCurrentGroup,
-      brokenGroupsToProcess,
-      remainingNumberOfUnknowns,
-      remainingNumberOfKnownBrokens,
-      remainingTotalNumberOfBrokens,
-      numberOfGroupsNeeded,
-      numberOfGroupsCreated,
-      solutionConsumer
-    )
-
-    unknown -> processUnknown(
-      result,
-      remaining,
-      remainingBrokensInCurrentGroup,
-      brokenGroupsToProcess,
-      remainingNumberOfUnknowns,
-      remainingNumberOfKnownBrokens,
-      remainingTotalNumberOfBrokens,
-      numberOfGroupsNeeded,
-      numberOfGroupsCreated,
-      solutionConsumer
-    )
-  }
-}
-
-private fun processOperational(
-  result: Sequence<HotSpring>,
-  hotSpringsToProcess: List<HotSpring>,
-  remainingBrokensInGroup: Int?,
-  brokenGroupsToProcess: List<Int>,
-  remainingNumberOfUnknowns: Int,
-  remainingNumberOfKnownBrokens: Int,
-  remainingTotalNumberOfBrokens: Int,
-  numberOfGroupsNeeded: Int,
-  numberOfGroupsCreated: Int,
-  solutionConsumer: (Sequence<HotSpring>) -> Unit
-) {
-  if (remainingBrokensInGroup.isCurrentGroupNotEmpty()) {
-    markStats(hotSpringsToProcess.size)
-    return
-  }
-//  if (numberOfGroupsNeeded - numberOfGroupsCreated - 1 > hotSpringsToProcess.size - remainingTotalNumberOfBrokens) {
-//    return
-//  }
-
-  addCurrentAndProcessNext(
-    operational,
-    result,
-    hotSpringsToProcess,
-    null,
-    brokenGroupsToProcess,
-    remainingNumberOfUnknowns,
-    remainingNumberOfKnownBrokens,
-    remainingTotalNumberOfBrokens,
-    numberOfGroupsNeeded,
-    numberOfGroupsCreated,
-    solutionConsumer
-  )
-}
-
-fun processKnownBroken(
-  result: Sequence<HotSpring>,
-  hotSpringsToProcess: List<HotSpring>,
-  remainingBrokensInGroup: Int?,
-  brokenGroupsToProcess: List<Int>,
-  remainingNumberOfUnknowns: Int,
-  remainingNumberOfKnownBrokens: Int,
-  remainingTotalNumberOfBrokens: Int,
-  numberOfGroupsNeeded: Int,
-  numberOfGroupsCreated: Int,
-  solutionConsumer: (Sequence<HotSpring>) -> Unit
-) = processBroken(
-  result,
-  hotSpringsToProcess,
-  remainingBrokensInGroup,
-  brokenGroupsToProcess,
-  remainingNumberOfUnknowns,
-  remainingNumberOfKnownBrokens - 1,
-  remainingTotalNumberOfBrokens - 1,
-  numberOfGroupsNeeded,
-  numberOfGroupsCreated,
-  solutionConsumer
-)
-
-fun processBroken(
-  result: Sequence<HotSpring>,
-  hotSpringsToProcess: List<HotSpring>,
-  remainingBrokensInGroup: Int?,
-  brokenGroupsToProcess: List<Int>,
-  remainingNumberOfUnknowns: Int,
-  remainingNumberOfKnownBrokens: Int,
-  remainingTotalNumberOfBrokens: Int,
-  numberOfGroupsNeeded: Int,
-  numberOfGroupsCreated: Int,
-  solutionConsumer: (Sequence<HotSpring>) -> Unit
-) {
-  val nextRemainingBrokensInGroup: Int
-  val nextBrokenGroupsToProcess: List<Int>
-  val nextNumberOfGroupsCreated: Int
-  if (remainingBrokensInGroup != null) {
-    if (remainingBrokensInGroup == 0) {
-      markStats(hotSpringsToProcess.size)
-      return
-    }
-    nextRemainingBrokensInGroup = remainingBrokensInGroup - 1
-    nextBrokenGroupsToProcess = brokenGroupsToProcess
-    nextNumberOfGroupsCreated = numberOfGroupsCreated
-  } else if (brokenGroupsToProcess.isEmpty()) {
-    markStats(hotSpringsToProcess.size)
-    return
-  } else {
-    nextRemainingBrokensInGroup = brokenGroupsToProcess.first() - 1
-    nextBrokenGroupsToProcess = brokenGroupsToProcess.subList(1, brokenGroupsToProcess.size)
-    nextNumberOfGroupsCreated = numberOfGroupsCreated + 1
-  }
-
-  //if (nextRemainingBrokensInGroup < 0) return
-
-  addCurrentAndProcessNext(
-    broken,
-    result,
-    hotSpringsToProcess,
-    nextRemainingBrokensInGroup,
-    nextBrokenGroupsToProcess,
-    remainingNumberOfUnknowns,
-    remainingNumberOfKnownBrokens,
-    remainingTotalNumberOfBrokens,
-    numberOfGroupsNeeded,
-    nextNumberOfGroupsCreated,
-    solutionConsumer
-  )
-}
-
-val stats = TreeMap<Int, Long>()
-var globalCount = 0L
-
-fun markStats(size: Int) {
-  if (true) return
-  stats[size] = stats.getOrDefault(size, 0) + 1
-  globalCount++
-  if (globalCount % 5_000_000 == 0L) {
-    println("globalCount: $globalCount")
-    println("stats: $stats")
-  }
-}
-
-private fun addCurrentAndProcessNext(
-  current: HotSpring,
-  result: Sequence<HotSpring>,
-  hotSpringsToProcess: List<HotSpring>,
-  remainingBrokensInGroup: Int?,
-  brokenGroupsToProcess: List<Int>,
-  remainingNumberOfUnknowns: Int,
-  remainingNumberOfKnownBrokens: Int,
-  remainingTotalNumberOfBrokens: Int,
-  numberOfGroupsNeeded: Int,
-  numberOfGroupsCreated: Int,
-  solutionConsumer: (Sequence<HotSpring>) -> Unit
-) = processNext(
-  result + current,
-  hotSpringsToProcess,
-  remainingBrokensInGroup,
-  brokenGroupsToProcess,
-  remainingNumberOfUnknowns,
-  remainingNumberOfKnownBrokens,
-  remainingTotalNumberOfBrokens,
-  numberOfGroupsNeeded,
-  numberOfGroupsCreated,
-  solutionConsumer
-)
-
-fun processUnknown(
-  result: Sequence<HotSpring>,
-  hotSpringsToProcess: List<HotSpring>,
-  remainingBrokensInCurrentGroup: Int?,
-  brokenGroupsToProcess: List<Int>,
-  remainingNumberOfUnknowns: Int,
-  remainingNumberOfKnownBrokens: Int,
-  remainingTotalNumberOfBrokens: Int,
-  numberOfGroupsNeeded: Int,
-  numberOfGroupsCreated: Int,
-  solutionConsumer: (Sequence<HotSpring>) -> Unit
-) {
-  if (
-    remainingBrokensInCurrentGroup.isCurrentGroupEmpty()
-    && remainingTotalNumberOfBrokens < remainingNumberOfKnownBrokens + remainingNumberOfUnknowns
-  ) {
-    processOperational(
-      result,
-      hotSpringsToProcess,
-      remainingBrokensInCurrentGroup,
-      brokenGroupsToProcess,
-      remainingNumberOfUnknowns - 1,
-      remainingNumberOfKnownBrokens,
-      remainingTotalNumberOfBrokens,
-      numberOfGroupsNeeded,
-      numberOfGroupsCreated,
-      solutionConsumer
-    )
-  }
-
-  if (
-    remainingTotalNumberOfBrokens > 0
-    && remainingTotalNumberOfBrokens > remainingNumberOfKnownBrokens
-  ) {
-    //if (!(hotSpringsToProcess.size == remainingTotalNumberOfBrokens && numberOfGroupsCreated < numberOfGroupsNeeded)) {
-    processBroken(
-      result,
-      hotSpringsToProcess,
-      remainingBrokensInCurrentGroup,
-      brokenGroupsToProcess,
-      remainingNumberOfUnknowns - 1,
-      remainingNumberOfKnownBrokens,
-      remainingTotalNumberOfBrokens - 1,
-      numberOfGroupsNeeded,
-      numberOfGroupsCreated,
-      solutionConsumer
-    )
-    //}
-  }
-}
-
-private fun processEnd(
-  result: Sequence<HotSpring>,
-  hotSpringsToProcess: List<HotSpring>,
-  remainingBrokensInCurrentGroup: Int?,
-  brokenGroupsToProcess: List<Int>,
-  remainingNumberOfUnknowns: Int,
-  remainingNumberOfKnownBrokens: Int,
-  remainingTotalNumberOfBrokens: Int,
-  numberOfGroupsNeeded: Int,
-  numberOfGroupsCreated: Int,
-  solutionConsumer: (Sequence<HotSpring>) -> Unit
-) {
-  require(hotSpringsToProcess.isEmpty())
-  require(remainingNumberOfUnknowns == 0)
-  require(remainingNumberOfKnownBrokens == 0)
-  require(remainingTotalNumberOfBrokens == 0)
-  require(remainingBrokensInCurrentGroup.isCurrentGroupEmpty())
-  require(brokenGroupsToProcess.isEmpty())
-  require(numberOfGroupsCreated == numberOfGroupsNeeded)
-
-  solutionConsumer(result)
-}
-
-private fun Int?.isCurrentGroupEmpty(): Boolean = this == null || this == 0
-
-private fun Int?.isCurrentGroupNotEmpty(): Boolean = !isCurrentGroupEmpty()
 
 private val intRegex = """(\d+)""".toRegex()
 fun String.toIntList(): List<Int> = intRegex.findAll(this).map { it.value.toInt() }.toList()
