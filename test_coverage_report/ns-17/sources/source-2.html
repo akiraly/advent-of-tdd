@@ -1,0 +1,379 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Day12p1Kt</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day12p1</a>
+</div>
+
+<h1>Coverage Summary for Class: Day12p1Kt (day12p1)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Day12p1Kt</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (14/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (89/89)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Day12p1Kt$toConditionRecordRow1Text$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day12p1Kt$toIntList$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day12p1Kt$WhenMappings</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (16/16)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (91/91)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day12p1
+&nbsp;
+&nbsp;import day12p1.HotSpring.*
+&nbsp;import day12p1.HotSpring.Companion.toHotSpring
+&nbsp;
+<b class="fc">&nbsp;fun String.sumOfSolutions(): Long = lineSequence().sumOf { it.toConditionRecordRow().countSolutions() }</b>
+&nbsp;
+&nbsp;fun List&lt;HotSpring&gt;.calcContiguousGroupOfDamagedSprings(): List&lt;Int&gt; {
+<b class="fc">&nbsp;  val contGroupOfDamagedSprings = mutableListOf&lt;Int&gt;()</b>
+<b class="fc">&nbsp;  var currentSize = 0</b>
+&nbsp;
+<b class="fc">&nbsp;  forEach {</b>
+<b class="fc">&nbsp;    when (it) {</b>
+<b class="fc">&nbsp;      broken -&gt; currentSize++</b>
+&nbsp;      else -&gt; {
+<b class="fc">&nbsp;        require(it == operational)</b>
+<b class="fc">&nbsp;        if (currentSize &gt; 0) {</b>
+<b class="fc">&nbsp;          contGroupOfDamagedSprings.add(currentSize)</b>
+<b class="fc">&nbsp;          currentSize = 0</b>
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+<b class="fc">&nbsp;  }</b>
+&nbsp;
+<b class="fc">&nbsp;  if (currentSize &gt; 0) contGroupOfDamagedSprings.add(currentSize)</b>
+&nbsp;
+<b class="fc">&nbsp;  return contGroupOfDamagedSprings</b>
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toConditionRecordRow(): ConditionRecordRow {
+<b class="fc">&nbsp;  val (crRow1, contGroupOfDamagedSprings) = split(&quot; &quot;)</b>
+<b class="fc">&nbsp;  return ConditionRecordRow(</b>
+<b class="fc">&nbsp;    crRow1.toHotSpringList(),</b>
+<b class="fc">&nbsp;    contGroupOfDamagedSprings.toIntList()</b>
+&nbsp;  )
+&nbsp;}
+&nbsp;
+&nbsp;data class ConditionRecordRow(
+&nbsp;  val hotSprings: List&lt;HotSpring&gt;,
+&nbsp;  val contGroupOfDamagedSprings: List&lt;Int&gt;
+&nbsp;) {
+&nbsp;  val numberOfUnknowns = hotSprings.count { it == unknown }
+&nbsp;
+&nbsp;  private fun solutions(): Sequence&lt;List&lt;HotSpring&gt;&gt; {
+&nbsp;    val solutions = mutableListOf&lt;List&lt;HotSpring&gt;&gt;()
+&nbsp;    processNext(hotSpringsToProcess = hotSprings, brokenGroupsToProcess = contGroupOfDamagedSprings) {
+&nbsp;      solutions.add(it)
+&nbsp;    }
+&nbsp;    return solutions.asSequence()
+&nbsp;  }
+&nbsp;
+&nbsp;  fun countSolutions(): Long {
+&nbsp;    var count = 0L
+&nbsp;    processNext(hotSpringsToProcess = hotSprings, brokenGroupsToProcess = contGroupOfDamagedSprings) {
+&nbsp;      count++
+&nbsp;    }
+&nbsp;    return count
+&nbsp;  }
+&nbsp;
+&nbsp;  fun solutionsAsText(): Sequence&lt;String&gt; = solutions().map { it.toConditionRecordRow1Text() }
+&nbsp;}
+&nbsp;
+&nbsp;private fun processNext(
+<b class="fc">&nbsp;  result: MutableList&lt;HotSpring&gt; = mutableListOf(),</b>
+&nbsp;  hotSpringsToProcess: List&lt;HotSpring&gt;,
+<b class="fc">&nbsp;  remainingBrokensInCurrentGroup: Int? = null,</b>
+&nbsp;  brokenGroupsToProcess: List&lt;Int&gt;,
+&nbsp;  solutionConsumer: (List&lt;HotSpring&gt;) -&gt; Unit
+&nbsp;) {
+<b class="fc">&nbsp;  if (hotSpringsToProcess.isEmpty()) {</b>
+<b class="fc">&nbsp;    processEnd(result, hotSpringsToProcess, remainingBrokensInCurrentGroup, brokenGroupsToProcess, solutionConsumer)</b>
+&nbsp;    return
+&nbsp;  }
+&nbsp;
+<b class="fc">&nbsp;  val next = hotSpringsToProcess.first()</b>
+<b class="fc">&nbsp;  val remaining = hotSpringsToProcess.subList(1, hotSpringsToProcess.size)</b>
+<b class="fc">&nbsp;  when (next) {</b>
+<b class="fc">&nbsp;    operational -&gt; processOperational(</b>
+<b class="fc">&nbsp;      result,</b>
+<b class="fc">&nbsp;      remaining,</b>
+<b class="fc">&nbsp;      remainingBrokensInCurrentGroup,</b>
+<b class="fc">&nbsp;      brokenGroupsToProcess,</b>
+<b class="fc">&nbsp;      solutionConsumer</b>
+&nbsp;    )
+&nbsp;
+<b class="fc">&nbsp;    broken -&gt; processBroken(</b>
+<b class="fc">&nbsp;      result,</b>
+<b class="fc">&nbsp;      remaining,</b>
+<b class="fc">&nbsp;      remainingBrokensInCurrentGroup,</b>
+<b class="fc">&nbsp;      brokenGroupsToProcess,</b>
+<b class="fc">&nbsp;      solutionConsumer</b>
+&nbsp;    )
+&nbsp;
+<b class="fc">&nbsp;    unknown -&gt; processUnknown(</b>
+<b class="fc">&nbsp;      result,</b>
+<b class="fc">&nbsp;      remaining,</b>
+<b class="fc">&nbsp;      remainingBrokensInCurrentGroup,</b>
+<b class="fc">&nbsp;      brokenGroupsToProcess,</b>
+<b class="fc">&nbsp;      solutionConsumer</b>
+&nbsp;    )
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;private fun processOperational(
+&nbsp;  result: MutableList&lt;HotSpring&gt;,
+&nbsp;  hotSpringsToProcess: List&lt;HotSpring&gt;,
+&nbsp;  remainingBrokensInGroup: Int?,
+&nbsp;  brokenGroupsToProcess: List&lt;Int&gt;,
+&nbsp;  solutionConsumer: (List&lt;HotSpring&gt;) -&gt; Unit
+&nbsp;) {
+<b class="fc">&nbsp;  if (remainingBrokensInGroup.isCurrentGroupNotEmpty()) {</b>
+&nbsp;    return
+&nbsp;  }
+<b class="fc">&nbsp;  addCurrentAndProcessNext(</b>
+<b class="fc">&nbsp;    operational,</b>
+<b class="fc">&nbsp;    result,</b>
+<b class="fc">&nbsp;    hotSpringsToProcess,</b>
+<b class="fc">&nbsp;    null,</b>
+<b class="fc">&nbsp;    brokenGroupsToProcess,</b>
+<b class="fc">&nbsp;    solutionConsumer</b>
+&nbsp;  )
+&nbsp;}
+&nbsp;
+&nbsp;fun processBroken(
+&nbsp;  result: MutableList&lt;HotSpring&gt;,
+&nbsp;  hotSpringsToProcess: List&lt;HotSpring&gt;,
+&nbsp;  remainingBrokensInGroup: Int?,
+&nbsp;  brokenGroupsToProcess: List&lt;Int&gt;,
+&nbsp;  solutionConsumer: (List&lt;HotSpring&gt;) -&gt; Unit
+&nbsp;) {
+<b class="fc">&nbsp;  val nextRemainingBrokensInGroup: Int</b>
+<b class="fc">&nbsp;  val nextBrokenGroupsToProcess: List&lt;Int&gt;</b>
+<b class="fc">&nbsp;  if (remainingBrokensInGroup != null) {</b>
+<b class="fc">&nbsp;    nextRemainingBrokensInGroup = remainingBrokensInGroup - 1</b>
+<b class="fc">&nbsp;    nextBrokenGroupsToProcess = brokenGroupsToProcess</b>
+<b class="fc">&nbsp;  } else if (brokenGroupsToProcess.isEmpty()) {</b>
+&nbsp;    return
+&nbsp;  } else {
+<b class="fc">&nbsp;    nextRemainingBrokensInGroup = brokenGroupsToProcess.first() - 1</b>
+<b class="fc">&nbsp;    nextBrokenGroupsToProcess = brokenGroupsToProcess.subList(1, brokenGroupsToProcess.size)</b>
+&nbsp;  }
+&nbsp;
+<b class="fc">&nbsp;  if (nextRemainingBrokensInGroup &lt; 0) return</b>
+&nbsp;
+<b class="fc">&nbsp;  addCurrentAndProcessNext(</b>
+<b class="fc">&nbsp;    broken,</b>
+<b class="fc">&nbsp;    result,</b>
+<b class="fc">&nbsp;    hotSpringsToProcess,</b>
+<b class="fc">&nbsp;    nextRemainingBrokensInGroup,</b>
+<b class="fc">&nbsp;    nextBrokenGroupsToProcess,</b>
+<b class="fc">&nbsp;    solutionConsumer</b>
+&nbsp;  )
+&nbsp;}
+&nbsp;
+&nbsp;fun processUnknown(
+&nbsp;  result: MutableList&lt;HotSpring&gt;,
+&nbsp;  hotSpringsToProcess: List&lt;HotSpring&gt;,
+&nbsp;  remainingBrokensInCurrentGroup: Int?,
+&nbsp;  brokenGroupsToProcess: List&lt;Int&gt;,
+&nbsp;  solutionConsumer: (List&lt;HotSpring&gt;) -&gt; Unit
+&nbsp;) {
+<b class="fc">&nbsp;  processOperational(</b>
+<b class="fc">&nbsp;    result,</b>
+<b class="fc">&nbsp;    hotSpringsToProcess,</b>
+<b class="fc">&nbsp;    remainingBrokensInCurrentGroup,</b>
+<b class="fc">&nbsp;    brokenGroupsToProcess,</b>
+<b class="fc">&nbsp;    solutionConsumer</b>
+&nbsp;  )
+&nbsp;
+<b class="fc">&nbsp;  processBroken(</b>
+<b class="fc">&nbsp;    result,</b>
+<b class="fc">&nbsp;    hotSpringsToProcess,</b>
+<b class="fc">&nbsp;    remainingBrokensInCurrentGroup,</b>
+<b class="fc">&nbsp;    brokenGroupsToProcess,</b>
+<b class="fc">&nbsp;    solutionConsumer</b>
+&nbsp;  )
+&nbsp;}
+&nbsp;
+&nbsp;private fun processEnd(
+&nbsp;  result: MutableList&lt;HotSpring&gt;,
+&nbsp;  hotSpringsToProcess: List&lt;HotSpring&gt;,
+&nbsp;  remainingBrokensInCurrentGroup: Int?,
+&nbsp;  brokenGroupsToProcess: List&lt;Int&gt;,
+&nbsp;  solutionConsumer: (List&lt;HotSpring&gt;) -&gt; Unit
+&nbsp;) {
+<b class="fc">&nbsp;  require(hotSpringsToProcess.isEmpty())</b>
+&nbsp;
+<b class="fc">&nbsp;  if (remainingBrokensInCurrentGroup.isCurrentGroupNotEmpty() || brokenGroupsToProcess.isNotEmpty()) return</b>
+&nbsp;
+<b class="fc">&nbsp;  solutionConsumer(result.toList())</b>
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;private fun Int?.isCurrentGroupNotEmpty(): Boolean = this != null &amp;&amp; this &gt; 0</b>
+&nbsp;
+&nbsp;private fun addCurrentAndProcessNext(
+&nbsp;  current: HotSpring,
+&nbsp;  result: MutableList&lt;HotSpring&gt;,
+&nbsp;  hotSpringsToProcess: List&lt;HotSpring&gt;,
+&nbsp;  remainingBrokensInGroup: Int?,
+&nbsp;  brokenGroupsToProcess: List&lt;Int&gt;,
+&nbsp;  solutionConsumer: (List&lt;HotSpring&gt;) -&gt; Unit
+&nbsp;) {
+<b class="fc">&nbsp;  result.add(current)</b>
+&nbsp;
+<b class="fc">&nbsp;  processNext(result, hotSpringsToProcess, remainingBrokensInGroup, brokenGroupsToProcess, solutionConsumer)</b>
+&nbsp;
+<b class="fc">&nbsp;  result.removeLast()</b>
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;private val intRegex = &quot;&quot;&quot;(\d+)&quot;&quot;&quot;.toRegex()</b>
+<b class="fc">&nbsp;fun String.toIntList(): List&lt;Int&gt; = intRegex.findAll(this).map { it.value.toInt() }.toList()</b>
+&nbsp;
+<b class="fc">&nbsp;fun List&lt;HotSpring&gt;.toConditionRecordRow1Text(): String = joinToString(&quot;&quot;) { it.crChar.toString() }</b>
+&nbsp;
+<b class="fc">&nbsp;fun String.toHotSpringList(): List&lt;HotSpring&gt; = map { it.toHotSpring() }</b>
+&nbsp;
+&nbsp;enum class HotSpring(val crChar: Char) {
+&nbsp;  operational(&#39;.&#39;),
+&nbsp;  broken(&#39;#&#39;),
+&nbsp;  unknown(&#39;?&#39;);
+&nbsp;
+&nbsp;  companion object {
+&nbsp;    private val hotSpringsByCrChar = entries.associateBy { it.crChar }
+&nbsp;
+&nbsp;    fun Char.toHotSpring() = hotSpringsByCrChar.getValue(this)
+&nbsp;  }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-14 21:52</div>
+</div>
+</body>
+</html>
