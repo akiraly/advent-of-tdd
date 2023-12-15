@@ -49,7 +49,7 @@ data class Pattern(val lines: List<List<Char>>) {
 
     position = findHorizontalMirrorPosition()
 
-    require(position > 0) { "No mirror position found: ${lines.joinToString("\n") { it.joinToString("") }}" }
+    require(position > 0)
 
     return position * 100L
   }
