@@ -1,0 +1,292 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Day13p2Kt</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day13p2</a>
+</div>
+
+<h1>Coverage Summary for Class: Day13p2Kt (day13p2)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Day13p2Kt</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (12/12)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Day13p2Kt$transpose$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day13p2Kt$transpose$1$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day13p2Kt$transposeStrings$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day13p2Kt$transposeStrings$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (16/16)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day13p2
+&nbsp;
+&nbsp;import kotlin.math.min
+&nbsp;
+<b class="fc">&nbsp;fun List&lt;Pattern&gt;.sumOfScoredAndSmudgeFixedMirrorPositions(): Long = sumOf {</b>
+<b class="fc">&nbsp;  it.fixSmudgeAndFindScoredMirrorPosition()</b>
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;fun List&lt;Pattern&gt;.sumOfScoredMirrorPositions(): Long = sumOf { it.findScoredMirrorPosition() }</b>
+&nbsp;
+<b class="fc">&nbsp;fun String.parsePatterns(): List&lt;Pattern&gt; = split(&quot;\n\n&quot;).map { it.toPattern() }</b>
+&nbsp;
+<b class="fc">&nbsp;fun String.toPattern(): Pattern = Pattern(lines().map { it.toList() })</b>
+&nbsp;
+&nbsp;data class Pattern(val lines: List&lt;List&lt;Char&gt;&gt;) {
+&nbsp;
+&nbsp;  fun findVerticalMirrorPosition(forcedPosition: Int = -1, smudgeColRow: Pair&lt;Int, Int&gt; = -1 to -1): Int =
+&nbsp;    findVerticalMirrorPositions(forcedPosition, smudgeColRow).firstOrNull() ?: -1
+&nbsp;
+&nbsp;  fun findHorizontalMirrorPosition(): Int = transpose().findVerticalMirrorPosition()
+&nbsp;
+&nbsp;  fun findVerticalMirrorPositions(forcedPosition: Int = -1, smudgeColRow: Pair&lt;Int, Int&gt; = -1 to -1): Set&lt;Int&gt; {
+&nbsp;    val length = lines.first().size
+&nbsp;    var candidates = (if (forcedPosition == -1) (1..&lt;length) else (forcedPosition..forcedPosition))
+&nbsp;      .map { it to calcMirrorSize(it, length) }.toList()
+&nbsp;
+&nbsp;    for (row in lines.indices) {
+&nbsp;      val line = lines[row]
+&nbsp;      candidates = candidates.filter { (position, mirrorSize) -&gt;
+&nbsp;
+&nbsp;        (position - mirrorSize..&lt;position).zip(position + mirrorSize - 1 downTo position)
+&nbsp;          .all { (a, b) -&gt; line[a] == line[b] || (a == smudgeColRow.first &amp;&amp; row == smudgeColRow.second) }
+&nbsp;      }
+&nbsp;
+&nbsp;      if (candidates.isEmpty()) return emptySet()
+&nbsp;    }
+&nbsp;
+&nbsp;    return candidates.map { it.first }.toSet()
+&nbsp;  }
+&nbsp;
+&nbsp;  private fun calcMirrorSize(position: Int, fullWidth: Int) = min(position, fullWidth - position)
+&nbsp;
+&nbsp;  private fun transpose(): Pattern = Pattern(lines.transpose())
+&nbsp;
+&nbsp;  fun toPatternString(): String = lines.joinToString(&quot;\n&quot;) { it.joinToString(&quot;&quot;) }
+&nbsp;  fun findScoredMirrorPosition(): Long {
+&nbsp;    var position = findVerticalMirrorPosition()
+&nbsp;    if (position != -1) return position.toLong()
+&nbsp;
+&nbsp;    position = findHorizontalMirrorPosition()
+&nbsp;
+&nbsp;    require(position &gt; 0) { &quot;No mirror position found: ${lines.joinToString(&quot;\n&quot;) { it.joinToString(&quot;&quot;) }}&quot; }
+&nbsp;
+&nbsp;    return position * 100L
+&nbsp;  }
+&nbsp;
+&nbsp;  fun fixSmudgeAndFindScoredMirrorPosition(): Long {
+&nbsp;    val position = fixSmudgeAndFindScoredMirrorPositionVertically()
+&nbsp;    if (position != -1L) return position
+&nbsp;    println(&quot;no smudge vertically, trying horizontally&quot;)
+&nbsp;
+&nbsp;    return fixSmudgeAndFindScoredMirrorPositionHorizontally() * 100
+&nbsp;  }
+&nbsp;
+&nbsp;  private fun fixSmudgeAndFindScoredMirrorPositionVertically(): Long {
+&nbsp;    val position = findVerticalMirrorPosition()
+&nbsp;    for (i in 0..&lt;lines.first().size - 1) {
+&nbsp;      for (j in i + 1..&lt;lines.first().size) {
+&nbsp;        val diffRow = diff(i, j)
+&nbsp;        if (diffRow == -1) continue
+&nbsp;        val mirrorPosition = (i + j + 1) / 2
+&nbsp;        if (mirrorPosition == position) continue
+&nbsp;        val mirrorSize = calcMirrorSize(mirrorPosition, lines.first().size)
+&nbsp;        if (mirrorSize == 0) continue
+&nbsp;        if (findVerticalMirrorPosition(mirrorPosition, i to diffRow) == mirrorPosition) {
+&nbsp;          println(&quot;smudge at $i, $diffRow vs $j with $mirrorPosition&quot;)
+&nbsp;          return mirrorPosition.toLong()
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    return -1
+&nbsp;  }
+&nbsp;
+&nbsp;  private fun diff(i: Int, j: Int): Int {
+&nbsp;    val diffs = lines.mapIndexedNotNull { index, chars -&gt;
+&nbsp;      if (chars[i] != chars[j]) index else null
+&nbsp;    }.toList()
+&nbsp;    return if (diffs.size == 1) diffs.single() else -1
+&nbsp;  }
+&nbsp;
+&nbsp;  private fun fixSmudgeAndFindScoredMirrorPositionHorizontally(): Long =
+&nbsp;    transpose().fixSmudgeAndFindScoredMirrorPositionVertically()
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;fun List&lt;String&gt;.transposeStrings(): List&lt;String&gt; = asSequence()</b>
+<b class="fc">&nbsp;  .map { it.toList() }</b>
+<b class="fc">&nbsp;  .transpose()</b>
+<b class="fc">&nbsp;  .map { it.joinToString(&quot;&quot;) }</b>
+<b class="fc">&nbsp;  .toList()</b>
+&nbsp;
+<b class="fc">&nbsp;fun List&lt;List&lt;Char&gt;&gt;.transpose(): List&lt;List&lt;Char&gt;&gt; = asSequence().transpose().toList()</b>
+&nbsp;
+&nbsp;fun Sequence&lt;List&lt;Char&gt;&gt;.transpose(): Sequence&lt;List&lt;Char&gt;&gt; =
+<b class="fc">&nbsp;  (0 until first().size).asSequence().map { col -&gt; map { it[col] }.toList() }</b>
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-15 02:01</div>
+</div>
+</body>
+</html>
