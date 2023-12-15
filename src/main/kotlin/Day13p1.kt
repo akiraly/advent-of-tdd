@@ -10,11 +10,11 @@ fun String.toPattern(): Pattern = Pattern(lines().map { it.toList() })
 
 data class Pattern(val lines: List<List<Char>>) {
 
-  fun findHorizontalMirrorPosition(): Int = findHorizontalMirrorPositions().firstOrNull() ?: -1
+  fun findVerticalMirrorPosition(): Int = findVerticalMirrorPositions().firstOrNull() ?: -1
 
-  fun findVerticalMirrorPosition(): Int = transpose().findHorizontalMirrorPosition()
+  fun findHorizontalMirrorPosition(): Int = transpose().findVerticalMirrorPosition()
 
-  fun findHorizontalMirrorPositions(): Set<Int> {
+  fun findVerticalMirrorPositions(): Set<Int> {
     val length = lines.first().size
     var candidates = (1..<length).map { it to min(it, length - it) }.toList()
 
@@ -35,12 +35,11 @@ data class Pattern(val lines: List<List<Char>>) {
 
   fun toPatternString(): String = lines.joinToString("\n") { it.joinToString("") }
   fun findScoredMirrorPosition(): Long {
-    var position = findHorizontalMirrorPosition()
+    var position = findVerticalMirrorPosition()
     if (position != -1) return position.toLong()
 
-    position = findVerticalMirrorPosition()
-
-    //if (position == -1) return 0
+    position = findHorizontalMirrorPosition()
+    
     require(position > 0) { "No mirror position found: ${lines.joinToString("\n") { it.joinToString("") }}" }
 
     return position * 100L

@@ -66,27 +66,27 @@ $examplePattern2
       headers("Pattern", "Position"),
       rows = examplePattern1.lines().map { row -> row(row, 5) }
     ).forAll { row, expectedPosition ->
-      test(""" Given a pattern of "$row" then the expected horizontal mirror position is $expectedPosition """) {
+      test(""" Given a pattern of "$row" then the expected vertical mirror position is $expectedPosition """) {
         val pattern = row.toPattern()
-        pattern.findHorizontalMirrorPositions() shouldContain expectedPosition
+        pattern.findVerticalMirrorPositions() shouldContain expectedPosition
       }
     }
 
-    test(""" Given example pattern 1 then the expected (horizontal) mirror position is 5 """) {
+    test(""" Given example pattern 1 then the expected (vertical) mirror position is 5 """) {
       val pattern = examplePattern1.toPattern()
-      pattern.findHorizontalMirrorPosition() shouldBe 5
-      pattern.findVerticalMirrorPosition() shouldBe -1
+      pattern.findVerticalMirrorPosition() shouldBe 5
+      pattern.findHorizontalMirrorPosition() shouldBe -1
       pattern.findScoredMirrorPosition() shouldBe 5
     }
 
     test(""" Given example pattern 2 then the expected (vertical) mirror position is 4 """) {
       val pattern = examplePattern2.toPattern()
-      pattern.findVerticalMirrorPosition() shouldBe 4
-      pattern.findHorizontalMirrorPosition() shouldBe -1
+      pattern.findHorizontalMirrorPosition() shouldBe 4
+      pattern.findVerticalMirrorPosition() shouldBe -1
       pattern.findScoredMirrorPosition() shouldBe 400
     }
 
-    test(""" Given example pattern 3 then the expected (horizontal) mirror position is 16""") {
+    test(""" Given example pattern 3 then the expected (vertical) mirror position is 16""") {
       val pattern = """
         ..#...####...#...
         ....#.#..#.#.....
@@ -103,12 +103,12 @@ $examplePattern2
         #..#.#....#.#..##
       """.trimIndent().toPattern()
 
-      pattern.findHorizontalMirrorPosition() shouldBe 16
-      pattern.findVerticalMirrorPosition() shouldBe -1
+      pattern.findVerticalMirrorPosition() shouldBe 16
+      pattern.findHorizontalMirrorPosition() shouldBe -1
       pattern.findScoredMirrorPosition() shouldBe 16
     }
 
-    test(""" Given example pattern 3 then the expected (horizontal) mirror position is """) {
+    test(""" Given example pattern 3 then the expected (vertical) mirror position is 8""") {
       val pattern = """
         ..#...####...#...
         ....#.#..#.#.....
@@ -125,8 +125,8 @@ $examplePattern2
         #..#.#....#.#..##
       """.trimIndent().toPattern()
 
-      pattern.findHorizontalMirrorPosition() shouldBe 8
-      pattern.findVerticalMirrorPosition() shouldBe -1
+      pattern.findVerticalMirrorPosition() shouldBe 8
+      pattern.findHorizontalMirrorPosition() shouldBe -1
       pattern.findScoredMirrorPosition() shouldBe 8
     }
 
