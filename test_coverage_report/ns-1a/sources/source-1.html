@@ -217,7 +217,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;  fun fixSmudgeAndFindScoredMirrorPosition(): Long {
 &nbsp;    val position = fixSmudgeAndFindScoredMirrorPositionVertically()
 &nbsp;    if (position != -1L) return position
-&nbsp;    println(&quot;no smudge vertically, trying horizontally&quot;)
 &nbsp;
 &nbsp;    return fixSmudgeAndFindScoredMirrorPositionHorizontally() * 100
 &nbsp;  }
@@ -233,7 +232,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;        val mirrorSize = calcMirrorSize(mirrorPosition, lines.first().size)
 &nbsp;        if (mirrorSize == 0) continue
 &nbsp;        if (findVerticalMirrorPosition(mirrorPosition, i to diffRow) == mirrorPosition) {
-&nbsp;          println(&quot;smudge at $i, $diffRow vs $j with $mirrorPosition&quot;)
 &nbsp;          return mirrorPosition.toLong()
 &nbsp;        }
 &nbsp;      }
@@ -286,7 +284,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-12-15 02:01</div>
+    <div style="float:right;">generated on 2023-12-15 03:35</div>
 </div>
 </body>
 </html>

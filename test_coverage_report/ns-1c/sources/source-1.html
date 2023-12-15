@@ -1,0 +1,233 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Day14p2Kt</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day14p2</a>
+</div>
+
+<h1>Coverage Summary for Class: Day14p2Kt (day14p2)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Day14p2Kt</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Day14p2Kt$toPlatform$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day14p2
+&nbsp;
+<b class="fc">&nbsp;fun String.toPlatform(): Platform = Platform(lineSequence().map { it.toMutableList() }.toList())</b>
+&nbsp;
+&nbsp;data class Platform(val value: List&lt;MutableList&lt;Char&gt;&gt;) {
+&nbsp;  private val numOfColumns = value.first().size
+&nbsp;  private val numOfRows = value.size
+&nbsp;
+&nbsp;  fun deepCopy(): Platform = Platform(value.map { it.toMutableList() })
+&nbsp;
+&nbsp;  fun tiltNorth(): Platform {
+&nbsp;    for (col in (0..&lt;numOfColumns)) {
+&nbsp;      for (row in value.indices) {
+&nbsp;        var currentRow = row
+&nbsp;        while (currentRow &gt; 0 &amp;&amp; value[currentRow - 1][col] == &#39;.&#39; &amp;&amp; value[currentRow][col] == &#39;O&#39;) {
+&nbsp;          this.value[currentRow - 1][col] = &#39;O&#39;
+&nbsp;          this.value[currentRow][col] = &#39;.&#39;
+&nbsp;          currentRow--
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    return this
+&nbsp;  }
+&nbsp;
+&nbsp;  fun tiltWest(): Platform {
+&nbsp;    for (row in value.indices) {
+&nbsp;      for (col in (0..&lt;numOfColumns)) {
+&nbsp;        var currentCol = col
+&nbsp;        while (currentCol &gt; 0 &amp;&amp; value[row][currentCol - 1] == &#39;.&#39; &amp;&amp; value[row][currentCol] == &#39;O&#39;) {
+&nbsp;          this.value[row][currentCol - 1] = &#39;O&#39;
+&nbsp;          this.value[row][currentCol] = &#39;.&#39;
+&nbsp;          currentCol--
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    return this
+&nbsp;  }
+&nbsp;
+&nbsp;  fun tiltSouth(): Platform {
+&nbsp;    for (col in (0..&lt;numOfColumns)) {
+&nbsp;      for (row in value.indices.reversed()) {
+&nbsp;        var currentRow = row
+&nbsp;        while (currentRow &lt; numOfRows - 1 &amp;&amp; value[currentRow + 1][col] == &#39;.&#39; &amp;&amp; value[currentRow][col] == &#39;O&#39;) {
+&nbsp;          this.value[currentRow + 1][col] = &#39;O&#39;
+&nbsp;          this.value[currentRow][col] = &#39;.&#39;
+&nbsp;          currentRow++
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    return this
+&nbsp;  }
+&nbsp;
+&nbsp;  fun tiltEast(): Platform {
+&nbsp;    for (row in value.indices) {
+&nbsp;      for (col in (0..&lt;numOfColumns).reversed()) {
+&nbsp;        var currentCol = col
+&nbsp;        while (currentCol &lt; numOfColumns - 1 &amp;&amp; value[row][currentCol + 1] == &#39;.&#39; &amp;&amp; value[row][currentCol] == &#39;O&#39;) {
+&nbsp;          value[row][currentCol + 1] = &#39;O&#39;
+&nbsp;          value[row][currentCol] = &#39;.&#39;
+&nbsp;          currentCol++
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    return this
+&nbsp;  }
+&nbsp;
+&nbsp;  fun spin(cycles: Int, cache: MutableMap&lt;Pair&lt;Platform, Int&gt;, Platform&gt; = mutableMapOf()): Platform {
+&nbsp;    if (cycles == 0) return this
+&nbsp;
+&nbsp;    val key = this to cycles
+&nbsp;    cache[key]?.let {
+&nbsp;      return it
+&nbsp;    }
+&nbsp;
+&nbsp;    val newPlatform = if (cycles == 1) spinOnce() else {
+&nbsp;      val half = cycles / 2
+&nbsp;      val remaining = cycles - half
+&nbsp;
+&nbsp;      spin(half, cache).spin(remaining, cache)
+&nbsp;    }
+&nbsp;
+&nbsp;    cache[key] = newPlatform
+&nbsp;
+&nbsp;    return newPlatform
+&nbsp;  }
+&nbsp;
+&nbsp;  private fun spinOnce(): Platform = deepCopy().tiltNorth().tiltWest().tiltSouth().tiltEast()
+&nbsp;
+&nbsp;  fun look(): String = value.joinToString(&quot;\n&quot;) { it.joinToString(&quot;&quot;) }
+&nbsp;  fun calcTotalLoad(): Long {
+&nbsp;    val numOfRows = value.size.toLong()
+&nbsp;
+&nbsp;    return value.asSequence().mapIndexed { rowIndex, row -&gt;
+&nbsp;      val load = numOfRows - rowIndex
+&nbsp;      row.sumOf { if (it == &#39;O&#39;) load else 0 }
+&nbsp;    }.sum()
+&nbsp;  }
+&nbsp;}
+&nbsp;
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-15 03:35</div>
+</div>
+</body>
+</html>

@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
-  <title>Coverage Report > IOKt</title>
+  <title>Coverage Report > Day14p1Kt</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,18 +19,15 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">io</a>
+    <a href="../index.html">day14p1</a>
 </div>
 
-<h1>Coverage Summary for Class: IOKt (io)</h1>
+<h1>Coverage Summary for Class: Day14p1Kt (day14p1)</h1>
 
 <table class="coverageStats">
+
 <tr>
   <th class="name">Class</th>
-<th class="coverageStat 
-">
-  Class, %
-</th>
 <th class="coverageStat 
 ">
   Method, %
@@ -41,15 +38,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 </tr>
 <tr>
-  <td class="name">IOKt</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
+  <td class="name">Day14p1Kt</td>
 <td class="coverageStat">
   <span class="percent">
     100%
@@ -67,7 +56,44 @@ Current scope:     <a href="../../index.html">all classes</a>
   </span>
 </td>
 </tr>
-
+  <tr>
+    <td class="name">Day14p1Kt$toPlatform$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+</tr>
 </table>
 
 <br/>
@@ -75,13 +101,40 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package io
+<code class="sourceCode" id="sourceCode">&nbsp;package day14p1
 &nbsp;
-&nbsp;import org.apache.commons.io.IOUtils
-&nbsp;import java.nio.charset.StandardCharsets
+<b class="fc">&nbsp;fun String.toPlatform(): Platform = Platform(lineSequence().map { it.toMutableList() }.toList())</b>
 &nbsp;
-&nbsp;fun readInput(inputFileName: String): String =
-<b class="fc">&nbsp;    IOUtils.resourceToString(&quot;/inputs/$inputFileName&quot;, StandardCharsets.UTF_8)</b>
+&nbsp;data class Platform(val value: List&lt;MutableList&lt;Char&gt;&gt;) {
+&nbsp;  fun tiltNorth(): Platform {
+&nbsp;    val copy = copy()
+&nbsp;
+&nbsp;    val numOfColumns = copy.value.first().size
+&nbsp;
+&nbsp;    for (col in (0..&lt;numOfColumns)) {
+&nbsp;      for (row in copy.value.indices) {
+&nbsp;        var currentRow = row
+&nbsp;        while (currentRow &gt; 0 &amp;&amp; copy.value[currentRow - 1][col] == &#39;.&#39; &amp;&amp; copy.value[currentRow][col] == &#39;O&#39;) {
+&nbsp;          copy.value[currentRow - 1][col] = &#39;O&#39;
+&nbsp;          copy.value[currentRow][col] = &#39;.&#39;
+&nbsp;          currentRow--
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    return copy
+&nbsp;  }
+&nbsp;
+&nbsp;  fun look(): String = value.joinToString(&quot;\n&quot;) { it.joinToString(&quot;&quot;) }
+&nbsp;  fun calcTotalLoad(): Long {
+&nbsp;    val numOfRows = value.size.toLong()
+&nbsp;
+&nbsp;    return value.asSequence().mapIndexed { rowIndex, row -&gt;
+&nbsp;      val load = numOfRows - rowIndex
+&nbsp;      row.sumOf { if (it == &#39;O&#39;) load else 0 }
+&nbsp;    }.sum()
+&nbsp;  }
+&nbsp;}
 </code>
 </pre>
 </div>
@@ -105,7 +158,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-12-15 02:01</div>
+    <div style="float:right;">generated on 2023-12-15 03:35</div>
 </div>
 </body>
 </html>

@@ -52,7 +52,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (45/45)
+    (43/43)
   </span>
 </td>
 </tr>
@@ -106,10 +106,10 @@ Current scope:     <a href="../../index.html">all classes</a>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    97.9%
+    97.8%
   </span>
   <span class="absValue">
-    (46/47)
+    (44/45)
   </span>
 </td>
 </tr>
@@ -179,7 +179,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;  fun fixSmudgeAndFindScoredMirrorPosition(): Long {
 <b class="fc">&nbsp;    val position = fixSmudgeAndFindScoredMirrorPositionVertically()</b>
 <b class="fc">&nbsp;    if (position != -1L) return position</b>
-<b class="fc">&nbsp;    println(&quot;no smudge vertically, trying horizontally&quot;)</b>
 &nbsp;
 <b class="fc">&nbsp;    return fixSmudgeAndFindScoredMirrorPositionHorizontally() * 100</b>
 &nbsp;  }
@@ -195,7 +194,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 <b class="fc">&nbsp;        val mirrorSize = calcMirrorSize(mirrorPosition, lines.first().size)</b>
 <b class="fc">&nbsp;        if (mirrorSize == 0) continue</b>
 <b class="fc">&nbsp;        if (findVerticalMirrorPosition(mirrorPosition, i to diffRow) == mirrorPosition) {</b>
-<b class="fc">&nbsp;          println(&quot;smudge at $i, $diffRow vs $j with $mirrorPosition&quot;)</b>
 <b class="fc">&nbsp;          return mirrorPosition.toLong()</b>
 &nbsp;        }
 &nbsp;      }
@@ -248,7 +246,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-12-15 02:01</div>
+    <div style="float:right;">generated on 2023-12-15 03:35</div>
 </div>
 </body>
 </html>
