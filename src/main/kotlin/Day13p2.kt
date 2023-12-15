@@ -57,7 +57,6 @@ data class Pattern(val lines: List<List<Char>>) {
   fun fixSmudgeAndFindScoredMirrorPosition(): Long {
     val position = fixSmudgeAndFindScoredMirrorPositionVertically()
     if (position != -1L) return position
-    println("no smudge vertically, trying horizontally")
 
     return fixSmudgeAndFindScoredMirrorPositionHorizontally() * 100
   }
@@ -73,7 +72,6 @@ data class Pattern(val lines: List<List<Char>>) {
         val mirrorSize = calcMirrorSize(mirrorPosition, lines.first().size)
         if (mirrorSize == 0) continue
         if (findVerticalMirrorPosition(mirrorPosition, i to diffRow) == mirrorPosition) {
-          println("smudge at $i, $diffRow vs $j with $mirrorPosition")
           return mirrorPosition.toLong()
         }
       }

@@ -68,20 +68,13 @@ data class Platform(val value: List<MutableList<Char>>) {
     return this
   }
 
-  var cacheHits = 0L
-  var cacheMisses = 0L
   fun spin(cycles: Int, cache: MutableMap<Pair<Platform, Int>, Platform> = mutableMapOf()): Platform {
-    if (cycles % 1_000 == 0) {
-      println("Spin $cycles with ${cache.size} and $cacheHits cache hits and $cacheMisses cache misses")
-    }
     if (cycles == 0) return this
 
     val key = this to cycles
     cache[key]?.let {
-      cacheHits++
       return it
     }
-    cacheMisses++
 
     val newPlatform = if (cycles == 1) spinOnce() else {
       val half = cycles / 2
