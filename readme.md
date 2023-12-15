@@ -3,11 +3,16 @@
 Reports available: [test report](https://akiraly.github.io/advent-of-tdd/test_report/index.html)
 and [test coverage report](https://akiraly.github.io/advent-of-tdd/test_coverage_report/index.html).
 
+Some test stats (after day 15):  
+Number of tests: 1014  
+Code coverage: Class - 100%, Method >99%, Line >99%
+Time to run tests: ~4 seconds
+
 * Kotlin 1.9.21
 * [Kotest](https://kotest.io/) for testing
 * JVM 21
 * Gradle 8.5
-* Intellij 2023.3 with latest stable Kotlin and Kotest plugins
+* Intellij 2023.3.1 with latest stable Kotlin and Kotest plugins
 
 Kotest has a rich set of features including multiple
 different [testing styles](https://kotest.io/docs/framework/testing-styles.html).  
