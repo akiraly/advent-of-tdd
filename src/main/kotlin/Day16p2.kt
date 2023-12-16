@@ -1,8 +1,24 @@
-package day16p1
+package day16p2
 
-import day16p1.Direction.*
-import day16p1.TileType.Companion.toTileType
-import day16p1.TileType.EmptySpace
+import day16p2.Direction.*
+import day16p2.TileType.Companion.toTileType
+import day16p2.TileType.EmptySpace
+
+fun String.findMaxCountEnergizedTiles(): Int {
+  val contraption = toContraption()
+  val numOfRows = contraption.rows.size
+  val numOfCols = contraption.rows.first().size
+  val allStartingPositions = (0 until numOfCols).asSequence().map { col -> Triple(Down, 0, col) } +
+    (0 until numOfCols).asSequence().map { col -> Triple(Up, numOfRows - 1, col) } +
+    (0 until numOfRows).asSequence().map { row -> Triple(Right, row, 0) } +
+    (0 until numOfRows).asSequence().map { row -> Triple(Left, numOfCols - 1, row) }
+
+  return allStartingPositions.maxOf { (direction, startRow, startCol) ->
+    contraption.reset()
+    contraption.simulateLightBeam(direction, startRow, startCol)
+    contraption.countEnergizedTiles()
+  }
+}
 
 fun String.countEnergizedTiles(): Int {
   val contraption = toContraption()
@@ -16,6 +32,13 @@ fun String.toContraption(): Contraption = Contraption(
 
 class Contraption(val rows: List<List<Tile>>) {
   fun row(row: Int): List<Tile> = rows[row]
+
+  fun reset() {
+    rows.forEach { row ->
+      row.forEach { it.reset() }
+    }
+  }
+
   fun toText(): String = rows.joinToString("\n") { row ->
     row.joinToString("") { it.toSign().toString() }
   }
@@ -28,8 +51,8 @@ class Contraption(val rows: List<List<Tile>>) {
     row.joinToString("") { if (it.energized) "#" else "." }
   }
 
-  fun simulateLightBeam() {
-    val beamsToFollow = mutableListOf(Right to rows[0][0])
+  fun simulateLightBeam(startDirection: Direction = Right, startRow: Int = 0, startCol: Int = 0) {
+    val beamsToFollow = mutableListOf(startDirection to rows[startRow][startCol])
 
     while (beamsToFollow.isNotEmpty()) {
       val (direction, tile) = beamsToFollow.removeFirst()
@@ -48,6 +71,11 @@ class Contraption(val rows: List<List<Tile>>) {
 class Tile(val type: TileType, val row: Int, val col: Int) {
   val lightBeams: MutableSet<Direction> = mutableSetOf()
   var energized: Boolean = false
+
+  fun reset() {
+    lightBeams.clear()
+    energized = false
+  }
 
   fun toSign(): Char = type.sign
 
@@ -126,3 +154,4 @@ enum class TileType(val sign: Char) {
     fun Char.toTileType(): TileType = typesBySign.getValue(this)
   }
 }
+
