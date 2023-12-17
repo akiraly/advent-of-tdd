@@ -1,12 +1,23 @@
 ## Morgan Stanley Advent of TDD (Advent of Code 2023 solutions in TDD style)
 
-Reports available: [test report](https://akiraly.github.io/advent-of-tdd/test_report/index.html)
+This solution takes Test-Driven Design to heart:
+
+- tests are written first - even if they don't compile (because classes, methods, etc. do not exist yet)
+- non-test code is only written because either it fixes a failing test or as part of a refactor step
+- there are no `main` methods/entry points: even the solutions (for the AoC private/custom inputs) are generated as test
+  cases (however the private inputs are not stored in this public repo because
+  of [this](https://old.reddit.com/r/adventofcode/wiki/faqs/copyright/inputs))
+
+Some quick test stats (after day 16):  
+Number of tests: 1043  
+Code coverage: 99%<  
+Time to run tests: ~5 seconds  
+(as mentioned above these include even test cases that generate the actual solutions for the AoC inputs)
+
+The full reports are also available: [test report](https://akiraly.github.io/advent-of-tdd/test_report/index.html)
 and [test coverage report](https://akiraly.github.io/advent-of-tdd/test_coverage_report/index.html).
 
-Some test stats (after day 15):  
-Number of tests: 1014  
-Code coverage: Class - 100%, Method >99%, Line >99%
-Time to run tests: ~4 seconds
+About the tech stack:
 
 * Kotlin 1.9.21
 * [Kotest](https://kotest.io/) for testing
