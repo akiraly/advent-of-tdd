@@ -1,15 +1,15 @@
-package day17p1
+package day17p2
 
-import day17p1.Direction.Down
-import day17p1.Direction.Right
+import day17p2.Direction.Down
+import day17p2.Direction.Right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.readInput
 import java.util.*
 
-class Day17p1Tests : FunSpec({
-  val exampleHeatLossMapInput = """
+class Day17p2Tests : FunSpec({
+  val exampleHeatLossMapInput1 = """
     2413432311323
     3215453535623
     3255245654254
@@ -25,27 +25,19 @@ class Day17p1Tests : FunSpec({
     4322674655533
   """.trimIndent()
 
-  val exampleMinimizedHeatLossPath = """
-    2>>34^>>>1323
-    32v>>>35v5623
-    32552456v>>54
-    3446585845v52
-    4546657867v>6
-    14385987984v4
-    44578769877v6
-    36378779796v>
-    465496798688v
-    456467998645v
-    12246868655<v
-    25465488877v5
-    43226746555v>
+  val exampleHeatLossMapInput2 = """
+    111111111111
+    999999999991
+    999999999991
+    999999999991
+    999999999991
   """.trimIndent()
 
-  test(""" Given the example heat loss map then it can be parsed from text and turned back into text """) {
-    val heatLossMap = exampleHeatLossMapInput.toHeatLossMap()
+  test(""" Given the example heat loss map 1 then it can be parsed from text and turned back into text """) {
+    val heatLossMap = exampleHeatLossMapInput1.toHeatLossMap()
     heatLossMap.numberOfRows shouldBe 13
     heatLossMap.numberOfColumns shouldBe 13
-    heatLossMap.toText() shouldBe exampleHeatLossMapInput
+    heatLossMap.toText() shouldBe exampleHeatLossMapInput1
   }
 
   val customHeatLossMapInput = readInput("day17p1")
@@ -57,8 +49,8 @@ class Day17p1Tests : FunSpec({
     heatLossMap.toText() shouldBe customHeatLossMapInput
   }
 
-  test(""" Given the example heat loss map then an initial path can be calculated """) {
-    val heatLossMap = exampleHeatLossMapInput.toHeatLossMap()
+  test(""" Given the example heat loss map 1 then an initial path can be calculated """) {
+    val heatLossMap = exampleHeatLossMapInput1.toHeatLossMap()
     val initialPath = heatLossMap.calculateInitialPath()
     initialPath.startRow shouldBe 0
     initialPath.startCol shouldBe 0
@@ -71,24 +63,34 @@ class Day17p1Tests : FunSpec({
     lastEl.totalHeatLoss shouldBe 133
   }
 
-  test(""" Given the example heat loss map when the minimized heat loss path is calculated then the result is 102 """) {
-    val heatLossMap = exampleHeatLossMapInput.toHeatLossMap()
+  test(""" Given the example heat loss map 1 when the minimized heat loss path is calculated then the result is 94 """) {
+    val heatLossMap = exampleHeatLossMapInput1.toHeatLossMap()
     val path = heatLossMap.calculateMinHeatLossPath2()
     val lastEl = path.elements.last()
 
     lastEl.row shouldBe heatLossMap.numberOfRows - 1
     lastEl.col shouldBe heatLossMap.numberOfColumns - 1
-    lastEl.totalHeatLoss shouldBe 102
+    lastEl.totalHeatLoss shouldBe 94
   }
 
-  test(""" Given the custom heat loss map when the minimized heat loss path is calculated then the result is 1110 """) {
+  test(""" Given the example heat loss map 2 when the minimized heat loss path is calculated then the result is 71 """) {
+    val heatLossMap = exampleHeatLossMapInput2.toHeatLossMap()
+    val path = heatLossMap.calculateMinHeatLossPath2()
+    val lastEl = path.elements.last()
+
+    lastEl.row shouldBe heatLossMap.numberOfRows - 1
+    lastEl.col shouldBe heatLossMap.numberOfColumns - 1
+    lastEl.totalHeatLoss shouldBe 71
+  }
+
+  test(""" Given the custom heat loss map when the minimized heat loss path is calculated then the result is 1294 """) {
     val heatLossMap = customHeatLossMapInput.toHeatLossMap()
     val path = heatLossMap.calculateMinHeatLossPath2()
     val lastEl = path.elements.last()
 
     lastEl.row shouldBe heatLossMap.numberOfRows - 1
     lastEl.col shouldBe heatLossMap.numberOfColumns - 1
-    lastEl.totalHeatLoss shouldBe 1110
+    lastEl.totalHeatLoss shouldBe 1294
   }
 })
 
@@ -99,10 +101,6 @@ fun String.toHeatLossMap(): HeatLossMap = HeatLossMap(
 data class HeatLossMap(val rows: List<List<Block>>) {
   val numberOfRows: Int = rows.size
   val numberOfColumns: Int = rows.first().size
-
-  init {
-    require(numberOfRows == numberOfColumns)
-  }
 
   fun toText(): String = rows.joinToString("\n") { it.joinToString("") { box -> box.heatLoss.toString() } }
   fun calculateInitialPath(): Path {
@@ -147,11 +145,12 @@ data class HeatLossMap(val rows: List<List<Block>>) {
       }
       current.enterDirection.nextDirections().forEach { nextDirection ->
         val sameDirection = nextDirection == current.enterDirection
+        if (!sameDirection && current.sameDirectionCount < 4) return@forEach
         val sameDirectionCount = if (sameDirection) current.sameDirectionCount + 1 else 1
         var previous = current
         val toVisits = mutableListOf<PathEl2>()
         var anyfree = false
-        for (i in sameDirectionCount..3) {
+        for (i in sameDirectionCount..10) {
           val (nextRow, nextCol) = nextDirection.next(previous.row, previous.col)
           if (!isValid(nextRow, nextCol)) {
             break
@@ -169,7 +168,7 @@ data class HeatLossMap(val rows: List<List<Block>>) {
             anyfree = true
           }
         }
-        if (anyfree) toVisit.addAll(toVisits)
+        if (anyfree && toVisits.size + sameDirectionCount - 1 >= 4) toVisit.addAll(toVisits)
       }
     }
 
@@ -180,6 +179,23 @@ data class HeatLossMap(val rows: List<List<Block>>) {
       grid[c.row][c.col] = c
       c = c.previous
     }
+
+    println(grid.joinToString("\n") { line ->
+      line.joinToString(" ") {
+        if (it == null) return@joinToString "".padStart(7, ' ')
+        (it.enterDirection.sign.toString() +
+          it.totalHeatLoss.toString() + "(" +
+          rows[it.row][it.col].heatLoss + ")"
+          ).padStart(7, ' ')
+      }
+    })
+
+    println(path.joinToString(" | ") {
+      (it.enterDirection.sign.toString() +
+        it.totalHeatLoss.toString() + "(" +
+        rows[it.row][it.col].heatLoss + ")"
+        ).padStart(7, ' ')
+    })
 
     return Path2(elements = path.toList())
   }
