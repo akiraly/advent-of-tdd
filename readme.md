@@ -2,9 +2,9 @@
 
 This solution takes Test-Driven Design to heart:
 
-- tests are written first - even if they don't compile (because classes, methods, etc. do not exist yet)
-- non-test code is only written because either it fixes a failing test or as part of a refactor step
-- there are no `main` methods/entry points: even the solutions (for the AoC private/custom inputs) are generated as test
+* tests are written first - even if they don't compile initially (because classes, methods, etc. do not exist yet)
+* non-test code is only written because either it fixes a failing test or as part of a refactor step
+* there are no `main` methods/entry points: even the solutions (for the AoC private/custom inputs) are generated as test
   cases (however the private inputs are not stored in this public repo because
   of [this](https://old.reddit.com/r/adventofcode/wiki/faqs/copyright/inputs))
 
@@ -19,10 +19,10 @@ and [test coverage report](https://akiraly.github.io/advent-of-tdd/test_coverage
 
 About the tech stack:
 
-* Kotlin 1.9.21
-* [Kotest](https://kotest.io/) for testing
+* [Kotlin](https://kotlinlang.org) 1.9.21
+* [Kotest](https://kotest.io) for testing
 * JVM 21
-* Gradle 8.5
+* [Gradle](https://gradle.org) 8.5
 * Intellij 2023.3.1 with latest stable Kotlin and Kotest plugins
 
 Kotest has a rich set of features including multiple
