@@ -1,0 +1,333 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Direction</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day17p2</a>
+</div>
+
+<h1>Coverage Summary for Class: Direction (day17p2)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Direction</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (2/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    83.3%
+  </span>
+  <span class="absValue">
+    (5/6)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Direction$Down</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Direction$Left</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Direction$Right</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Direction$Up</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    93.3%
+  </span>
+  <span class="absValue">
+    (14/15)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    94.4%
+  </span>
+  <span class="absValue">
+    (17/18)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day17p2
+&nbsp;
+&nbsp;import day17p2.Direction.Down
+&nbsp;import day17p2.Direction.Right
+&nbsp;import java.util.*
+&nbsp;
+&nbsp;fun String.toHeatLossMap(): HeatLossMap = HeatLossMap(
+&nbsp;  lines().mapIndexed { row, line -&gt; line.mapIndexed { col, ch -&gt; Block(row, col, ch.digitToInt()) } }
+&nbsp;)
+&nbsp;
+&nbsp;data class HeatLossMap(val rows: List&lt;List&lt;Block&gt;&gt;) {
+&nbsp;  val numberOfRows: Int = rows.size
+&nbsp;  val numberOfColumns: Int = rows.first().size
+&nbsp;
+&nbsp;  fun toText(): String = rows.joinToString(&quot;\n&quot;) { it.joinToString(&quot;&quot;) { box -&gt; box.heatLoss.toString() } }
+&nbsp;
+&nbsp;  fun calculateMinHeatLossPath(): Path {
+&nbsp;    val grid: List&lt;MutableList&lt;PathEl?&gt;&gt; = rows.map { row -&gt; row.asSequence().map { null }.toMutableList() }
+&nbsp;    val toVisit = TreeSet&lt;PathEl&gt;()
+&nbsp;    toVisit.add(PathEl(Right, 0, 1, rows[0][1].heatLoss))
+&nbsp;    toVisit.add(PathEl(Down, 1, 0, rows[1][0].heatLoss))
+&nbsp;
+&nbsp;    while (toVisit.isNotEmpty()) {
+&nbsp;      val current = toVisit.removeFirst()
+&nbsp;      if (grid[current.row][current.col] == null) {
+&nbsp;        grid[current.row][current.col] = current
+&nbsp;      }
+&nbsp;      current.enterDirection.nextDirections().forEach { nextDirection -&gt;
+&nbsp;        val sameDirection = nextDirection == current.enterDirection
+&nbsp;        if (!sameDirection &amp;&amp; current.sameDirectionCount &lt; 4) return@forEach
+&nbsp;        val sameDirectionCount = if (sameDirection) current.sameDirectionCount + 1 else 1
+&nbsp;        var previous = current
+&nbsp;        val toVisits = mutableListOf&lt;PathEl&gt;()
+&nbsp;        var anyfree = false
+&nbsp;        for (i in sameDirectionCount..10) {
+&nbsp;          val (nextRow, nextCol) = nextDirection.next(previous.row, previous.col)
+&nbsp;          if (!isValid(nextRow, nextCol)) {
+&nbsp;            break
+&nbsp;          }
+&nbsp;          previous = PathEl(
+&nbsp;            nextDirection,
+&nbsp;            nextRow,
+&nbsp;            nextCol,
+&nbsp;            previous.totalHeatLoss + rows[nextRow][nextCol].heatLoss,
+&nbsp;            i,
+&nbsp;            previous
+&nbsp;          )
+&nbsp;          toVisits.add(previous)
+&nbsp;          if (grid[previous.row][previous.col] == null) {
+&nbsp;            anyfree = true
+&nbsp;          }
+&nbsp;        }
+&nbsp;        if (anyfree &amp;&amp; toVisits.size + sameDirectionCount - 1 &gt;= 4) toVisit.addAll(toVisits)
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    var c = grid.last().last()
+&nbsp;    val path = mutableListOf&lt;PathEl&gt;()
+&nbsp;    while (c != null) {
+&nbsp;      path.addFirst(c)
+&nbsp;      grid[c.row][c.col] = c
+&nbsp;      c = c.previous
+&nbsp;    }
+&nbsp;
+&nbsp;    return Path(elements = path.toList())
+&nbsp;  }
+&nbsp;
+&nbsp;  class PathEl(
+&nbsp;    val enterDirection: Direction,
+&nbsp;    val row: Int,
+&nbsp;    val col: Int,
+&nbsp;    val totalHeatLoss: Int,
+&nbsp;    val sameDirectionCount: Int = 1,
+&nbsp;    val previous: PathEl? = null
+&nbsp;  ) : Comparable&lt;PathEl&gt; {
+&nbsp;
+&nbsp;    override fun compareTo(other: PathEl): Int = compareValuesBy(
+&nbsp;      this, other,
+&nbsp;      { it.totalHeatLoss },
+&nbsp;      { it.row },
+&nbsp;      { it.col },
+&nbsp;      { it.enterDirection },
+&nbsp;    )
+&nbsp;
+&nbsp;    override fun equals(other: Any?): Boolean {
+&nbsp;      if (this === other) return true
+&nbsp;      if (javaClass != other?.javaClass) return false
+&nbsp;
+&nbsp;      other as PathEl
+&nbsp;
+&nbsp;      if (enterDirection != other.enterDirection) return false
+&nbsp;      if (row != other.row) return false
+&nbsp;      if (col != other.col) return false
+&nbsp;      if (totalHeatLoss != other.totalHeatLoss) return false
+&nbsp;
+&nbsp;      return true
+&nbsp;    }
+&nbsp;
+&nbsp;    override fun hashCode(): Int {
+&nbsp;      var result = enterDirection.hashCode()
+&nbsp;      result = 31 * result + row
+&nbsp;      result = 31 * result + col
+&nbsp;      result = 31 * result + totalHeatLoss
+&nbsp;      return result
+&nbsp;    }
+&nbsp;
+&nbsp;    override fun toString(): String {
+&nbsp;      return &quot;PathEl(enterDirection=${enterDirection.sign}, row=$row, col=$col, totalHeatLoss=$totalHeatLoss, sameDirectionCount=$sameDirectionCount, previous=$previous)&quot;
+&nbsp;    }
+&nbsp;  }
+&nbsp;
+&nbsp;  data class Path(val elements: List&lt;PathEl&gt;)
+&nbsp;
+&nbsp;  private fun isValid(row: Int, col: Int): Boolean =
+&nbsp;    row in 0 until numberOfRows &amp;&amp; col in 0 until numberOfColumns
+&nbsp;}
+&nbsp;
+&nbsp;data class Block(val row: Int, val col: Int, val heatLoss: Int)
+&nbsp;
+<b class="fc">&nbsp;enum class Direction(val sign: Char) {</b>
+<b class="fc">&nbsp;  Up(&#39;^&#39;) {</b>
+<b class="fc">&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row - 1 to col</b>
+&nbsp;
+<b class="fc">&nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Up, Left, Right)</b>
+&nbsp;  },
+<b class="fc">&nbsp;  Left(&#39;&lt;&#39;) {</b>
+<b class="fc">&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row to col - 1</b>
+&nbsp;
+<b class="fc">&nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Left, Up, Down)</b>
+&nbsp;  },
+<b class="fc">&nbsp;  Down(&#39;v&#39;) {</b>
+<b class="fc">&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row + 1 to col</b>
+&nbsp;
+<b class="fc">&nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Down, Left, Right)</b>
+&nbsp;  },
+<b class="fc">&nbsp;  Right(&#39;&gt;&#39;) {</b>
+<b class="fc">&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row to col + 1</b>
+&nbsp;
+<b class="fc">&nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Right, Up, Down)</b>
+&nbsp;  };
+&nbsp;
+&nbsp;  abstract fun next(row: Int, col: Int): Pair&lt;Int, Int&gt;
+&nbsp;
+&nbsp;  abstract fun nextDirections(): Set&lt;Direction&gt;
+<b class="nc">&nbsp;}</b>
+&nbsp;
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-18 04:07</div>
+</div>
+</body>
+</html>
