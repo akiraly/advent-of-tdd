@@ -84,32 +84,6 @@ data class HeatLossMap(val rows: List<List<Block>>) {
       { it.col },
       { it.enterDirection },
     )
-
-    override fun equals(other: Any?): Boolean {
-      if (this === other) return true
-      if (javaClass != other?.javaClass) return false
-
-      other as PathEl
-
-      if (enterDirection != other.enterDirection) return false
-      if (row != other.row) return false
-      if (col != other.col) return false
-      if (totalHeatLoss != other.totalHeatLoss) return false
-
-      return true
-    }
-
-    override fun hashCode(): Int {
-      var result = enterDirection.hashCode()
-      result = 31 * result + row
-      result = 31 * result + col
-      result = 31 * result + totalHeatLoss
-      return result
-    }
-
-    override fun toString(): String {
-      return "PathEl(enterDirection=${enterDirection.sign}, row=$row, col=$col, totalHeatLoss=$totalHeatLoss, sameDirectionCount=$sameDirectionCount, previous=$previous)"
-    }
   }
 
   data class Path(val elements: List<PathEl>)
@@ -120,23 +94,23 @@ data class HeatLossMap(val rows: List<List<Block>>) {
 
 data class Block(val row: Int, val col: Int, val heatLoss: Int)
 
-enum class Direction(val sign: Char) {
-  Up('^') {
+enum class Direction {
+  Up {
     override fun next(row: Int, col: Int): Pair<Int, Int> = row - 1 to col
 
     override fun nextDirections(): Set<Direction> = setOf(Up, Left, Right)
   },
-  Left('<') {
+  Left {
     override fun next(row: Int, col: Int): Pair<Int, Int> = row to col - 1
 
     override fun nextDirections(): Set<Direction> = setOf(Left, Up, Down)
   },
-  Down('v') {
+  Down {
     override fun next(row: Int, col: Int): Pair<Int, Int> = row + 1 to col
 
     override fun nextDirections(): Set<Direction> = setOf(Down, Left, Right)
   },
-  Right('>') {
+  Right {
     override fun next(row: Int, col: Int): Pair<Int, Int> = row to col + 1
 
     override fun nextDirections(): Set<Direction> = setOf(Right, Up, Down)

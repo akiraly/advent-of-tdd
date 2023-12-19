@@ -181,7 +181,7 @@ data class DigGrid(
   fun capacity(): Long {
 
     val columns = TreeSet(columns)
-    val rowsByRowNum = rows.groupBy { it.row } //.mapValues { (_, rows) -> TreeSet(rows) }
+    val rowsByRowNum = rows.groupBy { it.row }
 
     var total = length
 
@@ -207,11 +207,6 @@ data class DigGrid(
       val area: Long = colDiff * rowDiff
 
       total += area
-
-      first.diff(second)?.also {
-        println(it)
-        columns.add(it)
-      }
     }
 
     return total
@@ -225,18 +220,6 @@ data class BorderColumn(val col: Int, val rowStart: Int, val rowEnd: Int) : Comp
     { it.rowStart },
     { it.col }
   )
-
-  fun diff(other: BorderColumn): BorderColumn? {
-    require(col < other.col)
-    require(rowStart == other.rowStart)
-    if (rowEnd == other.rowEnd) return null
-
-    return if (rowEnd < other.rowEnd) {
-      BorderColumn(other.col, rowEnd, other.rowEnd)
-    } else {
-      BorderColumn(col, other.rowEnd, rowEnd)
-    }
-  }
 
   fun split(splitter: Int): Pair<BorderColumn, BorderColumn> = copy(rowEnd = splitter) to copy(rowStart = splitter)
 }
@@ -261,21 +244,8 @@ data class Step(val direction: Direction, val distance: Int) {
 }
 
 enum class Direction {
-  R {
-    override fun next(row: Int, col: Int): Pair<Int, Int> = row to col + 1
-
-  },
-  L {
-    override fun next(row: Int, col: Int): Pair<Int, Int> = row to col - 1
-
-  },
-  U {
-    override fun next(row: Int, col: Int): Pair<Int, Int> = row - 1 to col
-
-  },
-  D {
-    override fun next(row: Int, col: Int): Pair<Int, Int> = row + 1 to col
-  };
-
-  abstract fun next(row: Int, col: Int): Pair<Int, Int>
+  R,
+  L,
+  U,
+  D;
 }
