@@ -1,0 +1,328 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > DigPlan</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day18p1</a>
+</div>
+
+<h1>Coverage Summary for Class: DigPlan (day18p1)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">DigPlan</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (44/44)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">DigPlan$Indexes</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">DigPlan$WhenMappings</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (10/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (46/46)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day18p1
+&nbsp;
+&nbsp;import kotlin.math.absoluteValue
+&nbsp;
+&nbsp;fun String.lavaCapacity(): Int {
+&nbsp;  val digPlan = toDigPlan()
+&nbsp;  val digGrid = digPlan.dig()
+&nbsp;  digGrid.digInterior()
+&nbsp;  return digGrid.capacity()
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toDigPlan(): DigPlan = DigPlan(
+&nbsp;  lines().map { it.toStep() }.toList()
+&nbsp;)
+&nbsp;
+&nbsp;
+&nbsp;private val stepRegex = &quot;&quot;&quot;([RLUD]) (\d+) \((#\w+)\)&quot;&quot;&quot;.toRegex()
+&nbsp;
+&nbsp;fun String.toStep(): Step =
+&nbsp;  stepRegex.matchEntire(this)!!.destructured
+&nbsp;    .let { (direction, distance, colorCode) -&gt;
+&nbsp;      Step(
+&nbsp;        direction = Direction.valueOf(direction),
+&nbsp;        distance = distance.toInt(),
+&nbsp;        colorCode = colorCode
+&nbsp;      )
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;data class DigPlan(val steps: List&lt;Step&gt;) {</b>
+<b class="fc">&nbsp;  val lengthByDirection = steps.groupBy { it.direction }.mapValues { (_, steps) -&gt; steps.sumOf { it.distance } }</b>
+<b class="fc">&nbsp;  fun toText(): String = steps.joinToString(&quot;\n&quot;)</b>
+<b class="fc">&nbsp;  fun length(): Int = steps.sumOf { it.distance }</b>
+&nbsp;
+&nbsp;  fun isLoop(): Boolean =
+<b class="fc">&nbsp;    lengthByDirection[Direction.R] == lengthByDirection[Direction.L] &amp;&amp;</b>
+<b class="fc">&nbsp;      lengthByDirection[Direction.U] == lengthByDirection[Direction.D]</b>
+&nbsp;
+&nbsp;  fun rows(): Indexes {
+<b class="fc">&nbsp;    var max = 0</b>
+<b class="fc">&nbsp;    var current = 0</b>
+<b class="fc">&nbsp;    var min = 0</b>
+<b class="fc">&nbsp;    for (step in steps) {</b>
+<b class="fc">&nbsp;      when (step.direction) {</b>
+&nbsp;        Direction.D -&gt; {
+<b class="fc">&nbsp;          current += step.distance</b>
+<b class="fc">&nbsp;          max = max.coerceAtLeast(current)</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        Direction.U -&gt; {
+<b class="fc">&nbsp;          current -= step.distance</b>
+<b class="fc">&nbsp;          min = min.coerceAtMost(current)</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        else -&gt; continue</b>
+&nbsp;      }
+&nbsp;    }
+<b class="fc">&nbsp;    return Indexes(max, min)</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  fun columns(): Indexes {
+<b class="fc">&nbsp;    var max = 0</b>
+<b class="fc">&nbsp;    var current = 0</b>
+<b class="fc">&nbsp;    var min = 0</b>
+<b class="fc">&nbsp;    for (step in steps) {</b>
+<b class="fc">&nbsp;      when (step.direction) {</b>
+&nbsp;        Direction.R -&gt; {
+<b class="fc">&nbsp;          current += step.distance</b>
+<b class="fc">&nbsp;          max = max.coerceAtLeast(current)</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        Direction.L -&gt; {
+<b class="fc">&nbsp;          current -= step.distance</b>
+<b class="fc">&nbsp;          min = min.coerceAtMost(current)</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        else -&gt; continue</b>
+&nbsp;      }
+&nbsp;    }
+<b class="fc">&nbsp;    return Indexes(max, min)</b>
+&nbsp;  }
+&nbsp;
+<b class="fc">&nbsp;  data class Indexes(val max: Int, val min: Int) {</b>
+<b class="fc">&nbsp;    val total: Int = max - min + 1</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  fun dig(): DigGrid {
+<b class="fc">&nbsp;    val rows = rows()</b>
+<b class="fc">&nbsp;    val columns = columns()</b>
+<b class="fc">&nbsp;    val digGrid = DigGrid((0 until rows.total).map { (0 until columns.total).map { Area.Terrain }.toMutableList() })</b>
+<b class="fc">&nbsp;    var currentRow = rows.min.absoluteValue</b>
+<b class="fc">&nbsp;    var currentCol = columns.min.absoluteValue</b>
+<b class="fc">&nbsp;    digGrid.grid[currentRow][currentCol] = Area.Trench</b>
+<b class="fc">&nbsp;    for (step in steps) {</b>
+<b class="fc">&nbsp;      repeat(step.distance) {</b>
+<b class="fc">&nbsp;        val (nextRow, nextColumn) = step.direction.next(currentRow, currentCol)</b>
+<b class="fc">&nbsp;        require(nextRow &gt;= 0) { &quot;row $nextRow must be &gt;= 0, $step / $it&quot; }</b>
+<b class="fc">&nbsp;        require(nextColumn &gt;= 0) { &quot;column $nextColumn must be &gt;= 0, $step / $it&quot; }</b>
+<b class="fc">&nbsp;        digGrid.grid[nextRow][nextColumn] = Area.Trench</b>
+<b class="fc">&nbsp;        currentRow = nextRow</b>
+<b class="fc">&nbsp;        currentCol = nextColumn</b>
+<b class="fc">&nbsp;      }</b>
+&nbsp;    }
+<b class="fc">&nbsp;    return digGrid</b>
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;data class DigGrid(val grid: List&lt;MutableList&lt;Area&gt;&gt;) {
+&nbsp;  fun toText(): String = grid.joinToString(&quot;\n&quot;) { row -&gt; row.joinToString(&quot;&quot;) { it.sign.toString() } }
+&nbsp;  fun capacity(): Int = grid.asSequence().flatten().count { it == Area.Trench }
+&nbsp;
+&nbsp;  fun digInterior() {
+&nbsp;    val outsideAreas = mutableSetOf&lt;Pair&lt;Int, Int&gt;&gt;()
+&nbsp;    for (row in grid.indices) {
+&nbsp;      for (col in grid[row].indices) {
+&nbsp;        if (grid[row][col] == Area.Trench || outsideAreas.contains(row to col)) {
+&nbsp;          continue
+&nbsp;        }
+&nbsp;        outsideAreas.addAll(floodFill(row, col))
+&nbsp;      }
+&nbsp;    }
+&nbsp;  }
+&nbsp;
+&nbsp;  fun floodFill(startRow: Int, startCol: Int): Set&lt;Pair&lt;Int, Int&gt;&gt; {
+&nbsp;    require(grid[startRow][startCol] == Area.Terrain)
+&nbsp;    var inside = true
+&nbsp;    val toVisit = mutableSetOf(startRow to startCol)
+&nbsp;    val visited = mutableSetOf&lt;Pair&lt;Int, Int&gt;&gt;()
+&nbsp;    while (toVisit.isNotEmpty()) {
+&nbsp;      val (row, col) = toVisit.iterator().let {
+&nbsp;        val pair = it.next()
+&nbsp;        it.remove()
+&nbsp;        pair
+&nbsp;      }
+&nbsp;      if (row == 0 || col == 0 || row == grid.size - 1 || col == grid[row].size - 1) {
+&nbsp;        inside = false
+&nbsp;      }
+&nbsp;      visited.add(row to col)
+&nbsp;      sequenceOf(
+&nbsp;        row to col + 1,
+&nbsp;        row + 1 to col,
+&nbsp;        row to col - 1,
+&nbsp;        row - 1 to col
+&nbsp;      ).forEach { pair -&gt;
+&nbsp;        if (visited.contains(pair)) {
+&nbsp;          return@forEach
+&nbsp;        }
+&nbsp;        val (r, c) = pair
+&nbsp;        if (r &lt; 0 || c &lt; 0 || r &gt;= grid.size || c &gt;= grid[row].size) {
+&nbsp;          return@forEach
+&nbsp;        }
+&nbsp;        if (grid[r][c] == Area.Trench) {
+&nbsp;          return@forEach
+&nbsp;        }
+&nbsp;
+&nbsp;        toVisit.add(pair)
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    if (inside) {
+&nbsp;      visited.forEach { (row, col) -&gt; grid[row][col] = Area.Trench }
+&nbsp;      return emptySet()
+&nbsp;    }
+&nbsp;
+&nbsp;    return visited
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;enum class Area(val sign: Char) {
+&nbsp;  Trench(&#39;#&#39;),
+&nbsp;  Terrain(&#39;.&#39;)
+&nbsp;}
+&nbsp;
+&nbsp;data class Step(val direction: Direction, val distance: Int, val colorCode: String) {
+&nbsp;  override fun toString(): String = &quot;$direction $distance ($colorCode)&quot;
+&nbsp;}
+&nbsp;
+&nbsp;enum class Direction {
+&nbsp;  R {
+&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row to col + 1
+&nbsp;
+&nbsp;  },
+&nbsp;  L {
+&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row to col - 1
+&nbsp;
+&nbsp;  },
+&nbsp;  U {
+&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row - 1 to col
+&nbsp;
+&nbsp;  },
+&nbsp;  D {
+&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row + 1 to col
+&nbsp;  };
+&nbsp;
+&nbsp;  abstract fun next(row: Int, col: Int): Pair&lt;Int, Int&gt;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-19 14:25</div>
+</div>
+</body>
+</html>

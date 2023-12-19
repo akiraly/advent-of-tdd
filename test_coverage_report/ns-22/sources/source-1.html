@@ -158,32 +158,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;      { it.col },
 &nbsp;      { it.enterDirection },
 &nbsp;    )
-&nbsp;
-&nbsp;    override fun equals(other: Any?): Boolean {
-&nbsp;      if (this === other) return true
-&nbsp;      if (javaClass != other?.javaClass) return false
-&nbsp;
-&nbsp;      other as PathEl
-&nbsp;
-&nbsp;      if (enterDirection != other.enterDirection) return false
-&nbsp;      if (row != other.row) return false
-&nbsp;      if (col != other.col) return false
-&nbsp;      if (totalHeatLoss != other.totalHeatLoss) return false
-&nbsp;
-&nbsp;      return true
-&nbsp;    }
-&nbsp;
-&nbsp;    override fun hashCode(): Int {
-&nbsp;      var result = enterDirection.hashCode()
-&nbsp;      result = 31 * result + row
-&nbsp;      result = 31 * result + col
-&nbsp;      result = 31 * result + totalHeatLoss
-&nbsp;      return result
-&nbsp;    }
-&nbsp;
-&nbsp;    override fun toString(): String {
-&nbsp;      return &quot;PathEl(enterDirection=${enterDirection.sign}, row=$row, col=$col, totalHeatLoss=$totalHeatLoss, sameDirectionCount=$sameDirectionCount, previous=$previous)&quot;
-&nbsp;    }
 &nbsp;  }
 &nbsp;
 &nbsp;  data class Path(val elements: List&lt;PathEl&gt;)
@@ -194,23 +168,23 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;
 <b class="fc">&nbsp;data class Block(val row: Int, val col: Int, val heatLoss: Int)</b>
 &nbsp;
-&nbsp;enum class Direction(val sign: Char) {
-&nbsp;  Up(&#39;^&#39;) {
+&nbsp;enum class Direction {
+&nbsp;  Up {
 &nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row - 1 to col
 &nbsp;
 &nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Up, Left, Right)
 &nbsp;  },
-&nbsp;  Left(&#39;&lt;&#39;) {
+&nbsp;  Left {
 &nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row to col - 1
 &nbsp;
 &nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Left, Up, Down)
 &nbsp;  },
-&nbsp;  Down(&#39;v&#39;) {
+&nbsp;  Down {
 &nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row + 1 to col
 &nbsp;
 &nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Down, Left, Right)
 &nbsp;  },
-&nbsp;  Right(&#39;&gt;&#39;) {
+&nbsp;  Right {
 &nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row to col + 1
 &nbsp;
 &nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Right, Up, Down)
@@ -244,7 +218,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-12-18 04:07</div>
+    <div style="float:right;">generated on 2023-12-19 14:25</div>
 </div>
 </body>
 </html>

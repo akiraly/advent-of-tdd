@@ -1,0 +1,355 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Step</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day18p2</a>
+</div>
+
+<h1>Coverage Summary for Class: Step (day18p2)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Step</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day18p2
+&nbsp;
+&nbsp;import java.util.*
+&nbsp;import kotlin.math.absoluteValue
+&nbsp;import kotlin.math.max
+&nbsp;import kotlin.math.min
+&nbsp;
+&nbsp;fun String.lavaCapacityOriginal(): Long {
+&nbsp;  val digPlan = toDigPlanOriginal()
+&nbsp;  val digGrid = digPlan.dig()
+&nbsp;  return digGrid.capacity()
+&nbsp;}
+&nbsp;
+&nbsp;fun String.lavaCapacityUpdated(): Long {
+&nbsp;  val digPlan = toDigPlanUpdated()
+&nbsp;  val digGrid = digPlan.dig()
+&nbsp;  return digGrid.capacity()
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toDigPlanOriginal(): DigPlan = DigPlan(
+&nbsp;  lines().map { it.toStepOriginal() }.toList()
+&nbsp;)
+&nbsp;
+&nbsp;
+&nbsp;private val stepRegexOriginal = &quot;&quot;&quot;([RLUD]) (\d+) .*&quot;&quot;&quot;.toRegex()
+&nbsp;
+&nbsp;fun String.toStepOriginal(): Step =
+&nbsp;  stepRegexOriginal.matchEntire(this)!!.destructured
+&nbsp;    .let { (direction, distance) -&gt;
+&nbsp;      Step(
+&nbsp;        direction = Direction.valueOf(direction),
+&nbsp;        distance = distance.toInt()
+&nbsp;      )
+&nbsp;    }
+&nbsp;
+&nbsp;fun String.toDigPlanUpdated(): DigPlan = DigPlan(
+&nbsp;  lines().map { it.toStepUpdated() }.toList()
+&nbsp;)
+&nbsp;
+&nbsp;
+&nbsp;private val stepRegexUpdated = &quot;&quot;&quot;.*\(#(\w+)([0-3])\)&quot;&quot;&quot;.toRegex()
+&nbsp;
+&nbsp;fun String.toStepUpdated(): Step =
+&nbsp;  stepRegexUpdated.matchEntire(this)!!.destructured
+&nbsp;    .let { (distanceHex, directionCode) -&gt;
+&nbsp;      Step(
+&nbsp;        direction = when (directionCode) {
+&nbsp;          &quot;0&quot; -&gt; Direction.R
+&nbsp;          &quot;1&quot; -&gt; Direction.D
+&nbsp;          &quot;2&quot; -&gt; Direction.L
+&nbsp;          else -&gt; {
+&nbsp;            require(directionCode == &quot;3&quot;)
+&nbsp;            Direction.U
+&nbsp;          }
+&nbsp;        },
+&nbsp;        distance = distanceHex.toInt(16),
+&nbsp;      )
+&nbsp;    }
+&nbsp;
+&nbsp;data class DigPlan(val steps: List&lt;Step&gt;) {
+&nbsp;  val length: Long = steps.sumOf { it.distance.toLong() }
+&nbsp;  val lengthByDirection = steps.groupBy { it.direction }.mapValues { (_, steps) -&gt; steps.sumOf { it.distance } }
+&nbsp;  fun toText(): String = steps.joinToString(&quot;\n&quot;)
+&nbsp;
+&nbsp;  fun isLoop(): Boolean =
+&nbsp;    lengthByDirection[Direction.R] == lengthByDirection[Direction.L] &amp;&amp;
+&nbsp;      lengthByDirection[Direction.U] == lengthByDirection[Direction.D]
+&nbsp;
+&nbsp;  fun rows(): Indexes {
+&nbsp;    var max = 0
+&nbsp;    var current = 0
+&nbsp;    var min = 0
+&nbsp;    for (step in steps) {
+&nbsp;      when (step.direction) {
+&nbsp;        Direction.D -&gt; {
+&nbsp;          current += step.distance
+&nbsp;          max = max.coerceAtLeast(current)
+&nbsp;        }
+&nbsp;
+&nbsp;        Direction.U -&gt; {
+&nbsp;          current -= step.distance
+&nbsp;          min = min.coerceAtMost(current)
+&nbsp;        }
+&nbsp;
+&nbsp;        else -&gt; continue
+&nbsp;      }
+&nbsp;    }
+&nbsp;    return Indexes(max, min)
+&nbsp;  }
+&nbsp;
+&nbsp;  fun columns(): Indexes {
+&nbsp;    var max = 0
+&nbsp;    var current = 0
+&nbsp;    var min = 0
+&nbsp;    for (step in steps) {
+&nbsp;      when (step.direction) {
+&nbsp;        Direction.R -&gt; {
+&nbsp;          current += step.distance
+&nbsp;          max = max.coerceAtLeast(current)
+&nbsp;        }
+&nbsp;
+&nbsp;        Direction.L -&gt; {
+&nbsp;          current -= step.distance
+&nbsp;          min = min.coerceAtMost(current)
+&nbsp;        }
+&nbsp;
+&nbsp;        else -&gt; continue
+&nbsp;      }
+&nbsp;    }
+&nbsp;    return Indexes(max, min)
+&nbsp;  }
+&nbsp;
+&nbsp;  data class Indexes(val max: Int, val min: Int) {
+&nbsp;    val total: Int = max - min + 1
+&nbsp;  }
+&nbsp;
+&nbsp;  fun dig(): DigGrid {
+&nbsp;    val columnIndexes = columns()
+&nbsp;    val rowIndexes = rows()
+&nbsp;    val columns = TreeSet&lt;BorderColumn&gt;()
+&nbsp;    val rows = TreeSet&lt;BorderRow&gt;()
+&nbsp;    var currentCol = columnIndexes.min.absoluteValue
+&nbsp;    var currentRow = rowIndexes.min.absoluteValue
+&nbsp;    for (step in steps) {
+&nbsp;      when (step.direction) {
+&nbsp;        Direction.D -&gt; {
+&nbsp;          val col = BorderColumn(currentCol, currentRow, currentRow + step.distance)
+&nbsp;          columns.add(col)
+&nbsp;          currentRow = col.rowEnd
+&nbsp;        }
+&nbsp;
+&nbsp;        Direction.U -&gt; {
+&nbsp;          val col = BorderColumn(currentCol, currentRow - step.distance, currentRow)
+&nbsp;          columns.add(col)
+&nbsp;          currentRow = col.rowStart
+&nbsp;        }
+&nbsp;
+&nbsp;        Direction.L -&gt; {
+&nbsp;          val row = BorderRow(currentRow, currentCol - step.distance, currentCol)
+&nbsp;          rows.add(row)
+&nbsp;          currentCol = row.colStart
+&nbsp;        }
+&nbsp;
+&nbsp;        Direction.R -&gt; {
+&nbsp;          val row = BorderRow(currentRow, currentCol, currentCol + step.distance)
+&nbsp;          rows.add(row)
+&nbsp;          currentCol = row.colEnd
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    val finalColumns = TreeSet&lt;BorderColumn&gt;()
+&nbsp;    for (col in columns) {
+&nbsp;      val splitters =
+&nbsp;        rows.asSequence().map { it.row }.distinct().filter { row -&gt; col.rowStart &lt; row &amp;&amp; row &lt; col.rowEnd }
+&nbsp;          .toMutableList()
+&nbsp;      var remaining = col
+&nbsp;      while (splitters.isNotEmpty()) {
+&nbsp;        val splitter = splitters.removeFirst()!!
+&nbsp;        val (firstPart, secondPart) = remaining.split(splitter)
+&nbsp;        finalColumns.add(firstPart)
+&nbsp;        remaining = secondPart
+&nbsp;      }
+&nbsp;      finalColumns.add(remaining)
+&nbsp;    }
+&nbsp;
+&nbsp;    return DigGrid(columnIndexes.total, rowIndexes.total, finalColumns, rows)
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;data class DigGrid(
+&nbsp;  val numOfColumns: Int,
+&nbsp;  val numOfRows: Int,
+&nbsp;  val columns: TreeSet&lt;BorderColumn&gt;,
+&nbsp;  val rows: TreeSet&lt;BorderRow&gt;
+&nbsp;) {
+&nbsp;  val length: Long =
+&nbsp;    columns.sumOf { it.rowEnd.toLong() - it.rowStart } + rows.sumOf { it.colEnd.toLong() - it.colStart }
+&nbsp;
+&nbsp;  override fun toString(): String = columns.joinToString(&quot;\n&quot;) + &quot;\n&quot; + rows.joinToString(&quot;\n&quot;)
+&nbsp;  fun capacity(): Long {
+&nbsp;
+&nbsp;    val columns = TreeSet(columns)
+&nbsp;    val rowsByRowNum = rows.groupBy { it.row }
+&nbsp;
+&nbsp;    var total = length
+&nbsp;
+&nbsp;    while (columns.isNotEmpty()) {
+&nbsp;      val first = columns.removeFirst()!!
+&nbsp;      val second = columns.removeFirst()!!
+&nbsp;      require(first.col &lt; second.col)
+&nbsp;      require(first.rowStart == second.rowStart)
+&nbsp;      val commonEnd = min(first.rowEnd, second.rowEnd)
+&nbsp;
+&nbsp;      val rowsInSameRow = rowsByRowNum.getValue(commonEnd)
+&nbsp;      val gapStart = rowsInSameRow.firstOrNull { first.col in it.colStart..it.colEnd }?.colEnd ?: first.col
+&nbsp;      val gapEnd = rowsInSameRow.firstOrNull { second.col in it.colStart..it.colEnd }?.colStart ?: second.col
+&nbsp;      val totalGap = max(0, gapEnd - gapStart - 1)
+&nbsp;      val borderGap = rowsInSameRow.sumOf { it.between(gapStart, gapEnd) }
+&nbsp;      val gap = totalGap - borderGap
+&nbsp;
+&nbsp;
+&nbsp;      total += gap
+&nbsp;
+&nbsp;      val colDiff: Long = second.col - first.col - 1L
+&nbsp;      val rowDiff: Long = commonEnd - first.rowStart - 1L
+&nbsp;      val area: Long = colDiff * rowDiff
+&nbsp;
+&nbsp;      total += area
+&nbsp;    }
+&nbsp;
+&nbsp;    return total
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;data class BorderColumn(val col: Int, val rowStart: Int, val rowEnd: Int) : Comparable&lt;BorderColumn&gt; {
+&nbsp;  override fun toString(): String = &quot;$col, ($rowStart, $rowEnd)&quot;
+&nbsp;
+&nbsp;  override fun compareTo(other: BorderColumn): Int = compareValuesBy(this, other,
+&nbsp;    { it.rowStart },
+&nbsp;    { it.col }
+&nbsp;  )
+&nbsp;
+&nbsp;  fun split(splitter: Int): Pair&lt;BorderColumn, BorderColumn&gt; = copy(rowEnd = splitter) to copy(rowStart = splitter)
+&nbsp;}
+&nbsp;
+&nbsp;data class BorderRow(val row: Int, val colStart: Int, val colEnd: Int) : Comparable&lt;BorderRow&gt; {
+&nbsp;  override fun toString(): String = &quot;$row, ($colStart, $colEnd)&quot;
+&nbsp;
+&nbsp;  override fun compareTo(other: BorderRow): Int = compareValuesBy(this, other,
+&nbsp;    { it.row },
+&nbsp;    { it.colStart }
+&nbsp;  )
+&nbsp;
+&nbsp;  fun between(start: Int, end: Int): Int {
+&nbsp;    if (colEnd &lt;= start) return 0
+&nbsp;    if (end &lt;= colStart) return 0
+&nbsp;    return min(end - 1, colEnd) - max(start + 1, colStart) + 1
+&nbsp;  }
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;data class Step(val direction: Direction, val distance: Int) {</b>
+<b class="fc">&nbsp;  override fun toString(): String = &quot;$direction $distance&quot;</b>
+&nbsp;}
+&nbsp;
+&nbsp;enum class Direction {
+&nbsp;  R,
+&nbsp;  L,
+&nbsp;  U,
+&nbsp;  D;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-19 14:25</div>
+</div>
+</body>
+</html>

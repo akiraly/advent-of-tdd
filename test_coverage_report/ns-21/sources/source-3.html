@@ -41,18 +41,18 @@ Current scope:     <a href="../../index.html">all classes</a>
   <td class="name">Direction</td>
 <td class="coverageStat">
   <span class="percent">
-    66.7%
+    50%
   </span>
   <span class="absValue">
-    (2/3)
+    (1/2)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    83.3%
+    80%
   </span>
   <span class="absValue">
-    (5/6)
+    (4/5)
   </span>
 </td>
 </tr>
@@ -136,18 +136,18 @@ Current scope:     <a href="../../index.html">all classes</a>
   <td class="name"><strong>Total</strong></td>
 <td class="coverageStat">
   <span class="percent">
-    93.3%
+    92.9%
   </span>
   <span class="absValue">
-    (14/15)
+    (13/14)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    94.4%
+    94.1%
   </span>
   <span class="absValue">
-    (17/18)
+    (16/17)
   </span>
 </td>
 </tr>
@@ -244,32 +244,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;      { it.col },
 &nbsp;      { it.enterDirection },
 &nbsp;    )
-&nbsp;
-&nbsp;    override fun equals(other: Any?): Boolean {
-&nbsp;      if (this === other) return true
-&nbsp;      if (javaClass != other?.javaClass) return false
-&nbsp;
-&nbsp;      other as PathEl
-&nbsp;
-&nbsp;      if (enterDirection != other.enterDirection) return false
-&nbsp;      if (row != other.row) return false
-&nbsp;      if (col != other.col) return false
-&nbsp;      if (totalHeatLoss != other.totalHeatLoss) return false
-&nbsp;
-&nbsp;      return true
-&nbsp;    }
-&nbsp;
-&nbsp;    override fun hashCode(): Int {
-&nbsp;      var result = enterDirection.hashCode()
-&nbsp;      result = 31 * result + row
-&nbsp;      result = 31 * result + col
-&nbsp;      result = 31 * result + totalHeatLoss
-&nbsp;      return result
-&nbsp;    }
-&nbsp;
-&nbsp;    override fun toString(): String {
-&nbsp;      return &quot;PathEl(enterDirection=${enterDirection.sign}, row=$row, col=$col, totalHeatLoss=$totalHeatLoss, sameDirectionCount=$sameDirectionCount, previous=$previous)&quot;
-&nbsp;    }
 &nbsp;  }
 &nbsp;
 &nbsp;  data class Path(val elements: List&lt;PathEl&gt;)
@@ -280,23 +254,23 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;
 &nbsp;data class Block(val row: Int, val col: Int, val heatLoss: Int)
 &nbsp;
-<b class="fc">&nbsp;enum class Direction(val sign: Char) {</b>
-<b class="fc">&nbsp;  Up(&#39;^&#39;) {</b>
+&nbsp;enum class Direction {
+<b class="fc">&nbsp;  Up {</b>
 <b class="fc">&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row - 1 to col</b>
 &nbsp;
 <b class="fc">&nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Up, Left, Right)</b>
 &nbsp;  },
-<b class="fc">&nbsp;  Left(&#39;&lt;&#39;) {</b>
+<b class="fc">&nbsp;  Left {</b>
 <b class="fc">&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row to col - 1</b>
 &nbsp;
 <b class="fc">&nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Left, Up, Down)</b>
 &nbsp;  },
-<b class="fc">&nbsp;  Down(&#39;v&#39;) {</b>
+<b class="fc">&nbsp;  Down {</b>
 <b class="fc">&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row + 1 to col</b>
 &nbsp;
 <b class="fc">&nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Down, Left, Right)</b>
 &nbsp;  },
-<b class="fc">&nbsp;  Right(&#39;&gt;&#39;) {</b>
+<b class="fc">&nbsp;  Right {</b>
 <b class="fc">&nbsp;    override fun next(row: Int, col: Int): Pair&lt;Int, Int&gt; = row to col + 1</b>
 &nbsp;
 <b class="fc">&nbsp;    override fun nextDirections(): Set&lt;Direction&gt; = setOf(Right, Up, Down)</b>
@@ -330,7 +304,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-12-18 04:07</div>
+    <div style="float:right;">generated on 2023-12-19 14:25</div>
 </div>
 </body>
 </html>
