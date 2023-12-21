@@ -1,0 +1,412 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > WorkflowName</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day19p2</a>
+</div>
+
+<h1>Coverage Summary for Class: WorkflowName (day19p2)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">WorkflowName</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day19p2
+&nbsp;
+&nbsp;fun String.numberOfAcceptedPartCombinations(): Long {
+&nbsp;  val (workflows, _) = toWorkflowsAndParts()
+&nbsp;  return workflows.numberOfAcceptedPartCombinations()
+&nbsp;}
+&nbsp;
+&nbsp;fun String.sumOfRatingsOfSortedParts(): Long {
+&nbsp;  val (workflows, parts) = toWorkflowsAndParts()
+&nbsp;  return workflows.sumOfRatingsOfSortedParts(parts)
+&nbsp;}
+&nbsp;
+&nbsp;fun String.simplifiedSumOfRatingsOfSortedParts(): Long {
+&nbsp;  val (workflows, parts) = toWorkflowsAndParts()
+&nbsp;  return workflows.simplify().sumOfRatingsOfSortedParts(parts)
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toWorkflowsAndParts(): Pair&lt;Workflows, List&lt;Part&gt;&gt; {
+&nbsp;  val (workflows, parts) = split(&quot;\n\n&quot;)
+&nbsp;  return workflows.toWorkflows() to parts.toParts()
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toWorkflows(): Workflows = Workflows(lineSequence().map { it.toWorkflow() }.associateBy { it.name })
+&nbsp;
+&nbsp;data class Workflows(val workflows: Map&lt;WorkflowName, Workflow&gt;) {
+&nbsp;  private val start = workflows.getValue(WorkflowName(&quot;in&quot;))
+&nbsp;  fun sortPart(part: Part): EndState {
+&nbsp;    var current = start
+&nbsp;    while (true) {
+&nbsp;      val outcome = current.sortPart(part)
+&nbsp;      if (outcome is EndState) return outcome
+&nbsp;      require(outcome is WorkflowName)
+&nbsp;      current = workflows.getValue(outcome)
+&nbsp;    }
+&nbsp;  }
+&nbsp;
+&nbsp;  fun sumOfRatingsOfSortedParts(
+&nbsp;    parts: List&lt;Part&gt;
+&nbsp;  ) = parts.asSequence()
+&nbsp;    .map { it to sortPart(it) }
+&nbsp;    .filter { it.second == EndState.A }
+&nbsp;    .sumOf { it.first.total }
+&nbsp;
+&nbsp;  fun putWorkflowsInDAGOrder(): List&lt;Workflow&gt; {
+&nbsp;    val ordered = mutableListOf&lt;Workflow&gt;()
+&nbsp;    val toVisit = LinkedHashSet(listOf(start))
+&nbsp;    val visited = mutableSetOf&lt;Workflow&gt;()
+&nbsp;    while (toVisit.isNotEmpty()) {
+&nbsp;      val current = toVisit.removeFirst()!!
+&nbsp;      require(current !in visited)
+&nbsp;      visited += current
+&nbsp;      ordered.addFirst(current)
+&nbsp;      current.rules.forEach {
+&nbsp;        val outcome = it.outcome
+&nbsp;        if (outcome is WorkflowName) {
+&nbsp;          toVisit += workflows.getValue(outcome)
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;    return ordered
+&nbsp;  }
+&nbsp;
+&nbsp;  fun simplify(): Workflows {
+&nbsp;    val ordered = putWorkflowsInDAGOrder()
+&nbsp;    val simplifiedWorkflows = LinkedHashMap&lt;WorkflowName, Workflow&gt;()
+&nbsp;    val inlineables = mutableMapOf&lt;WorkflowName, RuleOutcome&gt;()
+&nbsp;    ordered.forEach { w -&gt;
+&nbsp;      val simplified = w.simplify(inlineables)
+&nbsp;      val replacement = simplified.inlinedReplacement()
+&nbsp;      if (replacement != null) {
+&nbsp;        inlineables[w.name] = replacement
+&nbsp;      } else {
+&nbsp;        simplifiedWorkflows[w.name] = simplified
+&nbsp;      }
+&nbsp;    }
+&nbsp;    return Workflows(simplifiedWorkflows)
+&nbsp;  }
+&nbsp;
+&nbsp;  override fun toString(): String = workflows.values.joinToString(&quot;\n&quot;)
+&nbsp;
+&nbsp;  fun numberOfAcceptedPartCombinations(): Long {
+&nbsp;    var count = 0L
+&nbsp;    visitAllRulePathsToA { path -&gt;
+&nbsp;      val tracker = RateCategory.entries.associateWith { Array(MAX_RATING_VALUE) { true } }
+&nbsp;      path.forEach { (rule, matched) -&gt;
+&nbsp;        if (rule !is Rule.IntervalRule) return@forEach
+&nbsp;
+&nbsp;        val t = tracker.getValue(rule.category)
+&nbsp;
+&nbsp;        if (matched) {
+&nbsp;          ((1..&lt;rule.range.first).asSequence() + (rule.range.last + 1..MAX_RATING_VALUE).asSequence())
+&nbsp;            .forEach {
+&nbsp;              t[it - 1] = false
+&nbsp;            }
+&nbsp;        } else {
+&nbsp;          rule.range.forEach { t[it - 1] = false }
+&nbsp;        }
+&nbsp;      }
+&nbsp;
+&nbsp;      val countedTracker = tracker.mapValues { c -&gt; c.value.count { it }.toLong() }
+&nbsp;      val combinations = countedTracker.values.reduce { acc, i -&gt; acc * i }
+&nbsp;
+&nbsp;      count += combinations
+&nbsp;    }
+&nbsp;
+&nbsp;    return count
+&nbsp;  }
+&nbsp;
+&nbsp;  fun visitAllRulePathsToA(
+&nbsp;    path: Sequence&lt;VisitedRule&gt; = emptySequence(),
+&nbsp;    current: Workflow = start,
+&nbsp;    successFn: (Sequence&lt;VisitedRule&gt;) -&gt; Unit
+&nbsp;  ) {
+&nbsp;    var updatedPath = path
+&nbsp;    current.rules.forEach { rule -&gt;
+&nbsp;      val outcome = rule.outcome
+&nbsp;      if (rule == EndState.A) {
+&nbsp;        successFn(updatedPath)
+&nbsp;      } else if (outcome == EndState.A) {
+&nbsp;        successFn(updatedPath + VisitedRule(rule, true))
+&nbsp;      } else if (outcome is WorkflowName) {
+&nbsp;        visitAllRulePathsToA(updatedPath + VisitedRule(rule, true), workflows.getValue(outcome), successFn)
+&nbsp;      }
+&nbsp;      updatedPath += VisitedRule(rule, false)
+&nbsp;    }
+&nbsp;  }
+&nbsp;
+&nbsp;  data class VisitedRule(val rule: Rule, val matched: Boolean) {
+&nbsp;    override fun toString(): String = (if (matched) &quot;&quot; else &quot;!&quot;) + rule
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;private val workflowRegex = &quot;&quot;&quot;(\w+)\{(.+)}&quot;&quot;&quot;.toRegex()
+&nbsp;fun String.toWorkflow(): Workflow = workflowRegex.matchEntire(this)!!.destructured.let { (name, rules) -&gt;
+&nbsp;  Workflow(
+&nbsp;    WorkflowName(name),
+&nbsp;    rules.split(&#39;,&#39;).map { it.toRule() }
+&nbsp;  )
+&nbsp;}
+&nbsp;
+&nbsp;private val ruleRegex = &quot;&quot;&quot;([xmas])([&gt;&lt;])(\d+):(\w+)&quot;&quot;&quot;.toRegex()
+&nbsp;fun String.toRule(): Rule = ruleRegex.matchEntire(this)?.destructured?.let { (cat, op, limit, next) -&gt;
+&nbsp;  Rule.IntervalRule(
+&nbsp;    cat.toRateCategory(),
+&nbsp;    when (op) {
+&nbsp;      &quot;&gt;&quot; -&gt; limit.toInt() + 1..MAX_RATING_VALUE
+&nbsp;      else -&gt; {
+&nbsp;        require(op == &quot;&lt;&quot;)
+&nbsp;        1..&lt;limit.toInt()
+&nbsp;      }
+&nbsp;    },
+&nbsp;    next.toRuleOutcome()
+&nbsp;  )
+&nbsp;} ?: this.toRuleOutcome()
+&nbsp;
+&nbsp;private fun String.toRateCategory(): RateCategory = when (this) {
+&nbsp;  &quot;x&quot; -&gt; RateCategory.X
+&nbsp;  &quot;m&quot; -&gt; RateCategory.M
+&nbsp;  &quot;a&quot; -&gt; RateCategory.A
+&nbsp;  else -&gt; {
+&nbsp;    require(this == &quot;s&quot;)
+&nbsp;    RateCategory.S
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;data class Workflow(val name: WorkflowName, val rules: List&lt;Rule&gt;) {
+&nbsp;  fun sortPart(part: Part): RuleOutcome = rules.asSequence().mapNotNull { it.sortPart(part) }.first()
+&nbsp;  fun simplify(inlineables: Map&lt;WorkflowName, RuleOutcome&gt; = emptyMap()): Workflow {
+&nbsp;    val simplifiedRules = rules.toMutableList()
+&nbsp;
+&nbsp;    simplifiedRules.replaceAll { rule -&gt;
+&nbsp;      val outcome = rule.outcome
+&nbsp;      if (outcome !is WorkflowName) return@replaceAll rule
+&nbsp;
+&nbsp;      val replacement = inlineables[outcome] ?: return@replaceAll rule
+&nbsp;
+&nbsp;      when (rule) {
+&nbsp;        is Rule.IntervalRule -&gt; rule.copy(outcome = replacement)
+&nbsp;        else -&gt; {
+&nbsp;          require(rule is WorkflowName)
+&nbsp;          replacement
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;
+&nbsp;    simplifiedRules.asReversed().iterator().also {
+&nbsp;      val last = it.next()
+&nbsp;      require(last is RuleOutcome)
+&nbsp;      while (it.hasNext()) {
+&nbsp;        val next = it.next()
+&nbsp;        if (next.outcome != last) {
+&nbsp;          break
+&nbsp;        }
+&nbsp;        it.remove()
+&nbsp;      }
+&nbsp;    }
+&nbsp;    return Workflow(name, simplifiedRules)
+&nbsp;  }
+&nbsp;
+&nbsp;  fun inlinedReplacement(): RuleOutcome? {
+&nbsp;    if (rules.size != 1) return null
+&nbsp;    val rule = rules.single()
+&nbsp;    require(rule is RuleOutcome)
+&nbsp;    return rule
+&nbsp;  }
+&nbsp;
+&nbsp;  override fun toString(): String = &quot;$name{${rules.joinToString(&quot;,&quot;)}}&quot;
+&nbsp;}
+&nbsp;
+&nbsp;sealed interface RuleOutcome : Rule {
+&nbsp;  override val outcome: RuleOutcome get() = this
+&nbsp;}
+&nbsp;
+&nbsp;sealed interface EndState : RuleOutcome {
+&nbsp;  override fun sortPart(part: Part): RuleOutcome = this
+&nbsp;
+&nbsp;  data object A : EndState
+&nbsp;
+&nbsp;  data object R : EndState
+&nbsp;}
+&nbsp;
+&nbsp;sealed interface Rule {
+&nbsp;  val outcome: RuleOutcome
+&nbsp;  fun sortPart(part: Part): RuleOutcome?
+&nbsp;
+&nbsp;  data class IntervalRule(val category: RateCategory, val range: IntRange, override val outcome: RuleOutcome) : Rule {
+&nbsp;    override fun sortPart(part: Part): RuleOutcome? = if (range.contains(category(part).value)) outcome else null
+&nbsp;
+&nbsp;    override fun toString(): String = &quot;${range.first}&lt;=$category&lt;=${range.last}:$outcome&quot;
+&nbsp;  }
+&nbsp;
+&nbsp;  companion object {
+&nbsp;    fun xGt(limit: Int, next: String): Rule =
+&nbsp;      IntervalRule(RateCategory.X, limit + 1..MAX_RATING_VALUE, next.toRuleOutcome())
+&nbsp;
+&nbsp;    fun mLt(limit: Int, next: String): Rule = IntervalRule(RateCategory.M, 1..&lt;limit, next.toRuleOutcome())
+&nbsp;
+&nbsp;    fun aGt(limit: Int, next: String): Rule =
+&nbsp;      IntervalRule(RateCategory.A, limit + 1..MAX_RATING_VALUE, next.toRuleOutcome())
+&nbsp;
+&nbsp;    fun aLt(limit: Int, next: String): Rule =
+&nbsp;      IntervalRule(RateCategory.A, 1..&lt;limit, next.toRuleOutcome())
+&nbsp;
+&nbsp;    fun mGt(limit: Int, next: String): Rule =
+&nbsp;      IntervalRule(RateCategory.M, limit + 1..MAX_RATING_VALUE, next.toRuleOutcome())
+&nbsp;
+&nbsp;    fun sGt(limit: Int, next: String): Rule =
+&nbsp;      IntervalRule(RateCategory.S, limit + 1..MAX_RATING_VALUE, next.toRuleOutcome())
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;private fun String.toRuleOutcome(): RuleOutcome = when (this) {
+&nbsp;  &quot;A&quot; -&gt; EndState.A
+&nbsp;  &quot;R&quot; -&gt; EndState.R
+&nbsp;  else -&gt; WorkflowName(this)
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;data class WorkflowName(val name: String) : Rule, RuleOutcome {</b>
+<b class="fc">&nbsp;  override fun sortPart(part: Part): RuleOutcome = this</b>
+&nbsp;
+<b class="fc">&nbsp;  override fun toString(): String = name</b>
+&nbsp;}
+&nbsp;
+&nbsp;enum class RateCategory {
+&nbsp;  X {
+&nbsp;    override fun invoke(part: Part) = part.x
+&nbsp;  },
+&nbsp;  M {
+&nbsp;    override fun invoke(part: Part) = part.m
+&nbsp;  },
+&nbsp;  A {
+&nbsp;    override fun invoke(part: Part) = part.a
+&nbsp;  },
+&nbsp;  S {
+&nbsp;    override fun invoke(part: Part) = part.s
+&nbsp;  };
+&nbsp;
+&nbsp;  abstract operator fun invoke(part: Part): Rating
+&nbsp;}
+&nbsp;
+&nbsp;fun List&lt;Part&gt;.sumOfRatings(): Long = sumOf { it.total }
+&nbsp;
+&nbsp;fun String.toParts(): List&lt;Part&gt; = lines().map { it.toPart() }
+&nbsp;
+&nbsp;val partRegex = &quot;&quot;&quot;\{x=(\d+),m=(\d+),a=(\d+),s=(\d+)}&quot;&quot;&quot;.toRegex()
+&nbsp;
+&nbsp;fun String.toPart(): Part {
+&nbsp;  val (x, m, a, s) = partRegex.find(this)!!.destructured
+&nbsp;  return Part(x.toInt(), m.toInt(), a.toInt(), s.toInt())
+&nbsp;}
+&nbsp;
+&nbsp;const val MAX_RATING_VALUE = 4000
+&nbsp;
+&nbsp;data class Rating(val value: Int) {
+&nbsp;  init {
+&nbsp;    require(value in 1..MAX_RATING_VALUE)
+&nbsp;  }
+&nbsp;
+&nbsp;  operator fun plus(other: Rating): Long = this.value.toLong() + other.value
+&nbsp;}
+&nbsp;
+&nbsp;data class Part(val x: Rating, val m: Rating, val a: Rating, val s: Rating) {
+&nbsp;  constructor(x: Int, m: Int, a: Int, s: Int) : this(Rating(x), Rating(m), Rating(a), Rating(s))
+&nbsp;
+&nbsp;  val total = x + m + a + s
+&nbsp;}
+&nbsp;
+&nbsp;private operator fun Long.plus(rating: Rating): Long = this + rating.value
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-21 03:35</div>
+</div>
+</body>
+</html>
