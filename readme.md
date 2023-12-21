@@ -8,10 +8,10 @@ This solution takes Test-Driven Design to heart:
   cases (however the private inputs are not stored in this public repo because
   of [this](https://old.reddit.com/r/adventofcode/wiki/faqs/copyright/inputs))
 
-Some quick test stats (after day 18):  
-Number of tests: 1069  
+Some quick test stats (after day 19):  
+Number of tests: 1120  
 Code coverage: 98%<  
-Time to run tests: ~42 seconds  
+Time to run tests: ~45 seconds  
 (as mentioned above these include even test cases that generate the actual solutions for the AoC inputs)
 
 The full reports are also available: [test report](https://akiraly.github.io/advent-of-tdd/test_report/index.html)
@@ -23,7 +23,7 @@ About the tech stack:
 * [Kotest](https://kotest.io) for testing
 * JVM 21
 * [Gradle](https://gradle.org) 8.5
-* Intellij 2023.3.1 with latest stable Kotlin and Kotest plugins
+* Intellij 2023.3.2 with latest stable Kotlin and Kotest plugins
 
 Kotest has a rich set of features including multiple
 different [testing styles](https://kotest.io/docs/framework/testing-styles.html).  
