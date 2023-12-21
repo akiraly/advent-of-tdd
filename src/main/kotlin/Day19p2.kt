@@ -109,7 +109,7 @@ data class Workflows(val workflows: Map<WorkflowName, Workflow>) {
   fun visitAllRulePathsToA(
     path: Sequence<VisitedRule> = emptySequence(),
     current: Workflow = start,
-    successFn: (Sequence<VisitedRule>) -> Unit = {}
+    successFn: (Sequence<VisitedRule>) -> Unit
   ) {
     var updatedPath = path
     current.rules.forEach { rule ->
