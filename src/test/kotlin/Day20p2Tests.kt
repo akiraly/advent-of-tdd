@@ -147,12 +147,15 @@ con -high-> output
     test(""" Given the custom example modules input when the button is pressed 1000 times then the product of the number of pulses is 821985143""") {
       customInput.pressButtonAndCountNumberOfPulses() shouldBe 821985143
     }
+    xtest(""" Given the custom example modules input the rx output module first gets a low pulse with 240853834793347 number of button presses """) {
+      customInput.pressButtonAndCountNumberOfPulses() shouldBe 240853834793347
+    }
   }
 })
 
 fun String.pressButtonAndCountNumberOfPulses(): Long {
   val modules = toModules()
-  return modules.pressButtonAndCountNumberOfPulses(1000)
+  return modules.pressButtonAndCountNumberOfPulses(1_000)
 }
 
 private fun String.toModules(): Modules {
@@ -256,12 +259,17 @@ data class Modules(val modules: Map<ModuleName, Module>) {
     var current = this
     var countHigh = 0L
     var countLow = 0L
-    repeat(times) {
+    repeat(times) { n ->
       val (eventLog, updatedModules) = current.pressButton()
       current = updatedModules
       eventLog.forEach {
         if (it.value == Pulse.High) countHigh++ else countLow++
+//        if (it.value == Pulse.High && it.to.name == "mg") println("$n -> $it")
       }
+
+//      eventLog.filter { it.value == Pulse.High && it.to.name == "mg" }.also { el ->
+//        if (el.size > 1) println("Multiple high pulses at $n: $el")
+//      }
     }
     return countHigh * countLow
   }
