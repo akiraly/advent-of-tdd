@@ -8,10 +8,10 @@ This solution takes Test-Driven Design to heart:
   cases (however the private inputs are not stored in this public repo because
   of [this](https://old.reddit.com/r/adventofcode/wiki/faqs/copyright/inputs))
 
-Some quick test stats (after day 21):  
-Number of tests: 1164  
+Some quick test stats (after day 22):  
+Number of tests: 1179  
 Code coverage: 98%<  
-Time to run tests: ~48 seconds  
+Time to run tests: ~51 seconds  
 (as mentioned above these include even test cases that generate the actual solutions for the AoC inputs)
 
 The full reports are also available: [test report](https://akiraly.github.io/advent-of-tdd/test_report/index.html)
