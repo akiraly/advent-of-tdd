@@ -61,7 +61,7 @@ class Day24p2Tests : FunSpec({
       row("18, 19, 22 @ -1, -1, -2", "20, 19, 15 @ 1, -5, -3", null, null),
       row("20, 25, 34 @ -2, -2, -4", "12, 31, 28 @ -1, -2, -1", "(-2.0, 3.0)", null),
       row("20, 25, 34 @ -2, -2, -4", "20, 19, 15 @ 1, -5, -3", null, null),
-      row("12, 31, 28 @ -1, -2, -1", "20, 19, 15 @ 1, -5, -3", null, null),
+      row("12, 31, 28 @ -1, -2, -1", "20, 19, 15 @ 1, -5, -3", null, null)
     ).forAll { hailstoneA, hailstoneB, expectedIntersection, expectedIntersectionInTestRange ->
       val hailA = hailstoneA.toHailstone()
       val hailB = hailstoneB.toHailstone()
@@ -116,18 +116,89 @@ class Day24p2Tests : FunSpec({
 
       hailstones.findNumberOfInteractions(customTestRange) shouldBe 20434
     }
+
+    xtest(""" foo""") {
+      // TODO
+      //x = 344525619959965
+      //y = 437880958119624
+      //z = 242720827369528
+      //
+      //1025127405449117
+
+      val hailstones = customInput.toHailstones()
+      for (vx in -400..400) {
+        vy@ for (vy in -400..400) {
+          var collisionPoint: Vector2D? = null
+          val moddedHailStones = hailstones.map { it.copy(vx = it.vx - vx, vy = it.vy - vy) }
+          for (i in 0 until hailstones.size - 1) {
+            for (j in i + 1 until hailstones.size) {
+              val hi = moddedHailStones[i]
+              val hj = moddedHailStones[j]
+              val intersection = hi.intersection(hj)
+              if (collisionPoint == null) {
+                collisionPoint = intersection
+                continue
+              }
+
+              if (intersection == null) {
+                if (hi.isParallelTo(hj)) continue
+                continue@vy
+              }
+
+              if (!collisionPoint!!.eq(intersection, Precision.doubleEquivalenceOfEpsilon(1e-3))) {
+                if (j > 5) println("vx = $vx, vy = $vy, collisionPoint = $collisionPoint, intersection = $intersection, $i, $j, $hi, $hj")
+                continue@vy
+              }
+            }
+          }
+          println("vx = $vx, vy = $vy, collisionPoint = $collisionPoint")
+        }
+      }
+
+      for (vx in -400..400) {
+        vz@ for (vz in -400..400) {
+          var collisionPoint: Vector2D? = null
+          val moddedHailStones = hailstones.map { it.copy(py = it.pz, vx = it.vx - vx, vy = it.vz - vz) }
+          for (i in 0 until hailstones.size - 1) {
+            for (j in i + 1 until hailstones.size) {
+              val hi = moddedHailStones[i]
+              val hj = moddedHailStones[j]
+              val intersection = hi.intersection(hj)
+              if (collisionPoint == null) {
+                collisionPoint = intersection
+                continue
+              }
+
+              if (intersection == null) {
+                if (hi.isParallelTo(hj)) continue
+                continue@vz
+              }
+
+              if (!collisionPoint!!.eq(intersection, Precision.doubleEquivalenceOfEpsilon(1e-3))) {
+                if (j > 5) println("vx = $vx, vz = $vz, collisionPoint = $collisionPoint, intersection = $intersection, $i, $j, $hi, $hj")
+                continue@vz
+              }
+            }
+          }
+          println("vx = $vx, vz = $vz, collisionPoint = $collisionPoint")
+        }
+      }
+    }
   }
 })
 
 private fun List<Hailstone>.findNumberOfInteractions(testRange: ClosedFloatingPointRange<Double>): Long {
   var count = 0L
   for (i in 0 until size - 1) {
+    var localCount = 0L
     for (j in i + 1 until size) {
       val intersection = this[i].intersection(this[j], testRange)
       if (intersection != null) {
         count++
+        localCount++
       }
     }
+    if (localCount > 200) println("localCount = $localCount for i = $i")
   }
   return count
 }
@@ -141,22 +212,40 @@ fun String.toHailstone(): Hailstone {
 
 data class Hailstone(val px: Long, val py: Long, val pz: Long, val vx: Long, val vy: Long, val vz: Long) {
 
-  fun intersection(o: Hailstone): Vector2D? {
-    val area = vx.toDouble() * o.vy - vy * o.vx
-    if (area == 0.0) return null
+  fun isParallelTo(o: Hailstone): Boolean = area(vx, vy, o.vx, o.vy) == 0.0
 
-    val t1 = ((py - o.py) * o.vx - (px - o.px) * o.vy) / area
-
-    val t2 = (px - o.px + t1 * vx) / o.vx
-
-    if (t1 < 0 || t2 < 0) return null
-
-    return Vector2D.of(px + t1 * vx, py + t1 * vy)
-  }
+  fun intersection(o: Hailstone): Vector2D? = intersection(px, py, vx, vy, o.px, o.py, o.vx, o.vy)
 
   fun intersection(other: Hailstone, testRange: ClosedFloatingPointRange<Double>): Vector2D? =
     intersection(other)?.let {
       if (it.x in testRange && it.y in testRange) it
       else null
     }
+
+  companion object {
+    fun intersection(
+      p1A: Long,
+      p1B: Long,
+      v1A: Long,
+      v1B: Long,
+      p2A: Long,
+      p2B: Long,
+      v2A: Long,
+      v2B: Long
+    ): Vector2D? {
+      val area = area(v1A, v1B, v2A, v2B)
+      if (area == 0.0) return null
+
+      val t1 = ((p1B - p2B) * v2A - (p1A - p2A) * v2B) / area
+
+      val t2 = (p1A - p2A + t1 * v1A) / v2A
+
+      if (t1 < 0 || t2 < 0) return null
+
+      return Vector2D.of(p1A + t1 * v1A, p1B + t1 * v1B)
+    }
+
+    fun area(v1A: Long, v1B: Long, v2A: Long, v2B: Long) =
+      v1A.toDouble() * v2B - v1B * v2A
+  }
 }
