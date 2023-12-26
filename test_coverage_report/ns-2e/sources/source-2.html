@@ -1,0 +1,149 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Hailstone</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day24p1</a>
+</div>
+
+<h1>Coverage Summary for Class: Hailstone (day24p1)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Hailstone</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (10/10)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day24p1
+&nbsp;
+&nbsp;import org.apache.commons.geometry.euclidean.twod.Vector2D
+&nbsp;
+&nbsp;fun List&lt;Hailstone&gt;.findNumberOfInteractions(testRange: ClosedFloatingPointRange&lt;Double&gt;): Long {
+&nbsp;  var count = 0L
+&nbsp;  for (i in 0 until size - 1) {
+&nbsp;    for (j in i + 1 until size) {
+&nbsp;      val intersection = this[i].intersection(this[j], testRange)
+&nbsp;      if (intersection != null) {
+&nbsp;        count++
+&nbsp;      }
+&nbsp;    }
+&nbsp;  }
+&nbsp;  return count
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toHailstones(): List&lt;Hailstone&gt; = lineSequence().map { it.toHailstone() }.toList()
+&nbsp;
+&nbsp;fun String.toHailstone(): Hailstone {
+&nbsp;  val nums = split(&#39;,&#39;, &#39;@&#39;).map { it.trim().toLong() }
+&nbsp;  return Hailstone(nums[0], nums[1], nums[2], nums[3], nums[4], nums[5])
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;data class Hailstone(val px: Long, val py: Long, val pz: Long, val vx: Long, val vy: Long, val vz: Long) {</b>
+&nbsp;
+&nbsp;  fun intersection(o: Hailstone): Vector2D? {
+<b class="fc">&nbsp;    val area = vx.toDouble() * o.vy - vy * o.vx</b>
+<b class="fc">&nbsp;    if (area == 0.0) return null</b>
+&nbsp;
+<b class="fc">&nbsp;    val t1 = ((py - o.py) * o.vx - (px - o.px) * o.vy) / area</b>
+&nbsp;
+<b class="fc">&nbsp;    val t2 = (px - o.px + t1 * vx) / o.vx</b>
+&nbsp;
+<b class="fc">&nbsp;    if (t1 &lt; 0 || t2 &lt; 0) return null</b>
+&nbsp;
+<b class="fc">&nbsp;    return Vector2D.of(px + t1 * vx, py + t1 * vy)</b>
+&nbsp;  }
+&nbsp;
+&nbsp;  fun intersection(other: Hailstone, testRange: ClosedFloatingPointRange&lt;Double&gt;): Vector2D? =
+<b class="fc">&nbsp;    intersection(other)?.let {</b>
+<b class="fc">&nbsp;      if (it.x in testRange &amp;&amp; it.y in testRange) it</b>
+<b class="fc">&nbsp;      else null</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-12-26 03:07</div>
+</div>
+</body>
+</html>
