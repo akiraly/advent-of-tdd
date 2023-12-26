@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
   implementation("org.apache.commons:commons-collections4:4.4")
+  implementation("org.apache.commons:commons-geometry-euclidean:1.0")
   implementation("commons-io:commons-io:2.15.1")
   implementation("org.apache.commons:commons-lang3:3.14.0")
   implementation("org.apache.commons:commons-math3:3.6.1")
