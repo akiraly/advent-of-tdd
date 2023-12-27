@@ -8,8 +8,8 @@ This solution takes Test-Driven Design to heart:
   cases (however the private inputs are not stored in this public repo because
   of [this](https://old.reddit.com/r/adventofcode/wiki/faqs/copyright/inputs))
 
-Some quick test stats (after day 24 part 1):  
-Number of tests: 1241  
+Some quick test stats (after day 25):  
+Number of tests: 1243  
 Code coverage: 98%<  
 Time to run tests: ~3 minutes  
 (as mentioned above these include even test cases that generate the actual solutions for the AoC inputs)
