@@ -5,29 +5,22 @@ import java.math.BigDecimal.ZERO
 import java.math.MathContext.DECIMAL128
 import java.math.RoundingMode.HALF_UP
 
-fun calcCollisionStone(hailstones: List<Hailstone>): Hailstone {
-  for (vx in -400..400) {
-    val (vy, px, py) = findCollisionPointXY { vy ->
-      hailstones.map { it.copy(vx = it.vx - vx, vy = it.vy - vy) }
-    }
-      ?.let { Triple(it.first, it.second.x, it.second.y) }
-      ?: continue
+fun calcCollisionStone(hailstones: List<Hailstone>): Hailstone = (-400L..400L).firstNotNullOf { vx ->
+  val (vy, px, py) = findCollisionPointXY { vy ->
+    hailstones.map { it.copy(vx = it.vx - vx, vy = it.vy - vy) }
+  } ?: return@firstNotNullOf null
 
-    val (vz, px2, pz) = findCollisionPointXY { vz ->
-      hailstones.map { it.copy(py = it.pz, vx = it.vx - vx, vy = it.vz - vz) }
-    }
-      ?.let { Triple(it.first, it.second.x, it.second.y) }
-      ?: error("no collision point found")
+  val (vz, px2, pz) = findCollisionPointXY { vz ->
+    hailstones.map { it.copy(py = it.pz, vx = it.vx - vx, vy = it.vz - vz) }
+  }!!
 
-    require(px == px2)
+  require(px == px2)
 
-    return Hailstone(px.toLong(), py.toLong(), pz.toLong(), vx.toLong(), vy.toLong(), vz.toLong())
-  }
-  error("no collision point found")
+  Hailstone(px, py, pz, vx, vy, vz)
 }
 
-private fun findCollisionPointXY(hailstonesFn: (Int) -> List<Hailstone>): Pair<Int, Vector2D>? {
-  vy@ for (vy in -400..400) {
+private fun findCollisionPointXY(hailstonesFn: (Long) -> List<Hailstone>): Triple<Long, Long, Long>? {
+  vy@ for (vy in -400L..400L) {
     var collisionPoint: Vector2D? = null
     val hailstones = hailstonesFn(vy)
     for (i in 0 until hailstones.size - 1) {
@@ -51,7 +44,7 @@ private fun findCollisionPointXY(hailstonesFn: (Int) -> List<Hailstone>): Pair<I
       }
     }
     requireNotNull(collisionPoint)
-    return vy to collisionPoint
+    return Triple(vy, collisionPoint.x.toLong(), collisionPoint.y.toLong())
   }
   return null
 }
