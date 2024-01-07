@@ -4,8 +4,8 @@
 <!DOCTYPE html>
 <html id="htmlId">
 <head>
-  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-  <title>Coverage Report > Edge</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Hailstone</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,18 +19,15 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">day25p1</a>
+    <a href="../index.html">day24p2</a>
 </div>
 
-<h1>Coverage Summary for Class: Edge (day25p1)</h1>
+<h1>Coverage Summary for Class: Hailstone (day24p2)</h1>
 
 <table class="coverageStats">
+
 <tr>
   <th class="name">Class</th>
-<th class="coverageStat 
-">
-  Class, %
-</th>
 <th class="coverageStat 
 ">
   Method, %
@@ -41,13 +38,13 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 </tr>
 <tr>
-  <td class="name">Edge</td>
+  <td class="name">Hailstone</td>
 <td class="coverageStat">
   <span class="percent">
     100%
   </span>
   <span class="absValue">
-    (1/1)
+    (4/4)
   </span>
 </td>
 <td class="coverageStat">
@@ -55,19 +52,48 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (1/1)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
+    (11/11)
   </span>
 </td>
 </tr>
-
+  <tr>
+    <td class="name">Hailstone$Companion</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (18/18)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (29/29)
+  </span>
+</td>
+</tr>
 </table>
 
 <br/>
@@ -75,31 +101,164 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package day25p1
+<code class="sourceCode" id="sourceCode">&nbsp;package day24p2
 &nbsp;
-&nbsp;import org.jgrapht.alg.clustering.GirvanNewmanClustering
-&nbsp;import org.jgrapht.graph.SimpleGraph
+&nbsp;import java.math.BigDecimal
+&nbsp;import java.math.BigDecimal.ZERO
+&nbsp;import java.math.MathContext.DECIMAL128
+&nbsp;import java.math.RoundingMode.HALF_UP
 &nbsp;
-&nbsp;fun solve(diagramInput: String): Long {
-&nbsp;  val edges = diagramInput.lineSequence()
-&nbsp;    .map { it.split(&quot;: &quot;) }
-&nbsp;    .map { (left, rights) -&gt; left to rights.split(&#39; &#39;) }
-&nbsp;    .flatMap { (left, rights) -&gt; rights.asSequence().map { if (left &lt; it) left to it else it to left } }
-&nbsp;    .sortedWith(compareBy({ it.first }, { it.second }))
-&nbsp;    .toSet()
-&nbsp;  val nodes = edges.asSequence().flatMap { sequenceOf(it.first, it.second) }.distinct().sorted().toList()
+&nbsp;fun calcCollisionStone(hailstones: List&lt;Hailstone&gt;): Hailstone = (-400L..400L).firstNotNullOf { vx -&gt;
+&nbsp;  val (vy, px, py) = findCollisionPointXY { vy -&gt;
+&nbsp;    hailstones.map { it.copy(vx = it.vx - vx, vy = it.vy - vy) }
+&nbsp;  } ?: return@firstNotNullOf null
 &nbsp;
-&nbsp;  val graph = SimpleGraph.createBuilder&lt;String, Edge&gt;(Edge::class.java).let { builder -&gt;
-&nbsp;    nodes.forEach { builder.addVertex(it) }
-&nbsp;    edges.forEach { builder.addEdge(it.first, it.second, Edge(it.first, it.second)) }
+&nbsp;  val (vz, px2, pz) = findCollisionPointXY { vz -&gt;
+&nbsp;    hailstones.map { it.copy(py = it.pz, vx = it.vx - vx, vy = it.vz - vz) }
+&nbsp;  }!!
 &nbsp;
-&nbsp;    builder.build()
-&nbsp;  }
+&nbsp;  require(px == px2)
 &nbsp;
-&nbsp;  return GirvanNewmanClustering(graph, 2).clustering.clusters.fold(1L) { acc, cluster -&gt; acc * cluster.size }
+&nbsp;  Hailstone(px, py, pz, vx, vy, vz)
 &nbsp;}
 &nbsp;
-<b class="fc">&nbsp;data class Edge(val from: String, val to: String)</b>
+&nbsp;private fun findCollisionPointXY(hailstonesFn: (Long) -&gt; List&lt;Hailstone&gt;): Triple&lt;Long, Long, Long&gt;? {
+&nbsp;  vy@ for (vy in -400L..400L) {
+&nbsp;    var collisionPoint: Vector2D? = null
+&nbsp;    val hailstones = hailstonesFn(vy)
+&nbsp;    for (i in 0 until hailstones.size - 1) {
+&nbsp;      for (j in i + 1 until hailstones.size) {
+&nbsp;        val hi = hailstones[i]
+&nbsp;        val hj = hailstones[j]
+&nbsp;        val intersection = hi.intersection(hj)
+&nbsp;        if (collisionPoint == null) {
+&nbsp;          collisionPoint = intersection
+&nbsp;          continue
+&nbsp;        }
+&nbsp;
+&nbsp;        if (intersection == null) {
+&nbsp;          if (hi.isParallelTo(hj)) continue
+&nbsp;          continue@vy
+&nbsp;        }
+&nbsp;
+&nbsp;        if (collisionPoint != intersection) {
+&nbsp;          continue@vy
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;    requireNotNull(collisionPoint)
+&nbsp;    return Triple(vy, collisionPoint.x.toLong(), collisionPoint.y.toLong())
+&nbsp;  }
+&nbsp;  return null
+&nbsp;}
+&nbsp;
+&nbsp;fun List&lt;Hailstone&gt;.findNumberOfInteractions(testRange: ClosedRange&lt;BigDecimal&gt;): Long {
+&nbsp;  var count = 0L
+&nbsp;  for (i in 0 until size - 1) {
+&nbsp;    var localCount = 0L
+&nbsp;    for (j in i + 1 until size) {
+&nbsp;      val intersection = this[i].intersection(this[j], testRange)
+&nbsp;      if (intersection != null) {
+&nbsp;        count++
+&nbsp;        localCount++
+&nbsp;      }
+&nbsp;    }
+&nbsp;    if (localCount &gt; 200) println(&quot;localCount = $localCount for i = $i&quot;)
+&nbsp;  }
+&nbsp;  return count
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toHailstones(): List&lt;Hailstone&gt; = lineSequence().map { it.toHailstone() }.toList()
+&nbsp;
+&nbsp;fun String.toHailstone(): Hailstone {
+&nbsp;  val nums = split(&#39;,&#39;, &#39;@&#39;).map { it.trim().toLong() }
+&nbsp;  return Hailstone(nums[0], nums[1], nums[2], nums[3], nums[4], nums[5])
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;data class Hailstone(val px: Long, val py: Long, val pz: Long, val vx: Long, val vy: Long, val vz: Long) {</b>
+&nbsp;
+<b class="fc">&nbsp;  fun isParallelTo(o: Hailstone): Boolean = area(</b>
+<b class="fc">&nbsp;    vx.toBD(),</b>
+<b class="fc">&nbsp;    vy.toBD(),</b>
+<b class="fc">&nbsp;    o.vx.toBD(),</b>
+<b class="fc">&nbsp;    o.vy.toBD()</b>
+<b class="fc">&nbsp;  ).compareTo(ZERO) == 0</b>
+&nbsp;
+<b class="fc">&nbsp;  fun intersection(o: Hailstone): Vector2D? = intersection(px, py, vx, vy, o.px, o.py, o.vx, o.vy)</b>
+&nbsp;
+&nbsp;  fun intersection(other: Hailstone, testRange: ClosedRange&lt;BigDecimal&gt;): Vector2D? =
+<b class="fc">&nbsp;    intersection(other)?.let {</b>
+<b class="fc">&nbsp;      if (it.x in testRange &amp;&amp; it.y in testRange) it</b>
+<b class="fc">&nbsp;      else null</b>
+&nbsp;    }
+&nbsp;
+&nbsp;  companion object {
+&nbsp;    fun intersection(
+&nbsp;      p1A: Long,
+&nbsp;      p1B: Long,
+&nbsp;      v1A: Long,
+&nbsp;      v1B: Long,
+&nbsp;      p2A: Long,
+&nbsp;      p2B: Long,
+&nbsp;      v2A: Long,
+&nbsp;      v2B: Long
+<b class="fc">&nbsp;    ): Vector2D? = intersection(</b>
+<b class="fc">&nbsp;      p1A.toBD(),</b>
+<b class="fc">&nbsp;      p1B.toBD(),</b>
+<b class="fc">&nbsp;      v1A.toBD(),</b>
+<b class="fc">&nbsp;      v1B.toBD(),</b>
+<b class="fc">&nbsp;      p2A.toBD(),</b>
+<b class="fc">&nbsp;      p2B.toBD(),</b>
+<b class="fc">&nbsp;      v2A.toBD(),</b>
+<b class="fc">&nbsp;      v2B.toBD()</b>
+&nbsp;    )
+&nbsp;
+&nbsp;    private fun intersection(
+&nbsp;      p1A: BigDecimal,
+&nbsp;      p1B: BigDecimal,
+&nbsp;      v1A: BigDecimal,
+&nbsp;      v1B: BigDecimal,
+&nbsp;      p2A: BigDecimal,
+&nbsp;      p2B: BigDecimal,
+&nbsp;      v2A: BigDecimal,
+&nbsp;      v2B: BigDecimal
+&nbsp;    ): Vector2D? {
+<b class="fc">&nbsp;      if (v2A.compareTo(ZERO) == 0) return null</b>
+&nbsp;
+<b class="fc">&nbsp;      val area = area(v1A, v1B, v2A, v2B)</b>
+<b class="fc">&nbsp;      if (area.compareTo(ZERO) == 0) return null</b>
+&nbsp;
+<b class="fc">&nbsp;      val t1 = ((p1B - p2B) * v2A - (p1A - p2A) * v2B).divide(area, DECIMAL128)</b>
+<b class="fc">&nbsp;      if (t1 &lt; ZERO) return null</b>
+&nbsp;
+<b class="fc">&nbsp;      val t2 = (p1A - p2A + t1 * v1A).divide(v2A, DECIMAL128)</b>
+<b class="fc">&nbsp;      if (t2 &lt; ZERO) return null</b>
+&nbsp;
+<b class="fc">&nbsp;      return Vector2D(p1A + t1 * v1A, p1B + t1 * v1B)</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    fun area(v1A: BigDecimal, v1B: BigDecimal, v2A: BigDecimal, v2B: BigDecimal): BigDecimal = v1A * v2B - v1B * v2A</b>
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;fun Int.toBD() = toBigDecimal(DECIMAL128)
+&nbsp;fun Long.toBD() = toBigDecimal(DECIMAL128)
+&nbsp;fun String.toBD() = toBigDecimal(DECIMAL128)
+&nbsp;
+&nbsp;data class Vector2D(val x: BigDecimal, val y: BigDecimal) {
+&nbsp;
+&nbsp;  fun eq(that: Vector2D): Boolean = this == that || this.round() == that.round()
+&nbsp;
+&nbsp;  private fun round(): Vector2D = copy(x = x.setScale(3, HALF_UP), y = y.setScale(3, HALF_UP))
+&nbsp;
+&nbsp;  companion object {
+&nbsp;    fun parse(expectedIntersection: String): Vector2D {
+&nbsp;      val (x, y) = expectedIntersection.trim(&#39;(&#39;, &#39;)&#39;).split(&#39;,&#39;).map { it.trim().toBD() }
+&nbsp;      return Vector2D(x, y)
+&nbsp;    }
+&nbsp;  }
+&nbsp;}
+&nbsp;
 </code>
 </pre>
 </div>
@@ -123,7 +282,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-12-27 03:41</div>
+    <div style="float:right;">generated on 2024-01-07 21:48</div>
 </div>
 </body>
 </html>
