@@ -203,7 +203,6 @@ O.O.#.#.O..
     """.lineSequence().filter { it.isNotBlank() }.joinToString("\n")
   }
 
-  // TODO this is not a general solution but it works for my custom input
   context(""" Given the custom map then the possible targets at (gridSize/2 + n * gridSize) steps can be calculated with a polynomial function """) {
     val baseMap = customMapInput.toGardenMap()
 

@@ -31,7 +31,7 @@ private fun MutableMap<ModuleName, ModuleBuilder>.moduleBuilder(name: ModuleName
 data class ModuleBuilder(val name: ModuleName) {
   private val inputs = mutableSetOf<ModuleName>()
   private val outputs = mutableListOf<ModuleName>()
-  private var builderFn: (ModuleBuilder.() -> Module)? = when (name) {
+  private var builderFn: (ModuleBuilder.() -> Module) = when (name) {
     buttonModuleName -> {
       {
         require(inputs.isEmpty())
@@ -85,7 +85,7 @@ data class ModuleBuilder(val name: ModuleName) {
     return this
   }
 
-  fun build(): Module = (builderFn ?: error("$this"))()
+  fun build(): Module = builderFn()
 }
 
 data class Modules(val modules: Map<ModuleName, Module>) {

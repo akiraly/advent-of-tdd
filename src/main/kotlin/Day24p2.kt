@@ -60,7 +60,6 @@ fun List<Hailstone>.findNumberOfInteractions(testRange: ClosedRange<BigDecimal>)
         localCount++
       }
     }
-    if (localCount > 200) println("localCount = $localCount for i = $i")
   }
   return count
 }
