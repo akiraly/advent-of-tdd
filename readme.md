@@ -19,7 +19,7 @@ and [test coverage report](https://akiraly.github.io/advent-of-tdd/test_coverage
 
 About the tech stack:
 
-* [Kotlin](https://kotlinlang.org) 1.9.21
+* [Kotlin](https://kotlinlang.org) 1.9.22
 * [Kotest](https://kotest.io) for testing
 * JVM 21
 * [Gradle](https://gradle.org) 8.5

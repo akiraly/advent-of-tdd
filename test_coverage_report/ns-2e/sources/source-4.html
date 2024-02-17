@@ -1,0 +1,268 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > Path</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">day23p2</a>
+</div>
+
+<h1>Coverage Summary for Class: Path (day23p2)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Path</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package day23p2
+&nbsp;
+&nbsp;data class CoordinateXY(val x: Int, val y: Int) {
+&nbsp;  init {
+&nbsp;    require(x &gt;= 0 &amp;&amp; y &gt;= 0)
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;fun String.toAccessibleMap(): AccessibleMap {
+&nbsp;  val lines = lines()
+&nbsp;  val maxY = lines.size - 1
+&nbsp;  val maxX = lines.first().length - 1
+&nbsp;
+&nbsp;  fun Set&lt;Pair&lt;Int, Int&gt;&gt;.toNeighbours(coordinate: CoordinateXY): Sequence&lt;CoordinateXY&gt; =
+&nbsp;    this.asSequence().map { (dx, dy) -&gt; coordinate.x + dx to coordinate.y + dy }
+&nbsp;      .filter { (x, y) -&gt; x &gt;= 0 &amp;&amp; y &gt;= 0 &amp;&amp; x &lt;= maxX &amp;&amp; y &lt;= maxY &amp;&amp; lines[y][x] != &#39;#&#39; }
+&nbsp;      .map { (x, y) -&gt; CoordinateXY(x, y) }
+&nbsp;
+&nbsp;
+&nbsp;  val tiles = lines.flatMapIndexed { y, line -&gt;
+&nbsp;    line.mapIndexedNotNull { x, tile -&gt;
+&nbsp;      val type = when (tile) {
+&nbsp;        &#39;.&#39; -&gt; TileType.Path
+&nbsp;        &#39;^&#39; -&gt; TileType.SlopeUp
+&nbsp;        &#39;v&#39; -&gt; TileType.SlopeDown
+&nbsp;        &#39;&gt;&#39; -&gt; TileType.SlopeRight
+&nbsp;        &#39;&lt;&#39; -&gt; TileType.SlopeLeft
+&nbsp;        else -&gt; return@mapIndexedNotNull null
+&nbsp;      }
+&nbsp;      val coordinate = CoordinateXY(x, y)
+&nbsp;      if (type != TileType.Path) {
+&nbsp;        val neighbours = setOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1).toNeighbours(coordinate)
+&nbsp;        require(neighbours.count() == 2)
+&nbsp;      }
+&nbsp;      val incoming = type.incomingDeltas.toNeighbours(coordinate).map { Path(it, coordinate) }.toSet()
+&nbsp;      val outgoing = type.outgoingDeltas.toNeighbours(coordinate).map { Path(coordinate, it) }.toSet()
+&nbsp;      Tile(coordinate, type, incoming, outgoing)
+&nbsp;    }
+&nbsp;  }.associateBy { it.coordinate }
+&nbsp;
+&nbsp;  return AccessibleMap(
+&nbsp;    tiles.mapValues { (_, tile) -&gt;
+&nbsp;      tile.copy(
+&nbsp;        incoming = tile.incoming.filter { path -&gt; tiles.getValue(path.from).outgoing.contains(path) }.toSet(),
+&nbsp;        outgoing = tile.outgoing.filter { path -&gt; tiles.getValue(path.to).incoming.contains(path) }.toSet()
+&nbsp;      )
+&nbsp;    },
+&nbsp;    lines.first().withIndex().single { it.value == &#39;.&#39; }.let { CoordinateXY(it.index, 0) },
+&nbsp;    lines.withIndex().last().let { (i, line) -&gt;
+&nbsp;      CoordinateXY(line.withIndex().single { it.value == &#39;.&#39; }.index, i)
+&nbsp;    }
+&nbsp;  )
+&nbsp;}
+&nbsp;
+&nbsp;data class AccessibleMap(val map: Map&lt;CoordinateXY, Tile&gt;, val start: CoordinateXY, val end: CoordinateXY) {
+&nbsp;
+&nbsp;  init {
+&nbsp;    map.values.forEach { tile -&gt;
+&nbsp;      require(tile.isStart() || tile.incoming.isNotEmpty())
+&nbsp;      require(tile.isEnd() || tile.outgoing.isNotEmpty())
+&nbsp;
+&nbsp;      tile.incoming.forEach { path -&gt;
+&nbsp;        require(map.getValue(path.from).outgoing.contains(path))
+&nbsp;      }
+&nbsp;      tile.outgoing.forEach { path -&gt;
+&nbsp;        require(map.getValue(path.to).incoming.contains(path))
+&nbsp;      }
+&nbsp;    }
+&nbsp;  }
+&nbsp;
+&nbsp;  private fun Tile.isStart() = coordinate == start
+&nbsp;  private fun Tile.isEnd() = coordinate == end
+&nbsp;
+&nbsp;  private fun Tile.isImportant() = isStart() || isEnd() || isCrossroads()
+&nbsp;
+&nbsp;  fun isImportantTile(tile: Tile) = tile.isImportant()
+&nbsp;
+&nbsp;  fun keepImportantOnly(): AccessibleMap {
+&nbsp;    val important = map.values.asSequence()
+&nbsp;      .filter { it.isImportant() }
+&nbsp;      .toSet()
+&nbsp;    val importantCoordinates = important.map { it.coordinate }.toSet()
+&nbsp;
+&nbsp;    val incoming: Map&lt;CoordinateXY, MutableSet&lt;Path&gt;&gt; =
+&nbsp;      important.asSequence().map { tile -&gt;
+&nbsp;        tile.coordinate to tile.incoming.asSequence()
+&nbsp;          .filter { importantCoordinates.contains(it.from) }
+&nbsp;          .toMutableSet()
+&nbsp;      }.toMap()
+&nbsp;
+&nbsp;    val outgoing: Map&lt;CoordinateXY, Set&lt;Path&gt;&gt; = important.asSequence()
+&nbsp;      .map { tile -&gt;
+&nbsp;        val coordinate = tile.coordinate
+&nbsp;        val outgoingPaths = tile.outgoing
+&nbsp;        coordinate to outgoingPaths.asSequence().mapNotNull path@{ p -&gt;
+&nbsp;          var current = map.getValue(p.to)
+&nbsp;          var oldPath = p
+&nbsp;          var length = 1
+&nbsp;          while (!current.isImportant()) {
+&nbsp;            oldPath = current.outgoing.asSequence().filter { it.to != oldPath.from }.singleOrNull() ?: return@path null
+&nbsp;            current = map.getValue(oldPath.to)
+&nbsp;            length++
+&nbsp;          }
+&nbsp;          if (length == 1) return@path p
+&nbsp;
+&nbsp;          val newPath = Path(coordinate, current.coordinate, length)
+&nbsp;
+&nbsp;          val endTile = incoming.getValue(current.coordinate)
+&nbsp;          endTile.remove(oldPath)
+&nbsp;          endTile.add(newPath)
+&nbsp;
+&nbsp;          newPath
+&nbsp;        }.toSet()
+&nbsp;      }.toMap()
+&nbsp;
+&nbsp;    return AccessibleMap(
+&nbsp;      important.asSequence().map { tile -&gt;
+&nbsp;        tile.coordinate to tile.copy(
+&nbsp;          incoming = incoming.getValue(tile.coordinate),
+&nbsp;          outgoing = outgoing.getValue(tile.coordinate)
+&nbsp;        )
+&nbsp;      }.toMap(),
+&nbsp;      start,
+&nbsp;      end
+&nbsp;    )
+&nbsp;
+&nbsp;  }
+&nbsp;
+&nbsp;  fun findLengthOfLongestHike(): Int {
+&nbsp;    val start = map.getValue(start)
+&nbsp;    val end = map.getValue(end)
+&nbsp;    var max = 0
+&nbsp;    hike(setOf(start), end) { _, length -&gt; max = maxOf(max, length) }
+&nbsp;    return max
+&nbsp;  }
+&nbsp;
+&nbsp;  private fun hike(hike: Set&lt;Tile&gt;, end: Tile, length: Int = 0, onSuccess: (Set&lt;Tile&gt;, Int) -&gt; Unit) {
+&nbsp;    val previous = hike.last()
+&nbsp;    if (previous == end) onSuccess(hike, length)
+&nbsp;
+&nbsp;    previous.outgoing.forEach { p -&gt;
+&nbsp;      val next = map.getValue(p.to)
+&nbsp;      if (!hike.any { it.coordinate == next.coordinate }) hike(hike + next, end, length + p.length, onSuccess)
+&nbsp;    }
+&nbsp;  }
+&nbsp;}
+&nbsp;
+&nbsp;data class Tile(val coordinate: CoordinateXY, val type: TileType, val incoming: Set&lt;Path&gt;, val outgoing: Set&lt;Path&gt;) {
+&nbsp;  fun isCrossroads() =
+&nbsp;    (incoming.asSequence().map { it.from } + outgoing.asSequence().map { it.to }).distinct().count() &gt; 2
+&nbsp;}
+&nbsp;
+<b class="fc">&nbsp;data class Path(val from: CoordinateXY, val to: CoordinateXY, val length: Int = 1)</b>
+&nbsp;
+&nbsp;enum class TileType(
+&nbsp;  val incomingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt; = setOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1),
+&nbsp;  val outgoingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt; = incomingDeltas
+&nbsp;) {
+&nbsp;  Path,
+&nbsp;  SlopeLeft,
+&nbsp;  SlopeRight,
+&nbsp;  SlopeUp,
+&nbsp;  SlopeDown
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-01-31 23:08</div>
+</div>
+</body>
+</html>

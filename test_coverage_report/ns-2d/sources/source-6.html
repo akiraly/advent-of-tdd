@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">day23p2</a>
+    <a href="../index.html">day23p1</a>
 </div>
 
-<h1>Coverage Summary for Class: TileType (day23p2)</h1>
+<h1>Coverage Summary for Class: TileType (day23p1)</h1>
 
 <table class="coverageStats">
 <tr>
@@ -60,10 +60,10 @@ Current scope:     <a href="../../index.html">all classes</a>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    88.9%
+    85.7%
   </span>
   <span class="absValue">
-    (8/9)
+    (6/7)
   </span>
 </td>
 </tr>
@@ -75,7 +75,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package day23p2
+<code class="sourceCode" id="sourceCode">&nbsp;package day23p1
 &nbsp;
 &nbsp;data class CoordinateXY(val x: Int, val y: Int) {
 &nbsp;  init {
@@ -160,11 +160,8 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;
 &nbsp;    val incoming: Map&lt;CoordinateXY, MutableSet&lt;Path&gt;&gt; =
 &nbsp;      important.asSequence().map { tile -&gt;
-&nbsp;        tile.coordinate to tile.incoming.asSequence()
-&nbsp;          .filter { importantCoordinates.contains(it.from) }
-&nbsp;          .toMutableSet()
+&nbsp;        tile.coordinate to tile.incoming.asSequence().filter { importantCoordinates.contains(it.from) }.toMutableSet()
 &nbsp;      }.toMap()
-&nbsp;
 &nbsp;    val outgoing: Map&lt;CoordinateXY, Set&lt;Path&gt;&gt; = important.asSequence()
 &nbsp;      .map { tile -&gt;
 &nbsp;        val coordinate = tile.coordinate
@@ -229,15 +226,12 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;
 &nbsp;data class Path(val from: CoordinateXY, val to: CoordinateXY, val length: Int = 1)
 &nbsp;
-<b class="fc">&nbsp;enum class TileType(</b>
-<b class="fc">&nbsp;  val incomingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt; = setOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1),</b>
-<b class="fc">&nbsp;  val outgoingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt; = incomingDeltas</b>
-&nbsp;) {
-<b class="fc">&nbsp;  Path,</b>
-<b class="fc">&nbsp;  SlopeLeft,</b>
-<b class="fc">&nbsp;  SlopeRight,</b>
-<b class="fc">&nbsp;  SlopeUp,</b>
-<b class="fc">&nbsp;  SlopeDown</b>
+<b class="fc">&nbsp;enum class TileType(val incomingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt;, val outgoingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt; = incomingDeltas) {</b>
+<b class="fc">&nbsp;  Path(setOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)),</b>
+<b class="fc">&nbsp;  SlopeLeft(setOf(1 to 0), setOf(-1 to 0)),</b>
+<b class="fc">&nbsp;  SlopeRight(setOf(-1 to 0), setOf(1 to 0)),</b>
+<b class="fc">&nbsp;  SlopeUp(setOf(0 to 1), setOf(0 to -1)),</b>
+<b class="fc">&nbsp;  SlopeDown(setOf(0 to -1), setOf(0 to 1))</b>
 <b class="nc">&nbsp;}</b>
 </code>
 </pre>
@@ -262,7 +256,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-01-07 21:48</div>
+    <div style="float:right;">generated on 2024-01-31 23:08</div>
 </div>
 </body>
 </html>

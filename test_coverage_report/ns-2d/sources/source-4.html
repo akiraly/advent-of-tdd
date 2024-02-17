@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">day23p2</a>
+    <a href="../index.html">day23p1</a>
 </div>
 
-<h1>Coverage Summary for Class: Path (day23p2)</h1>
+<h1>Coverage Summary for Class: Path (day23p1)</h1>
 
 <table class="coverageStats">
 <tr>
@@ -75,7 +75,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package day23p2
+<code class="sourceCode" id="sourceCode">&nbsp;package day23p1
 &nbsp;
 &nbsp;data class CoordinateXY(val x: Int, val y: Int) {
 &nbsp;  init {
@@ -160,11 +160,8 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;
 &nbsp;    val incoming: Map&lt;CoordinateXY, MutableSet&lt;Path&gt;&gt; =
 &nbsp;      important.asSequence().map { tile -&gt;
-&nbsp;        tile.coordinate to tile.incoming.asSequence()
-&nbsp;          .filter { importantCoordinates.contains(it.from) }
-&nbsp;          .toMutableSet()
+&nbsp;        tile.coordinate to tile.incoming.asSequence().filter { importantCoordinates.contains(it.from) }.toMutableSet()
 &nbsp;      }.toMap()
-&nbsp;
 &nbsp;    val outgoing: Map&lt;CoordinateXY, Set&lt;Path&gt;&gt; = important.asSequence()
 &nbsp;      .map { tile -&gt;
 &nbsp;        val coordinate = tile.coordinate
@@ -229,15 +226,12 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;
 <b class="fc">&nbsp;data class Path(val from: CoordinateXY, val to: CoordinateXY, val length: Int = 1)</b>
 &nbsp;
-&nbsp;enum class TileType(
-&nbsp;  val incomingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt; = setOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1),
-&nbsp;  val outgoingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt; = incomingDeltas
-&nbsp;) {
-&nbsp;  Path,
-&nbsp;  SlopeLeft,
-&nbsp;  SlopeRight,
-&nbsp;  SlopeUp,
-&nbsp;  SlopeDown
+&nbsp;enum class TileType(val incomingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt;, val outgoingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt; = incomingDeltas) {
+&nbsp;  Path(setOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)),
+&nbsp;  SlopeLeft(setOf(1 to 0), setOf(-1 to 0)),
+&nbsp;  SlopeRight(setOf(-1 to 0), setOf(1 to 0)),
+&nbsp;  SlopeUp(setOf(0 to 1), setOf(0 to -1)),
+&nbsp;  SlopeDown(setOf(0 to -1), setOf(0 to 1))
 &nbsp;}
 </code>
 </pre>
@@ -262,7 +256,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-01-07 21:48</div>
+    <div style="float:right;">generated on 2024-01-31 23:08</div>
 </div>
 </body>
 </html>

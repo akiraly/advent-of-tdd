@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
-  <title>Coverage Report > Day23p1Kt</title>
+  <title>Coverage Report > Coordinate2D</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,15 +19,18 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">day23p1</a>
+    <a href="../index.html">day22p2</a>
 </div>
 
-<h1>Coverage Summary for Class: Day23p1Kt (day23p1)</h1>
+<h1>Coverage Summary for Class: Coordinate2D (day22p2)</h1>
 
 <table class="coverageStats">
-
 <tr>
   <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
 <th class="coverageStat 
 ">
   Method, %
@@ -38,13 +41,13 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 </tr>
 <tr>
-  <td class="name">Day23p1Kt</td>
+  <td class="name">Coordinate2D</td>
 <td class="coverageStat">
   <span class="percent">
     100%
   </span>
   <span class="absValue">
-    (2/2)
+    (1/1)
   </span>
 </td>
 <td class="coverageStat">
@@ -52,124 +55,19 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (33/33)
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
   </span>
 </td>
 </tr>
-  <tr>
-    <td class="name">Day23p1Kt$toAccessibleMap$tiles$1$1$incoming$1</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-  </tr>
-  <tr>
-    <td class="name">Day23p1Kt$toAccessibleMap$tiles$1$1$outgoing$1</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-  </tr>
-  <tr>
-    <td class="name">Day23p1Kt$toAccessibleMap$toNeighbours$1</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-  </tr>
-  <tr>
-    <td class="name">Day23p1Kt$toAccessibleMap$toNeighbours$2</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-  </tr>
-  <tr>
-    <td class="name">Day23p1Kt$toAccessibleMap$toNeighbours$3</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-  </tr>
-<tr>
-  <td class="name"><strong>Total</strong></td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (7/7)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (38/38)
-  </span>
-</td>
-</tr>
+
 </table>
 
 <br/>
@@ -177,164 +75,142 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package day23p1
+<code class="sourceCode" id="sourceCode">&nbsp;package day22p2
 &nbsp;
-&nbsp;data class CoordinateXY(val x: Int, val y: Int) {
-&nbsp;  init {
-&nbsp;    require(x &gt;= 0 &amp;&amp; y &gt;= 0)
+&nbsp;fun String.sumOfOtherBricksToFallInChainReactions(): Int =
+&nbsp;  toSnapshot().settle().sumOfOtherBricksToFallInChainReactions()
+&nbsp;
+&nbsp;fun String.numberOfBricksThatCanBeDisintegrated(): Int = toSnapshot().settle().numberOfBricksThatCanBeDisintegrated()
+&nbsp;
+&nbsp;fun String.toSnapshot(): Snapshot = Snapshot(
+&nbsp;  this
+&nbsp;    .lineSequence()
+&nbsp;    .map { line -&gt; line.split(&quot;~&quot;).map { it.split(&quot;,&quot;).map { n -&gt; n.toInt() } } }
+&nbsp;    .mapIndexed { index, parts -&gt;
+&nbsp;      Brick(index + 1, parts[0][0], parts[0][1], parts[0][2], parts[1][0], parts[1][1], parts[1][2])
+&nbsp;    }
+&nbsp;    .associateBy { it.id }
+&nbsp;)
+&nbsp;
+&nbsp;data class Snapshot(val bricks: Map&lt;BrickId, Brick&gt;) {
+&nbsp;  constructor(vararg bricks: Brick) : this(bricks.associateBy { it.id })
+&nbsp;
+&nbsp;  val maxX: Int = bricks.values.maxOf { it.end.x }
+&nbsp;  val maxY: Int = bricks.values.maxOf { it.end.y }
+&nbsp;  val maxZ: Int = bricks.values.maxOf { it.end.z }
+&nbsp;
+&nbsp;  fun settle(): Snapshot {
+&nbsp;
+&nbsp;    val bricksByMinZ = bricks.values.asSequence().sortedBy { it.start.z }.toMutableList()
+&nbsp;
+&nbsp;    val topDownXYView: MutableMap&lt;Coordinate2D, Pair&lt;Int, Brick&gt;?&gt; =
+&nbsp;      (0..maxX).flatMap { x -&gt; (0..maxY).asSequence().map { y -&gt; Coordinate2D(x, y) to null } }
+&nbsp;        .toMap(mutableMapOf())
+&nbsp;
+&nbsp;    val settledBricks = mutableListOf&lt;Brick&gt;()
+&nbsp;
+&nbsp;    while (bricksByMinZ.isNotEmpty()) {
+&nbsp;      val current = bricksByMinZ.removeFirst()
+&nbsp;      val supporterCandidates = current.xyCoordinates().mapNotNull { topDownXYView[it] }
+&nbsp;
+&nbsp;      val (supporterZ, supporters) = supporterCandidates.maxOfOrNull { it.first }?.let { max -&gt;
+&nbsp;        max to supporterCandidates.asSequence().filter { it.first == max }.map { it.second.id }.toSet()
+&nbsp;      } ?: (0 to emptySet())
+&nbsp;
+&nbsp;      val updated = current.copy(
+&nbsp;        start = current.start.copy(z = supporterZ + 1),
+&nbsp;        end = current.end.copy(z = supporterZ + 1 + current.end.z - current.start.z),
+&nbsp;        supporters = supporters
+&nbsp;      )
+&nbsp;
+&nbsp;      settledBricks.add(updated)
+&nbsp;
+&nbsp;      updated.xyCoordinates().forEach { xy -&gt; topDownXYView[xy] = updated.end.z to updated }
+&nbsp;    }
+&nbsp;
+&nbsp;    return Snapshot(settledBricks.associateBy { it.id })
+&nbsp;  }
+&nbsp;
+&nbsp;  fun bricksThatCanBeDisintegrated(): Set&lt;BrickId&gt; {
+&nbsp;    val result = bricks.keys.toMutableSet()
+&nbsp;    bricks.values.forEach { brick -&gt;
+&nbsp;      if (brick.supporters.size == 1) {
+&nbsp;        result.remove(brick.supporters.single())
+&nbsp;      }
+&nbsp;    }
+&nbsp;    return result
+&nbsp;  }
+&nbsp;
+&nbsp;  fun numberOfBricksThatCanBeDisintegrated(): Int = bricksThatCanBeDisintegrated().size
+&nbsp;  fun sumOfOtherBricksToFallInChainReactions(): Int {
+&nbsp;    val chainReactionStarters =
+&nbsp;      bricks.values.asSequence().filter { it.supporters.size == 1 }.map { it.supporters.single() }.toSet()
+&nbsp;
+&nbsp;    return chainReactionStarters.sumOf { numOfOtherBricksToFallInChainReaction(it) }
+&nbsp;  }
+&nbsp;
+&nbsp;  private fun numOfOtherBricksToFallInChainReaction(id: BrickId): Int {
+&nbsp;    val supporterToSupportedsMap: Map&lt;BrickId, Set&lt;BrickId&gt;&gt; = bricks.values
+&nbsp;      .flatMap { supported -&gt; supported.supporters.map { it to supported.id } }
+&nbsp;      .groupingBy { it.first }
+&nbsp;      .fold(emptySet()) { set, pair -&gt; set + pair.second }
+&nbsp;
+&nbsp;    val supportedToSupportersMap: Map&lt;BrickId, MutableSet&lt;BrickId&gt;&gt; = supporterToSupportedsMap.asSequence()
+&nbsp;      .flatMap { (supporter, supporteds) -&gt; supporteds.map { it to supporter } }
+&nbsp;      .groupingBy { it.first }
+&nbsp;      .fold(emptySet&lt;BrickId&gt;()) { set, pair -&gt; set + pair.second }
+&nbsp;      .mapValues { it.value.toMutableSet() }
+&nbsp;
+&nbsp;    val disintegratedBricks = mutableListOf(id)
+&nbsp;    var disintegratedCount = 0
+&nbsp;    while (disintegratedBricks.isNotEmpty()) {
+&nbsp;      val current = disintegratedBricks.removeFirst()
+&nbsp;      supporterToSupportedsMap[current]?.forEach { supported -&gt;
+&nbsp;        val supporters = supportedToSupportersMap.getValue(supported)
+&nbsp;        supporters.remove(current)
+&nbsp;        if (supporters.isEmpty()) {
+&nbsp;          disintegratedBricks.add(supported)
+&nbsp;          disintegratedCount++
+&nbsp;        }
+&nbsp;      }
+&nbsp;    }
+&nbsp;    return disintegratedCount
 &nbsp;  }
 &nbsp;}
 &nbsp;
-&nbsp;fun String.toAccessibleMap(): AccessibleMap {
-<b class="fc">&nbsp;  val lines = lines()</b>
-<b class="fc">&nbsp;  val maxY = lines.size - 1</b>
-<b class="fc">&nbsp;  val maxX = lines.first().length - 1</b>
+&nbsp;data class BrickId(val id: Int)
 &nbsp;
-&nbsp;  fun Set&lt;Pair&lt;Int, Int&gt;&gt;.toNeighbours(coordinate: CoordinateXY): Sequence&lt;CoordinateXY&gt; =
-<b class="fc">&nbsp;    this.asSequence().map { (dx, dy) -&gt; coordinate.x + dx to coordinate.y + dy }</b>
-<b class="fc">&nbsp;      .filter { (x, y) -&gt; x &gt;= 0 &amp;&amp; y &gt;= 0 &amp;&amp; x &lt;= maxX &amp;&amp; y &lt;= maxY &amp;&amp; lines[y][x] != &#39;#&#39; }</b>
-<b class="fc">&nbsp;      .map { (x, y) -&gt; CoordinateXY(x, y) }</b>
+&nbsp;data class Brick(
+&nbsp;  val id: BrickId,
+&nbsp;  val start: Coordinate3D,
+&nbsp;  val end: Coordinate3D,
+&nbsp;  val supporters: Set&lt;BrickId&gt; = emptySet()
+&nbsp;) {
 &nbsp;
-&nbsp;
-<b class="fc">&nbsp;  val tiles = lines.flatMapIndexed { y, line -&gt;</b>
-<b class="fc">&nbsp;    line.mapIndexedNotNull { x, tile -&gt;</b>
-<b class="fc">&nbsp;      val type = when (tile) {</b>
-<b class="fc">&nbsp;        &#39;.&#39; -&gt; TileType.Path</b>
-<b class="fc">&nbsp;        &#39;^&#39; -&gt; TileType.SlopeUp</b>
-<b class="fc">&nbsp;        &#39;v&#39; -&gt; TileType.SlopeDown</b>
-<b class="fc">&nbsp;        &#39;&gt;&#39; -&gt; TileType.SlopeRight</b>
-<b class="fc">&nbsp;        &#39;&lt;&#39; -&gt; TileType.SlopeLeft</b>
-<b class="fc">&nbsp;        else -&gt; return@mapIndexedNotNull null</b>
-&nbsp;      }
-<b class="fc">&nbsp;      val coordinate = CoordinateXY(x, y)</b>
-<b class="fc">&nbsp;      if (type != TileType.Path) {</b>
-<b class="fc">&nbsp;        val neighbours = setOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1).toNeighbours(coordinate)</b>
-<b class="fc">&nbsp;        require(neighbours.count() == 2)</b>
-&nbsp;      }
-<b class="fc">&nbsp;      val incoming = type.incomingDeltas.toNeighbours(coordinate).map { Path(it, coordinate) }.toSet()</b>
-<b class="fc">&nbsp;      val outgoing = type.outgoingDeltas.toNeighbours(coordinate).map { Path(coordinate, it) }.toSet()</b>
-<b class="fc">&nbsp;      Tile(coordinate, type, incoming, outgoing)</b>
-<b class="fc">&nbsp;    }</b>
-<b class="fc">&nbsp;  }.associateBy { it.coordinate }</b>
-&nbsp;
-<b class="fc">&nbsp;  return AccessibleMap(</b>
-<b class="fc">&nbsp;    tiles.mapValues { (_, tile) -&gt;</b>
-<b class="fc">&nbsp;      tile.copy(</b>
-<b class="fc">&nbsp;        incoming = tile.incoming.filter { path -&gt; tiles.getValue(path.from).outgoing.contains(path) }.toSet(),</b>
-<b class="fc">&nbsp;        outgoing = tile.outgoing.filter { path -&gt; tiles.getValue(path.to).incoming.contains(path) }.toSet()</b>
-<b class="fc">&nbsp;      )</b>
-&nbsp;    },
-<b class="fc">&nbsp;    lines.first().withIndex().single { it.value == &#39;.&#39; }.let { CoordinateXY(it.index, 0) },</b>
-<b class="fc">&nbsp;    lines.withIndex().last().let { (i, line) -&gt;</b>
-<b class="fc">&nbsp;      CoordinateXY(line.withIndex().single { it.value == &#39;.&#39; }.index, i)</b>
-&nbsp;    }
+&nbsp;  constructor(id: Int, sx: Int, sy: Int, sz: Int, ex: Int, ey: Int, ez: Int, vararg supporters: Int) : this(
+&nbsp;    BrickId(id),
+&nbsp;    Coordinate3D(sx, sy, sz),
+&nbsp;    Coordinate3D(ex, ey, ez),
+&nbsp;    supporters.asSequence().map { BrickId(it) }.toSet()
 &nbsp;  )
-&nbsp;}
-&nbsp;
-&nbsp;data class AccessibleMap(val map: Map&lt;CoordinateXY, Tile&gt;, val start: CoordinateXY, val end: CoordinateXY) {
 &nbsp;
 &nbsp;  init {
-&nbsp;    map.values.forEach { tile -&gt;
-&nbsp;      require(tile.isStart() || tile.incoming.isNotEmpty())
-&nbsp;      require(tile.isEnd() || tile.outgoing.isNotEmpty())
-&nbsp;
-&nbsp;      tile.incoming.forEach { path -&gt;
-&nbsp;        require(map.getValue(path.from).outgoing.contains(path))
-&nbsp;      }
-&nbsp;      tile.outgoing.forEach { path -&gt;
-&nbsp;        require(map.getValue(path.to).incoming.contains(path))
-&nbsp;      }
-&nbsp;    }
+&nbsp;    require(start.x &lt;= end.x)
+&nbsp;    require(start.y &lt;= end.y)
+&nbsp;    require(start.z &lt;= end.z)
+&nbsp;    require(0 &lt;= start.x)
+&nbsp;    require(0 &lt;= start.y)
+&nbsp;    require(1 &lt;= start.z)
 &nbsp;  }
 &nbsp;
-&nbsp;  private fun Tile.isStart() = coordinate == start
-&nbsp;  private fun Tile.isEnd() = coordinate == end
-&nbsp;
-&nbsp;  private fun Tile.isImportant() = isStart() || isEnd() || isCrossroads()
-&nbsp;
-&nbsp;  fun isImportantTile(tile: Tile) = tile.isImportant()
-&nbsp;
-&nbsp;  fun keepImportantOnly(): AccessibleMap {
-&nbsp;    val important = map.values.asSequence()
-&nbsp;      .filter { it.isImportant() }
-&nbsp;      .toSet()
-&nbsp;    val importantCoordinates = important.map { it.coordinate }.toSet()
-&nbsp;
-&nbsp;    val incoming: Map&lt;CoordinateXY, MutableSet&lt;Path&gt;&gt; =
-&nbsp;      important.asSequence().map { tile -&gt;
-&nbsp;        tile.coordinate to tile.incoming.asSequence().filter { importantCoordinates.contains(it.from) }.toMutableSet()
-&nbsp;      }.toMap()
-&nbsp;    val outgoing: Map&lt;CoordinateXY, Set&lt;Path&gt;&gt; = important.asSequence()
-&nbsp;      .map { tile -&gt;
-&nbsp;        val coordinate = tile.coordinate
-&nbsp;        val outgoingPaths = tile.outgoing
-&nbsp;        coordinate to outgoingPaths.asSequence().mapNotNull path@{ p -&gt;
-&nbsp;          var current = map.getValue(p.to)
-&nbsp;          var oldPath = p
-&nbsp;          var length = 1
-&nbsp;          while (!current.isImportant()) {
-&nbsp;            oldPath = current.outgoing.asSequence().filter { it.to != oldPath.from }.singleOrNull() ?: return@path null
-&nbsp;            current = map.getValue(oldPath.to)
-&nbsp;            length++
-&nbsp;          }
-&nbsp;          if (length == 1) return@path p
-&nbsp;
-&nbsp;          val newPath = Path(coordinate, current.coordinate, length)
-&nbsp;
-&nbsp;          val endTile = incoming.getValue(current.coordinate)
-&nbsp;          endTile.remove(oldPath)
-&nbsp;          endTile.add(newPath)
-&nbsp;
-&nbsp;          newPath
-&nbsp;        }.toSet()
-&nbsp;      }.toMap()
-&nbsp;
-&nbsp;    return AccessibleMap(
-&nbsp;      important.asSequence().map { tile -&gt;
-&nbsp;        tile.coordinate to tile.copy(
-&nbsp;          incoming = incoming.getValue(tile.coordinate),
-&nbsp;          outgoing = outgoing.getValue(tile.coordinate)
-&nbsp;        )
-&nbsp;      }.toMap(),
-&nbsp;      start,
-&nbsp;      end
-&nbsp;    )
-&nbsp;
-&nbsp;  }
-&nbsp;
-&nbsp;  fun findLengthOfLongestHike(): Int {
-&nbsp;    val start = map.getValue(start)
-&nbsp;    val end = map.getValue(end)
-&nbsp;    var max = 0
-&nbsp;    hike(setOf(start), end) { _, length -&gt; max = maxOf(max, length) }
-&nbsp;    return max
-&nbsp;  }
-&nbsp;
-&nbsp;  private fun hike(hike: Set&lt;Tile&gt;, end: Tile, length: Int = 0, onSuccess: (Set&lt;Tile&gt;, Int) -&gt; Unit) {
-&nbsp;    val previous = hike.last()
-&nbsp;    if (previous == end) onSuccess(hike, length)
-&nbsp;
-&nbsp;    previous.outgoing.forEach { p -&gt;
-&nbsp;      val next = map.getValue(p.to)
-&nbsp;      if (!hike.any { it.coordinate == next.coordinate }) hike(hike + next, end, length + p.length, onSuccess)
-&nbsp;    }
-&nbsp;  }
+&nbsp;  fun xyCoordinates(): Set&lt;Coordinate2D&gt; =
+&nbsp;    (start.x..end.x).flatMap { x -&gt; (start.y..end.y).map { y -&gt; Coordinate2D(x, y) } }.toSet()
 &nbsp;}
 &nbsp;
-&nbsp;data class Tile(val coordinate: CoordinateXY, val type: TileType, val incoming: Set&lt;Path&gt;, val outgoing: Set&lt;Path&gt;) {
-&nbsp;  fun isCrossroads() =
-&nbsp;    (incoming.asSequence().map { it.from } + outgoing.asSequence().map { it.to }).distinct().count() &gt; 2
-&nbsp;}
+<b class="fc">&nbsp;data class Coordinate2D(val x: Int, val y: Int)</b>
 &nbsp;
-&nbsp;data class Path(val from: CoordinateXY, val to: CoordinateXY, val length: Int = 1)
+&nbsp;data class Coordinate3D(val x: Int, val y: Int, val z: Int)
 &nbsp;
-&nbsp;enum class TileType(val incomingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt;, val outgoingDeltas: Set&lt;Pair&lt;Int, Int&gt;&gt; = incomingDeltas) {
-&nbsp;  Path(setOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)),
-&nbsp;  SlopeLeft(setOf(1 to 0), setOf(-1 to 0)),
-&nbsp;  SlopeRight(setOf(-1 to 0), setOf(1 to 0)),
-&nbsp;  SlopeUp(setOf(0 to 1), setOf(0 to -1)),
-&nbsp;  SlopeDown(setOf(0 to -1), setOf(0 to 1))
-&nbsp;}
 </code>
 </pre>
 </div>
@@ -358,7 +234,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-01-07 21:48</div>
+    <div style="float:right;">generated on 2024-01-31 23:08</div>
 </div>
 </body>
 </html>

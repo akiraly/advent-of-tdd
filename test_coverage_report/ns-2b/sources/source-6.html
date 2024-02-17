@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">day22p2</a>
+    <a href="../index.html">day22p1</a>
 </div>
 
-<h1>Coverage Summary for Class: Snapshot (day22p2)</h1>
+<h1>Coverage Summary for Class: Snapshot (day22p1)</h1>
 
 <table class="coverageStats">
 
@@ -44,7 +44,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (8/8)
+    (6/6)
   </span>
 </td>
 <td class="coverageStat">
@@ -52,35 +52,10 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (54/54)
+    (30/30)
   </span>
 </td>
 </tr>
-  <tr>
-    <td class="name">Snapshot$numOfOtherBricksToFallInChainReaction$$inlined$groupingBy$1</td>
-  </tr>
-  <tr>
-    <td class="name">Snapshot$numOfOtherBricksToFallInChainReaction$$inlined$groupingBy$2</td>
-  </tr>
-  <tr>
-    <td class="name">Snapshot$numOfOtherBricksToFallInChainReaction$supportedToSupportersMap$1</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-  </tr>
   <tr>
     <td class="name">Snapshot$settle$$inlined$sortedBy$1</td>
   </tr>
@@ -141,44 +116,6 @@ Current scope:     <a href="../../index.html">all classes</a>
   </span>
 </td>
   </tr>
-  <tr>
-    <td class="name">Snapshot$sumOfOtherBricksToFallInChainReactions$chainReactionStarters$1</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-  </tr>
-  <tr>
-    <td class="name">Snapshot$sumOfOtherBricksToFallInChainReactions$chainReactionStarters$2</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
-  </span>
-</td>
-  </tr>
 <tr>
   <td class="name"><strong>Total</strong></td>
 <td class="coverageStat">
@@ -186,7 +123,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (14/14)
+    (9/9)
   </span>
 </td>
 <td class="coverageStat">
@@ -194,7 +131,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (60/60)
+    (33/33)
   </span>
 </td>
 </tr>
@@ -205,10 +142,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package day22p2
-&nbsp;
-&nbsp;fun String.sumOfOtherBricksToFallInChainReactions(): Int =
-&nbsp;  toSnapshot().settle().sumOfOtherBricksToFallInChainReactions()
+<code class="sourceCode" id="sourceCode">&nbsp;package day22p1
 &nbsp;
 &nbsp;fun String.numberOfBricksThatCanBeDisintegrated(): Int = toSnapshot().settle().numberOfBricksThatCanBeDisintegrated()
 &nbsp;
@@ -272,40 +206,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;  }
 &nbsp;
 <b class="fc">&nbsp;  fun numberOfBricksThatCanBeDisintegrated(): Int = bricksThatCanBeDisintegrated().size</b>
-&nbsp;  fun sumOfOtherBricksToFallInChainReactions(): Int {
-<b class="fc">&nbsp;    val chainReactionStarters =</b>
-<b class="fc">&nbsp;      bricks.values.asSequence().filter { it.supporters.size == 1 }.map { it.supporters.single() }.toSet()</b>
-&nbsp;
-<b class="fc">&nbsp;    return chainReactionStarters.sumOf { numOfOtherBricksToFallInChainReaction(it) }</b>
-&nbsp;  }
-&nbsp;
-&nbsp;  private fun numOfOtherBricksToFallInChainReaction(id: BrickId): Int {
-<b class="fc">&nbsp;    val supporterToSupportedsMap: Map&lt;BrickId, Set&lt;BrickId&gt;&gt; = bricks.values</b>
-<b class="fc">&nbsp;      .flatMap { supported -&gt; supported.supporters.map { it to supported.id } }</b>
-<b class="fc">&nbsp;      .groupingBy { it.first }</b>
-<b class="fc">&nbsp;      .fold(emptySet()) { set, pair -&gt; set + pair.second }</b>
-&nbsp;
-<b class="fc">&nbsp;    val supportedToSupportersMap: Map&lt;BrickId, MutableSet&lt;BrickId&gt;&gt; = supporterToSupportedsMap.asSequence()</b>
-<b class="fc">&nbsp;      .flatMap { (supporter, supporteds) -&gt; supporteds.map { it to supporter } }</b>
-<b class="fc">&nbsp;      .groupingBy { it.first }</b>
-<b class="fc">&nbsp;      .fold(emptySet&lt;BrickId&gt;()) { set, pair -&gt; set + pair.second }</b>
-<b class="fc">&nbsp;      .mapValues { it.value.toMutableSet() }</b>
-&nbsp;
-<b class="fc">&nbsp;    val disintegratedBricks = mutableListOf(id)</b>
-<b class="fc">&nbsp;    var disintegratedCount = 0</b>
-<b class="fc">&nbsp;    while (disintegratedBricks.isNotEmpty()) {</b>
-<b class="fc">&nbsp;      val current = disintegratedBricks.removeFirst()</b>
-<b class="fc">&nbsp;      supporterToSupportedsMap[current]?.forEach { supported -&gt;</b>
-<b class="fc">&nbsp;        val supporters = supportedToSupportersMap.getValue(supported)</b>
-<b class="fc">&nbsp;        supporters.remove(current)</b>
-<b class="fc">&nbsp;        if (supporters.isEmpty()) {</b>
-<b class="fc">&nbsp;          disintegratedBricks.add(supported)</b>
-<b class="fc">&nbsp;          disintegratedCount++</b>
-&nbsp;        }
-<b class="fc">&nbsp;      }</b>
-&nbsp;    }
-<b class="fc">&nbsp;    return disintegratedCount</b>
-&nbsp;  }
 &nbsp;}
 &nbsp;
 &nbsp;data class BrickId(val id: Int)
@@ -340,7 +240,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;data class Coordinate2D(val x: Int, val y: Int)
 &nbsp;
 &nbsp;data class Coordinate3D(val x: Int, val y: Int, val z: Int)
-&nbsp;
 </code>
 </pre>
 </div>
@@ -364,7 +263,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-01-07 21:48</div>
+    <div style="float:right;">generated on 2024-01-31 23:08</div>
 </div>
 </body>
 </html>

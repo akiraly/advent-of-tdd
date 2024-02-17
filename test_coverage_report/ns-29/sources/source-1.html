@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">day21p2</a>
+    <a href="../index.html">day21p1</a>
 </div>
 
-<h1>Coverage Summary for Class: Coordinate (day21p2)</h1>
+<h1>Coverage Summary for Class: Coordinate (day21p1)</h1>
 
 <table class="coverageStats">
 <tr>
@@ -75,23 +75,10 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package day21p2
+<code class="sourceCode" id="sourceCode">&nbsp;package day21p1
 &nbsp;
-&nbsp;import day21p2.Field.GardenPlot
-&nbsp;import day21p2.Field.Rock
-&nbsp;
-&nbsp;fun String.expand(times: Int): String {
-&nbsp;  if (times == 1) return this
-&nbsp;  require(times % 2 == 1)
-&nbsp;  val withoutS = replace(&quot;S&quot;, &quot;.&quot;)
-&nbsp;  val nonSRow = withoutS.lineSequence().map { it.repeat(times) }.joinToString(&quot;\n&quot;)
-&nbsp;  val nonSHalfRow = withoutS.lineSequence().map { it.repeat(times / 2) }.joinToString(&quot;\n&quot;)
-&nbsp;  val SRow = nonSHalfRow.lineSequence().zip(lineSequence()).map { (a, b) -&gt; &quot;$a$b$a&quot; }.joinToString(&quot;\n&quot;)
-&nbsp;
-&nbsp;  val nonSRowAllHalf = generateSequence { nonSRow }.take(times / 2).joinToString(&quot;\n&quot;)
-&nbsp;
-&nbsp;  return nonSRowAllHalf + &quot;\n&quot; + SRow + &quot;\n&quot; + nonSRowAllHalf
-&nbsp;}
+&nbsp;import day21p1.Field.GardenPlot
+&nbsp;import day21p1.Field.Rock
 &nbsp;
 &nbsp;fun String.numOfReachableGardenPlots(numOfSteps: Int): Int = toGardenMap().numOfReachableGardenPlots(numOfSteps)
 &nbsp;
@@ -167,16 +154,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;        }
 &nbsp;      }
 &nbsp;    }.count()
-&nbsp;
-&nbsp;  val gridSize = grid.size
-&nbsp;  private val halfGridSize = gridSize / 2
-&nbsp;
-&nbsp;  fun polynomialSteps(): Sequence&lt;Int&gt; {
-&nbsp;    require(gridSize == grid.first().size)
-&nbsp;    return generateSequence(0) { it + 1 }.map { halfGridSize + it * gridSize }
-&nbsp;  }
-&nbsp;
-&nbsp;  fun isPolynomialStep(n: Int): Boolean = (n - halfGridSize) % gridSize == 0
 &nbsp;}
 &nbsp;
 &nbsp;
@@ -209,7 +186,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-01-07 21:48</div>
+    <div style="float:right;">generated on 2024-01-31 23:08</div>
 </div>
 </body>
 </html>

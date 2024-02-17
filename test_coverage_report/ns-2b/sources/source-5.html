@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
-  <title>Coverage Report > Day22p2Kt</title>
+  <title>Coverage Report > Day22p1Kt</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">day22p2</a>
+    <a href="../index.html">day22p1</a>
 </div>
 
-<h1>Coverage Summary for Class: Day22p2Kt (day22p2)</h1>
+<h1>Coverage Summary for Class: Day22p1Kt (day22p1)</h1>
 
 <table class="coverageStats">
 
@@ -38,13 +38,13 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 </tr>
 <tr>
-  <td class="name">Day22p2Kt</td>
+  <td class="name">Day22p1Kt</td>
 <td class="coverageStat">
   <span class="percent">
     100%
   </span>
   <span class="absValue">
-    (3/3)
+    (2/2)
   </span>
 </td>
 <td class="coverageStat">
@@ -52,12 +52,12 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (8/8)
+    (7/7)
   </span>
 </td>
 </tr>
   <tr>
-    <td class="name">Day22p2Kt$toSnapshot$1</td>
+    <td class="name">Day22p1Kt$toSnapshot$1</td>
 <td class="coverageStat">
   <span class="percent">
     100%
@@ -76,7 +76,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 </td>
   </tr>
   <tr>
-    <td class="name">Day22p2Kt$toSnapshot$2</td>
+    <td class="name">Day22p1Kt$toSnapshot$2</td>
 <td class="coverageStat">
   <span class="percent">
     100%
@@ -101,7 +101,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (5/5)
+    (4/4)
   </span>
 </td>
 <td class="coverageStat">
@@ -109,7 +109,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (10/10)
+    (9/9)
   </span>
 </td>
 </tr>
@@ -120,10 +120,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package day22p2
-&nbsp;
-&nbsp;fun String.sumOfOtherBricksToFallInChainReactions(): Int =
-<b class="fc">&nbsp;  toSnapshot().settle().sumOfOtherBricksToFallInChainReactions()</b>
+<code class="sourceCode" id="sourceCode">&nbsp;package day22p1
 &nbsp;
 <b class="fc">&nbsp;fun String.numberOfBricksThatCanBeDisintegrated(): Int = toSnapshot().settle().numberOfBricksThatCanBeDisintegrated()</b>
 &nbsp;
@@ -187,40 +184,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;  }
 &nbsp;
 &nbsp;  fun numberOfBricksThatCanBeDisintegrated(): Int = bricksThatCanBeDisintegrated().size
-&nbsp;  fun sumOfOtherBricksToFallInChainReactions(): Int {
-&nbsp;    val chainReactionStarters =
-&nbsp;      bricks.values.asSequence().filter { it.supporters.size == 1 }.map { it.supporters.single() }.toSet()
-&nbsp;
-&nbsp;    return chainReactionStarters.sumOf { numOfOtherBricksToFallInChainReaction(it) }
-&nbsp;  }
-&nbsp;
-&nbsp;  private fun numOfOtherBricksToFallInChainReaction(id: BrickId): Int {
-&nbsp;    val supporterToSupportedsMap: Map&lt;BrickId, Set&lt;BrickId&gt;&gt; = bricks.values
-&nbsp;      .flatMap { supported -&gt; supported.supporters.map { it to supported.id } }
-&nbsp;      .groupingBy { it.first }
-&nbsp;      .fold(emptySet()) { set, pair -&gt; set + pair.second }
-&nbsp;
-&nbsp;    val supportedToSupportersMap: Map&lt;BrickId, MutableSet&lt;BrickId&gt;&gt; = supporterToSupportedsMap.asSequence()
-&nbsp;      .flatMap { (supporter, supporteds) -&gt; supporteds.map { it to supporter } }
-&nbsp;      .groupingBy { it.first }
-&nbsp;      .fold(emptySet&lt;BrickId&gt;()) { set, pair -&gt; set + pair.second }
-&nbsp;      .mapValues { it.value.toMutableSet() }
-&nbsp;
-&nbsp;    val disintegratedBricks = mutableListOf(id)
-&nbsp;    var disintegratedCount = 0
-&nbsp;    while (disintegratedBricks.isNotEmpty()) {
-&nbsp;      val current = disintegratedBricks.removeFirst()
-&nbsp;      supporterToSupportedsMap[current]?.forEach { supported -&gt;
-&nbsp;        val supporters = supportedToSupportersMap.getValue(supported)
-&nbsp;        supporters.remove(current)
-&nbsp;        if (supporters.isEmpty()) {
-&nbsp;          disintegratedBricks.add(supported)
-&nbsp;          disintegratedCount++
-&nbsp;        }
-&nbsp;      }
-&nbsp;    }
-&nbsp;    return disintegratedCount
-&nbsp;  }
 &nbsp;}
 &nbsp;
 &nbsp;data class BrickId(val id: Int)
@@ -255,7 +218,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;data class Coordinate2D(val x: Int, val y: Int)
 &nbsp;
 &nbsp;data class Coordinate3D(val x: Int, val y: Int, val z: Int)
-&nbsp;
 </code>
 </pre>
 </div>
@@ -279,7 +241,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-01-07 21:48</div>
+    <div style="float:right;">generated on 2024-01-31 23:08</div>
 </div>
 </body>
 </html>

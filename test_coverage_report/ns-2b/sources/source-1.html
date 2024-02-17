@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">day22p2</a>
+    <a href="../index.html">day22p1</a>
 </div>
 
-<h1>Coverage Summary for Class: Brick (day22p2)</h1>
+<h1>Coverage Summary for Class: Brick (day22p1)</h1>
 
 <table class="coverageStats">
 
@@ -101,10 +101,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package day22p2
-&nbsp;
-&nbsp;fun String.sumOfOtherBricksToFallInChainReactions(): Int =
-&nbsp;  toSnapshot().settle().sumOfOtherBricksToFallInChainReactions()
+<code class="sourceCode" id="sourceCode">&nbsp;package day22p1
 &nbsp;
 &nbsp;fun String.numberOfBricksThatCanBeDisintegrated(): Int = toSnapshot().settle().numberOfBricksThatCanBeDisintegrated()
 &nbsp;
@@ -168,40 +165,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;  }
 &nbsp;
 &nbsp;  fun numberOfBricksThatCanBeDisintegrated(): Int = bricksThatCanBeDisintegrated().size
-&nbsp;  fun sumOfOtherBricksToFallInChainReactions(): Int {
-&nbsp;    val chainReactionStarters =
-&nbsp;      bricks.values.asSequence().filter { it.supporters.size == 1 }.map { it.supporters.single() }.toSet()
-&nbsp;
-&nbsp;    return chainReactionStarters.sumOf { numOfOtherBricksToFallInChainReaction(it) }
-&nbsp;  }
-&nbsp;
-&nbsp;  private fun numOfOtherBricksToFallInChainReaction(id: BrickId): Int {
-&nbsp;    val supporterToSupportedsMap: Map&lt;BrickId, Set&lt;BrickId&gt;&gt; = bricks.values
-&nbsp;      .flatMap { supported -&gt; supported.supporters.map { it to supported.id } }
-&nbsp;      .groupingBy { it.first }
-&nbsp;      .fold(emptySet()) { set, pair -&gt; set + pair.second }
-&nbsp;
-&nbsp;    val supportedToSupportersMap: Map&lt;BrickId, MutableSet&lt;BrickId&gt;&gt; = supporterToSupportedsMap.asSequence()
-&nbsp;      .flatMap { (supporter, supporteds) -&gt; supporteds.map { it to supporter } }
-&nbsp;      .groupingBy { it.first }
-&nbsp;      .fold(emptySet&lt;BrickId&gt;()) { set, pair -&gt; set + pair.second }
-&nbsp;      .mapValues { it.value.toMutableSet() }
-&nbsp;
-&nbsp;    val disintegratedBricks = mutableListOf(id)
-&nbsp;    var disintegratedCount = 0
-&nbsp;    while (disintegratedBricks.isNotEmpty()) {
-&nbsp;      val current = disintegratedBricks.removeFirst()
-&nbsp;      supporterToSupportedsMap[current]?.forEach { supported -&gt;
-&nbsp;        val supporters = supportedToSupportersMap.getValue(supported)
-&nbsp;        supporters.remove(current)
-&nbsp;        if (supporters.isEmpty()) {
-&nbsp;          disintegratedBricks.add(supported)
-&nbsp;          disintegratedCount++
-&nbsp;        }
-&nbsp;      }
-&nbsp;    }
-&nbsp;    return disintegratedCount
-&nbsp;  }
 &nbsp;}
 &nbsp;
 &nbsp;data class BrickId(val id: Int)
@@ -236,7 +199,6 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;data class Coordinate2D(val x: Int, val y: Int)
 &nbsp;
 &nbsp;data class Coordinate3D(val x: Int, val y: Int, val z: Int)
-&nbsp;
 </code>
 </pre>
 </div>
@@ -260,7 +222,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-01-07 21:48</div>
+    <div style="float:right;">generated on 2024-01-31 23:08</div>
 </div>
 </body>
 </html>

@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
-  <title>Coverage Report > IOKt</title>
+  <title>Coverage Report > Day25p1Kt</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,18 +19,15 @@
 <div class="breadCrumbs">
 Current scope:     <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">io</a>
+    <a href="../index.html">day25p1</a>
 </div>
 
-<h1>Coverage Summary for Class: IOKt (io)</h1>
+<h1>Coverage Summary for Class: Day25p1Kt (day25p1)</h1>
 
 <table class="coverageStats">
+
 <tr>
   <th class="name">Class</th>
-<th class="coverageStat 
-">
-  Class, %
-</th>
 <th class="coverageStat 
 ">
   Method, %
@@ -41,7 +38,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 </tr>
 <tr>
-  <td class="name">IOKt</td>
+  <td class="name">Day25p1Kt</td>
 <td class="coverageStat">
   <span class="percent">
     100%
@@ -55,19 +52,162 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (1/1)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (1/1)
+    (12/12)
   </span>
 </td>
 </tr>
-
+  <tr>
+    <td class="name">Day25p1Kt$solve$edges$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day25p1Kt$solve$edges$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day25p1Kt$solve$edges$3</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day25p1Kt$solve$edges$3$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day25p1Kt$solve$edges$4</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day25p1Kt$solve$edges$5</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Day25p1Kt$solve$nodes$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (8/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (19/19)
+  </span>
+</td>
+</tr>
 </table>
 
 <br/>
@@ -75,13 +215,31 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package io
+<code class="sourceCode" id="sourceCode">&nbsp;package day25p1
 &nbsp;
-&nbsp;import org.apache.commons.io.IOUtils
-&nbsp;import java.nio.charset.StandardCharsets
+&nbsp;import org.jgrapht.alg.clustering.GirvanNewmanClustering
+&nbsp;import org.jgrapht.graph.SimpleGraph
 &nbsp;
-&nbsp;fun readInput(inputFileName: String): String =
-<b class="fc">&nbsp;    IOUtils.resourceToString(&quot;/inputs/$inputFileName&quot;, StandardCharsets.UTF_8)</b>
+&nbsp;fun solve(diagramInput: String): Long {
+<b class="fc">&nbsp;  val edges = diagramInput.lineSequence()</b>
+<b class="fc">&nbsp;    .map { it.split(&quot;: &quot;) }</b>
+<b class="fc">&nbsp;    .map { (left, rights) -&gt; left to rights.split(&#39; &#39;) }</b>
+<b class="fc">&nbsp;    .flatMap { (left, rights) -&gt; rights.asSequence().map { if (left &lt; it) left to it else it to left } }</b>
+<b class="fc">&nbsp;    .sortedWith(compareBy({ it.first }, { it.second }))</b>
+<b class="fc">&nbsp;    .toSet()</b>
+<b class="fc">&nbsp;  val nodes = edges.asSequence().flatMap { sequenceOf(it.first, it.second) }.distinct().sorted().toList()</b>
+&nbsp;
+<b class="fc">&nbsp;  val graph = SimpleGraph.createBuilder&lt;String, Edge&gt;(Edge::class.java).let { builder -&gt;</b>
+<b class="fc">&nbsp;    nodes.forEach { builder.addVertex(it) }</b>
+<b class="fc">&nbsp;    edges.forEach { builder.addEdge(it.first, it.second, Edge(it.first, it.second)) }</b>
+&nbsp;
+<b class="fc">&nbsp;    builder.build()</b>
+&nbsp;  }
+&nbsp;
+<b class="fc">&nbsp;  return GirvanNewmanClustering(graph, 2).clustering.clusters.fold(1L) { acc, cluster -&gt; acc * cluster.size }</b>
+&nbsp;}
+&nbsp;
+&nbsp;data class Edge(val from: String, val to: String)
 </code>
 </pre>
 </div>
@@ -105,7 +263,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-01-07 21:48</div>
+    <div style="float:right;">generated on 2024-01-31 23:08</div>
 </div>
 </body>
 </html>

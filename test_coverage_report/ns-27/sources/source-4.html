@@ -134,7 +134,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;data class ModuleBuilder(val name: ModuleName) {
 &nbsp;  private val inputs = mutableSetOf&lt;ModuleName&gt;()
 &nbsp;  private val outputs = mutableListOf&lt;ModuleName&gt;()
-&nbsp;  private var builderFn: (ModuleBuilder.() -&gt; Module)? = when (name) {
+&nbsp;  private var builderFn: (ModuleBuilder.() -&gt; Module) = when (name) {
 &nbsp;    buttonModuleName -&gt; {
 &nbsp;      {
 &nbsp;        require(inputs.isEmpty())
@@ -188,7 +188,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 &nbsp;    return this
 &nbsp;  }
 &nbsp;
-&nbsp;  fun build(): Module = (builderFn ?: error(&quot;$this&quot;))()
+&nbsp;  fun build(): Module = builderFn()
 &nbsp;}
 &nbsp;
 &nbsp;data class Modules(val modules: Map&lt;ModuleName, Module&gt;) {
@@ -368,7 +368,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2024-01-07 21:48</div>
+    <div style="float:right;">generated on 2024-01-31 23:08</div>
 </div>
 </body>
 </html>
